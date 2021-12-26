@@ -49,8 +49,8 @@ def generate_launch_description():
                 ('/camera/left', '/camera/right/image_raw'),
             ],
             parameters=[{
-                'path_to_vocabulary': LaunchConfiguration('path_to_vocabulary'),
-                'path_to_settings': LaunchConfiguration('path_to_settings'),
+                'vocabulary_file_path': LaunchConfiguration('path_to_vocabulary'),
+                'settings_file_path': LaunchConfiguration('path_to_settings'),
                 'do_rectify': LaunchConfiguration('do_rectify'),
             }
             ]
