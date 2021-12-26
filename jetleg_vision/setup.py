@@ -4,7 +4,7 @@ package_name = 'jetleg_vision'
 
 setup(
     name=package_name,
-    version='0.0.0',
+    version='0.0.1',
     packages=[package_name],
     data_files=[
         ('share/ament_index/resource_index/packages',
@@ -15,8 +15,8 @@ setup(
     zip_safe=True,
     maintainer='jasonx',
     maintainer_email='59701038+JChunX@users.noreply.github.com',
-    description='TODO: Package description',
-    license='TODO: License declaration',
+    description='Vision nodes for jetleg',
+    license='MIT',
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
