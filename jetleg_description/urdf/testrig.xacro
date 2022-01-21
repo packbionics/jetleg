@@ -5,7 +5,7 @@
 
     <xacro:property name="gantry_height" value="1" />
     <xacro:property name="gantry_width" value="1.6" />
-    <xacro:property name="mount_angle" value="${25*pi/180}" />
+    <xacro:property name="mount_angle_lim" value="${40*pi/180}" />
     <xacro:property name="mount_length" value="0.24" />
 
     <link name="base_link">
@@ -57,17 +57,19 @@
         <joint name="gantry_to_support_${postfix}" type="fixed">
             <parent link="gantry"/>
             <child link="support_${postfix}"/>
-            <origin xyz="0 ${reflect * gantry_width/2} -${gantry_height/2}" />
+            <origin xyz="0 ${reflect * gantry_width/2} ${-gantry_height/2}" />
         </joint>
     </xacro:macro>
 
     <xacro:support postfix="left" reflect="1" />
     <xacro:support postfix="right" reflect="-1" />
 
-    <joint name="gantry_to_mount" type="fixed">
-        <origin rpy="0 0 0" xyz="0 0.0 0"/>
+    <joint name="gantry_to_mount" type="revolute">
+        <origin rpy="0 0 0" xyz="0 0 0"/>
         <parent link="gantry"/>
         <child link="mount"/>
+        <limit effort="100" lower="${-mount_angle_lim}" upper="${mount_angle_lim}" velocity="10"/>
+        <axis xyz="0 1 0"/>
     </joint>
 
     <link name="mount">
@@ -76,7 +78,6 @@
                 <cylinder length="${mount_length}" radius="0.08"/>
             </geometry>
             <material name="white_transluscent"/> 
-            <origin rpy="0 ${mount_angle} 0" xyz="0 0 0"/>
         </visual>
         <collision>
             <geometry>
@@ -92,9 +93,9 @@
     <xacro:include filename="jetleg.xacro"/> 
     
     <joint name="mount_to_jetleg" type="fixed">
-        <origin rpy="0 ${mount_angle} 0" xyz="${-mount_length*sin(mount_angle)/2} 0 ${-mount_length*cos(mount_angle)/2}"/>
         <parent link="mount"/>
         <child link="thigh"/>
+        <origin xyz="0 0 ${-thigh_length/2}" rpy="0 0 0"/>
     </joint>
 
 </robot>

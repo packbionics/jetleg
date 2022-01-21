@@ -53,7 +53,7 @@
         <parent link="thigh"/>
         <child link="shank"/>
         <axis xyz="0 1 0"/>
-        <limit effort="100" lower="-1.5" upper="0.0" velocity="10"/>
+        <limit effort="100" lower="0.0" upper="1.5" velocity="10"/>
     </joint>
 
     <link name="foot">
@@ -62,18 +62,18 @@
                 <box size="${foot_length} ${foot_width} ${foot_height}"/>
             </geometry>
             <material name="white"/> 
-            <origin xyz="${-(foot_length/2-0.05)} 0 ${-ankle_joint_radius-foot_height/2}"/>
+            <origin xyz="${(foot_length/2-0.05)} 0 ${-ankle_joint_radius-foot_height/2}"/>
         </visual>
         <collision>
             <geometry>
                 <box size="${foot_length} ${foot_width} ${foot_height}"/>
             </geometry>
-            <origin xyz="${-(foot_length/2-0.05)} 0 ${-ankle_joint_radius-foot_height/2}"/>
+            <origin xyz="${(foot_length/2-0.05)} 0 ${-ankle_joint_radius-foot_height/2}"/>
         </collision>
         <inertial>
             <mass value="10"/>
             <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
-            <origin xyz="${-(foot_length/2-0.05)} 0 ${-ankle_joint_radius-foot_height/2}"/>
+            <origin xyz="${(foot_length/2-0.05)} 0 ${-ankle_joint_radius-foot_height/2}"/>
         </inertial>
     </link>
 
@@ -82,7 +82,7 @@
         <parent link="shank"/>
         <child link="foot"/>
         <axis xyz="0 1 0"/>
-        <limit effort="100" lower="-0.5" upper="0.1" velocity="10"/>
+        <limit effort="100" lower="-0.1" upper="0.5" velocity="10"/>
     </joint>
 
 </robot>
