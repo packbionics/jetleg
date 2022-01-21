@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="jetleg_testrig">
+   <material name="white">
+        <color rgba="1 1 1 1"/>
+    </material>
+    <material name="red">
+        <color rgba="1 0 0 1"/>
+    </material>
+    <material name="red_transluscent">
+        <color rgba="1 0 0 0.25"/>
+    </material>
+    <material name="white_transluscent">
+        <color rgba="1 1 1 0.25"/>
+    </material>
+</robot>
