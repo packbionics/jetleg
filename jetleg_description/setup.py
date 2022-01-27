@@ -16,10 +16,11 @@ def glob_recursive(data_files, directory):
     data_files.append((os.path.join('share', package_name, directory), files))
     subdirectories = glob(directory+'*/')
     if (subdirectories == []):
-        return
+        return data_files
     else:
         for dir in subdirectories:
             glob_recursive(data_files, dir)
+        return data_files
 
 data_directories = ['launch', 'rviz', 'urdf']
 
