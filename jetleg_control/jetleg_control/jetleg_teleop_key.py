@@ -3,6 +3,7 @@ import termios
 import tty
 import time
 import threading
+import numpy as np
 from queue import Queue
 
 if sys.platform == 'win32':
@@ -15,18 +16,26 @@ from std_msgs.msg import Float64
 msg = """
         JetLeg Teleoperation
         ----------------------
-        Moving around:
-            a   d
-        z/x : Increase/Decrease max force
-        c   : Recenter cart
-        anything else: stop
+        Moving the leg:
+        q/w : Move hip
+        a/s : Move knee
+        z/x : Move ankle
+        
+        d/f : Move faster/slower
+        c : Reset to zero
+    
         CTRL-C to quit
       """
 
-effort_key_bindings = {'a': 1.0, 'd': -1.0}
-effort_delta_key_bindings = {'z': 1.0, 'x': -1.0}
-
-effort_multiplier = 1.0
+position_key_bindings = {
+        'q': np.array([1.0, 0.0, 0.0]),
+        'w': np.array([-1.0, 0.0, 0.0]),
+        'a': np.array([0.0, 1.0, 0.0]),
+        's': np.array([0.0, -1.0, 0.0]),
+        'z': np.array([0.0, 0.0, 1.0]),
+        'x': np.array([0.0, 0.0, -1.0])
+    }
+position_delta_key_bindings = {'d': -1.0, 'f': 1.0}
 
 def get_terminal_settings():
     if sys.platform == 'win32':
@@ -49,17 +58,25 @@ def pub_cmd(node):
         if not k_queue.empty():
             key = k_queue.get()
             if key:
-                node.get_logger().info(key)
-                if key in effort_key_bindings:
-                    node.effort = node.effort_multiplier * effort_key_bindings[key]
-                elif key in effort_delta_key_bindings:
-                    node.effort = 0.0
-                    node.effort_multiplier += node.delta_effort * effort_delta_key_bindings[key]
+                if key in position_key_bindings:
+                    node.positions += node.position_multiplier * position_key_bindings[key]
+                    node.positions = np.minimum(
+                        np.maximum(node.positions, node.joint_limit_min), 
+                        node.joint_limit_max)
+                    node.get_logger().info("positions: {} degs".format(node.positions * 180.0 / np.pi))
+                elif key in position_delta_key_bindings:
+                    node.position_multiplier += node.delta_position * position_delta_key_bindings[key]
+                    node.position_multiplier = min(max(node.position_multiplier, 0.0), np.pi / 6.0)
+                    node.get_logger().info("new position increment: {} degs".format(node.position_multiplier * 180.0 / np.pi))
                     continue
+                elif key == 'c':
+                    node.positions = np.zeros(3)
+                    node.position_multiplier = np.pi/180.0
+                    node.get_logger().info("resetting positions")
                 elif key == '\x03':
                     break
         
-        node.publish_effort()
+        node.publish_position()
         time.sleep(1/30.0)
 
 exit_signal = threading.Event()
@@ -71,35 +88,40 @@ class JetLegTeleop(Node):
         rclpy.init()
         super().__init__('jetleg_teleop_key')
 
-        self.msg = Float64()
+        self.position_multiplier = np.pi / 180.0
 
-        self.effort_multiplier = 50.0
+        self.max_position = 100.0
+        self.delta_position = 2 * np.pi/180.0
+        self.positions = np.array([0.0,0.0,0.0])
+        self.joint_limit_max = np.array([np.pi/4.0, np.pi/2.0, np.pi/4.0])
+        self.joint_limit_min = np.array([-np.pi/4.0, 0.0, -np.pi/8.0])
 
-        self.max_effort = 100.0
-        self.delta_effort = 1
-        self.effort = 0.0
+        self.knee_joint_position_topic = '/knee_joint_position_controller/command'
+        self.ankle_joint_position_topic = '/ankle_joint_position_controller/command'
+        self.gantry_to_mount_position_topic = '/gantry_to_mount_position_controller/command'
 
-        self.knee_joint_effort_topic = '/knee_joint_effort_controller/command'
-        self.ankle_joint_effort_topic = '/ankle_joint_effort_controller/command'
-        self.gantry_to_mount_effort_topic = '/gantry_to_mount_effort_controller/command'
-
-        self.knee_joint_effort_publisher = self.create_publisher(Float64,
-                                               self.knee_joint_effort_topic,
+        self.knee_joint_position_publisher = self.create_publisher(Float64,
+                                               self.knee_joint_position_topic,
                                                10)
-        self.ankle_joint_effort_publisher = self.create_publisher(Float64,
-                                               self.ankle_joint_effort_topic,
+        self.ankle_joint_position_publisher = self.create_publisher(Float64,
+                                               self.ankle_joint_position_topic,
                                                10)
-        self.gantry_to_mount_effort_publisher = self.create_publisher(Float64,
-                                               self.gantry_to_mount_effort_topic,
+        self.hip_joint_position_publisher = self.create_publisher(Float64,
+                                               self.gantry_to_mount_position_topic,
                                                10)
 
-    def publish_effort(self):
-        self.msg.data = self.effort
-
-        self.knee_joint_effort_publisher.publish(self.msg)
-        self.get_logger().info('Publishing: "%s" to topic: "%s"\n' % (self.msg.data, self.knee_joint_effort_topic))
-
+    def publish_position(self):
+        hip_msg = Float64()
+        knee_msg = Float64()
+        ankle_msg = Float64()
         
+        hip_msg.data = self.positions[0]
+        knee_msg.data = self.positions[1]
+        ankle_msg.data = self.positions[2]
+
+        self.hip_joint_position_publisher.publish(hip_msg)
+        self.knee_joint_position_publisher.publish(knee_msg)
+        self.ankle_joint_position_publisher.publish(ankle_msg)        
 
 def main():
     settings = get_terminal_settings()
