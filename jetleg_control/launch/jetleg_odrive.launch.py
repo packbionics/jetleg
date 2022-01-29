@@ -11,9 +11,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+from ament_index_python.packages import get_package_share_path
 
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument
+from launch.actions import DeclareLaunchArgument, RegisterEventHandler
+from launch.event_handlers import OnProcessExit
 from launch.conditions import IfCondition
 from launch.substitutions import Command, FindExecutable, LaunchConfiguration, PathJoinSubstitution
 from launch_ros.actions import Node
@@ -21,15 +23,17 @@ from launch_ros.substitutions import FindPackageShare
 
 
 def generate_launch_description():
-    declared_arguments = []
+    description_path = get_package_share_path('jetleg_description')
+    default_rviz_config_path = description_path / 'rviz/odrive.rviz'
 
-
-    declared_arguments.append(
-        DeclareLaunchArgument(
-            "joint0_controller",
-            default_value="joint0_position_controller",
-        )
-    )
+    joint0_controller_arg = DeclareLaunchArgument(
+                "joint0_controller",
+                default_value="joint0_position_controller",
+            )
+    rviz_arg = DeclareLaunchArgument(
+                name='rvizconfig', default_value=str(default_rviz_config_path),
+                description='Absolute path to rviz config file'
+            )
 
     joint0_controller = LaunchConfiguration("joint0_controller")
 
@@ -84,11 +88,32 @@ def generate_launch_description():
         executable="spawner.py",
         arguments=[joint0_controller, "-c", "/controller_manager"],
     )
+    rviz_node = Node(
+        package='rviz2',
+        executable='rviz2',
+        name='rviz2',
+        output='screen',
+        arguments=['-d', LaunchConfiguration('rvizconfig')],
+    )
+    delay_rviz_after_joint_state_broadcaster_spawner = RegisterEventHandler(
+        event_handler=OnProcessExit(
+            target_action=joint_state_broadcaster_spawner,
+            on_exit=[rviz_node],
+        )
+    )
+    delay_joint0_controller_spawner_after_joint_state_broadcaster_spawner = RegisterEventHandler(
+        event_handler=OnProcessExit(
+            target_action=joint_state_broadcaster_spawner,
+            on_exit=[joint0_controller_spawner],
+        )
+    )
     nodes = [
         control_node,
         robot_state_pub_node,
         joint_state_broadcaster_spawner,
-        joint0_controller_spawner,
+        delay_joint0_controller_spawner_after_joint_state_broadcaster_spawner,
+        delay_rviz_after_joint_state_broadcaster_spawner
     ]
 
-    return LaunchDescription(declared_arguments + nodes)
+    return LaunchDescription([joint0_controller_arg,
+                              rviz_arg] + nodes)

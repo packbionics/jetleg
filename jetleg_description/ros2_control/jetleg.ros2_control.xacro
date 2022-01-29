@@ -13,10 +13,24 @@
       </sensor>
 
       <joint name="knee_joint">
-          <param name="serial_number">000000000000</param>
-          <param name="axis">0</param>
-          <param name="enable_watchdog">1</param>
-          <param name="watchdog_timeout">0.1</param>
+        <param name="serial_number">000000000000</param>
+        <param name="axis">0</param>
+        <param name="enable_watchdog">1</param>
+        <param name="watchdog_timeout">0.1</param>
+      </joint>
+
+      <joint name="ankle_joint">
+        <param name="serial_number">000000000000</param>
+        <param name="axis">1</param>
+        <param name="enable_watchdog">1</param>
+        <param name="watchdog_timeout">0.1</param>
+      </joint>
+
+      <joint name="gantry_to_mount">
+        <param name="serial_number">000000000000</param>
+        <param name="axis">1</param>
+        <param name="enable_watchdog">1</param>
+        <param name="watchdog_timeout">0.1</param>
       </joint>
 
     </ros2_control>
