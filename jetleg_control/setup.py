@@ -28,7 +28,7 @@ for directory in data_directories:
 
 setup(
     name=package_name,
-    version='0.0.0',
+    version='0.0.1',
     packages=[package_name],
     data_files=data_files,
     install_requires=['setuptools'],
@@ -40,6 +40,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
+        		'jetleg_teleop_key = jetleg_control.jetleg_teleop_key:main',
         ],
     },
 )
