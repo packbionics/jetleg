@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="stereo_camera">
+
+    <xacro:macro name="stereo_camera" params="baseline *joint">
+        <link name="camera_link">
+            <visual>
+                <geometry>
+                    <cylinder radius="0.01" length="0.01"/>   
+                </geometry> 
+                <origin xyz="0 0 0.01"/>
+                <material name="black"/>
+            </visual>
+        </link>
+        <link name="camera_link_right">
+            <visual>
+                <geometry>
+                    <cylinder radius="0.01" length="0.01"/>   
+                </geometry> 
+                <origin xyz="0 0 0.01"/>
+                <material name="black"/>
+            </visual>
+        </link>
+        <link name="camera_base">
+            <visual>
+                <geometry>
+                    <box size="0.01 ${baseline+0.02} 0.02"/>
+                </geometry>
+                <origin xyz="0 0 0"/>
+                <material name="grey"/>
+            </visual>
+        </link>
+
+        <xacro:insert_block name="joint" />
+        <joint name="camera_base_to_camera_link" type="fixed">
+            <parent link="camera_base" />
+            <child link="camera_link" />
+            <origin xyz="0 ${-baseline/2} 0" rpy="0 ${90*pi/180} 0" />
+        </joint>
+        <joint name="camera_base_to_camera_link_right" type="fixed">
+            <parent link="camera_base" />
+            <child link="camera_link_right" />
+            <origin xyz="0 ${baseline/2} 0" rpy="0 ${90*pi/180} 0" />
+        </joint>
+    </xacro:macro>
+
+</robot>
