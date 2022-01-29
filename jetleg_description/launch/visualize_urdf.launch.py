@@ -9,7 +9,7 @@ from launch_ros.actions import Node
 
 def generate_launch_description():
     package_path = get_package_share_path('jetleg_description')
-    default_model_path = package_path / 'urdf/testrig.urdf'
+    default_model_path = package_path / 'urdf/testrig.xacro'
     default_rviz_config_path = package_path / 'rviz/urdf.rviz'
 
     gui_arg = DeclareLaunchArgument(name='gui', default_value='true', choices=['true', 'false'],
