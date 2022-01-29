@@ -7,7 +7,7 @@
                 <geometry>
                     <cylinder radius="0.01" length="0.01"/>   
                 </geometry> 
-                <origin xyz="0 0 0.01"/>
+                <origin xyz="0.01 0 0" rpy="0 ${90*pi/180} 0" />
                 <material name="black"/>
             </visual>
         </link>
@@ -16,7 +16,7 @@
                 <geometry>
                     <cylinder radius="0.01" length="0.01"/>   
                 </geometry> 
-                <origin xyz="0 0 0.01"/>
+                <origin xyz="0.01 0 0" rpy="0 ${90*pi/180} 0" />
                 <material name="black"/>
             </visual>
         </link>
@@ -34,12 +34,12 @@
         <joint name="camera_base_to_camera_link" type="fixed">
             <parent link="camera_base" />
             <child link="camera_link" />
-            <origin xyz="0 ${-baseline/2} 0" rpy="0 ${90*pi/180} 0" />
+            <origin xyz="0 ${-baseline/2} 0"/>
         </joint>
         <joint name="camera_base_to_camera_link_right" type="fixed">
             <parent link="camera_base" />
             <child link="camera_link_right" />
-            <origin xyz="0 ${baseline/2} 0" rpy="0 ${90*pi/180} 0" />
+            <origin xyz="0 ${baseline/2} 0" rpy="0 0 0" />
         </joint>
     </xacro:macro>
 

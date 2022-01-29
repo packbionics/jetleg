@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="jetleg_testrig_odrive">
     <xacro:include filename="$(find jetleg_description)/urdf/testrig.xacro"/>
-    <xacro:include filename="stereo_camera.xacro"/>
+    <xacro:include filename="$(find jetleg_description)/urdf/stereo_camera.xacro"/>
     <xacro:include filename="$(find obstacles)/urdf/prebuilts/staircase_var1.xacro"/>
     <xacro:staircase_var1 postfix="1" offset_x = "2" offset_z = "0.0" />
     <xacro:stereo_camera baseline="0.1">
