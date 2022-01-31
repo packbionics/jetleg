@@ -10,8 +10,8 @@
     <xacro:property name="mount_length" value="0.24" />
 
     <xacro:property name="wheel_length" value="0.04" />
-    <xacro:property name="wheel_radius" value="0.08" />
-    <xacro:property name="wheel_offset" value="0.2" />
+    <xacro:property name="wheel_radius" value="0.15" />
+    <xacro:property name="wheel_offset" value="0.4" />
 
     <link name="base_link">
     </link>
@@ -70,11 +70,11 @@
                 <geometry>
                     <cylinder length="${wheel_length}" radius="${wheel_radius}" />
                 </geometry>
-                <contact_coefficients mu="0.5" />
+                <contact_coefficients mu="1.0" />
             </collision>
 
             <inertial>
-                <mass value="1"/>
+                <mass value="10"/>
                 <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001"/>
             </inertial>
         </link>
@@ -115,10 +115,12 @@
 
     <xacro:include filename="jetleg.xacro"/> 
     
-    <joint name="mount_to_jetleg" type="fixed">
+    <joint name="mount_to_jetleg" type="prismatic">
         <parent link="mount"/>
         <child link="thigh"/>
         <origin xyz="0 0 ${-thigh_length/2}" rpy="0 0 0"/>
+        <axis xyz="0 0 -1" />
+        <limit effort="1000" velocity="10" lower="0" upper="0.3" />
     </joint>
 
 </robot>
