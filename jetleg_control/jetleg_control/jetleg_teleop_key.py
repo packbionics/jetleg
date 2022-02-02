@@ -17,30 +17,28 @@ msg = """
         JetLeg Teleoperation
         ----------------------
         Moving the leg:
-        q/w : Move hip
-        a/s : Move knee
-        z/x : Move ankle
-        g/h : Move mount
+        w/s : Move hip
+        a/d : Move knee
+        q/e : Move ankle
+        z/c : Move mount
         
-        d/f : Move faster/slower
-        c : Reset to zero
+        j/l : Move faster/slower
+        k : Reset to zero
     
         CTRL-C to quit
       """
 
 position_key_bindings = {
-        'q': np.array([0.0, 1.0, 0.0, 0.0, 0.0]),
-        'w': np.array([0.0, -1.0, 0.0, 0.0, 0.0]),
-        'a': np.array([0.0, 0.0, 1.0, 0.0, 0.0]),
-        's': np.array([0.0, 0.0, -1.0, 0.0, 0.0]),
-        'z': np.array([0.0, 0.0, 0.0, 1.0, 0.0]),
-        'x': np.array([0.0, 0.0, 0.0, -1.0, 0.0]),
-        'e': np.array([1.0, 0.0, 0.0, 0.0, 0.0]),
-        'r': np.array([-1.0, 0.0, 0.0, 0.0, 0.0]),
-        'g': np.array([0.0, 0.0, 0.0, 0.0, 1.0]),
-        'h': np.array([0.0, 0.0, 0.0, 0.0, -1.0])
+        'w': np.array([1.0, 0.0, 0.0, 0.0]),
+        's': np.array([-1.0, 0.0, 0.0, 0.0]),
+        'a': np.array([0.0, 1.0, 0.0, 0.0]),
+        'd': np.array([0.0, -1.0, 0.0, 0.0]),
+        'q': np.array([0.0, 0.0, 1.0, 0.0]),
+        'e': np.array([0.0, 0.0, -1.0, 0.0]),
+        'z': np.array([0.0, 0.0, 0.0, 1.0]),
+        'c': np.array([0.0, 0.0, 0.0, -1.0])
     }
-position_delta_key_bindings = {'d': -1.0, 'f': 1.0}
+position_delta_key_bindings = {'j': -1.0, 'l': 1.0}
 
 def get_terminal_settings():
     if sys.platform == 'win32':
@@ -75,7 +73,7 @@ def pub_cmd(node):
                     node.position_multiplier = min(max(node.position_multiplier, 0.0), np.pi / 6.0)
                     node.get_logger().info("new position increment: {} degs".format(node.position_multiplier * 180.0 / np.pi))
                     continue
-                elif key == 'c':
+                elif key == 'k':
                     node.positions = np.zeros(4)
                     node.position_multiplier = np.pi/180.0
                     node.get_logger().info("resetting positions")
@@ -98,21 +96,14 @@ class JetLegTeleop(Node):
         self.position_multiplier = np.pi / 180.0
 
         self.delta_position = 2 * np.pi/180.0
-        self.positions = np.array([0.0,0.0,0.0,0.0,0.0])
-        self.joint_limit_max = np.array([sys.float_info.max, np.pi/4.0, np.pi/2.0, np.pi/4.0, 100000.0])
-        self.joint_limit_min = np.array([-sys.float_info.max, -np.pi/4.0, 0.0, -np.pi/8.0, -100000.0])
+        self.positions = np.array([0.0,0.0,0.0,0.0])
+        self.joint_limit_max = np.array([np.pi/4.0, np.pi/2.0, np.pi/4.0, 0.6])
+        self.joint_limit_min = np.array([-np.pi/4.0, 0.0, -np.pi/8.0, 0.0])
 
         self.wheel_joint_position_topics = ['/wheel_fore_left_position_controller/command',
                                             '/wheel_fore_right_position_controller/command',
                                             '/wheel_hind_left_position_controller/command',
                                             '/wheel_hind_right_position_controller/command']
-        
-        self.wheel_joint_position_publishers = []
-        for i in range(len(self.wheel_joint_position_topics)):
-            self.wheel_joint_position_publishers.append(self.create_publisher(Float64,
-                                                                              self.wheel_joint_position_topics[i],
-                                                                              10)
-            )
 
         self.knee_joint_position_topic = '/knee_joint_position_controller/command'
         self.ankle_joint_position_topic = '/ankle_joint_position_controller/command'
@@ -133,20 +124,15 @@ class JetLegTeleop(Node):
                                                10)
 
     def publish_position(self):
-        wheel_msg = Float64()
         hip_msg = Float64()
         knee_msg = Float64()
         ankle_msg = Float64()
         mount_msg = Float64()
         
-        wheel_msg.data = self.positions[0]
-        hip_msg.data = self.positions[1]
-        knee_msg.data = self.positions[2]
-        ankle_msg.data = self.positions[3]
-        mount_msg.data = self.positions[4]
-
-        for i in range(len(self.wheel_joint_position_publishers)):
-            self.wheel_joint_position_publishers[i].publish(wheel_msg)
+        hip_msg.data = self.positions[0]
+        knee_msg.data = self.positions[1]
+        ankle_msg.data = self.positions[2]
+        mount_msg.data = self.positions[3]
 
         self.hip_joint_position_publisher.publish(hip_msg)
         self.knee_joint_position_publisher.publish(knee_msg)
