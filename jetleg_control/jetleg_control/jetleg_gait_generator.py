@@ -4,6 +4,8 @@ import tty
 import time
 import threading
 import numpy as np
+import math
+import datetime
 from queue import Queue
 
 if sys.platform == 'win32':
@@ -44,14 +46,17 @@ def get_key(settings, key):
 #process input keys, and updates positions array of node. Then, calls node's publish method.
 def pub_cmd(node):
     while not exit_signal.is_set():
+        #the period is 4 seconds
+        #TO DO: add a speed variable
+        current_time = datetime.now() - time
         #hip angle
-        node.positions[0] = #add function call to calculated needed angle
+        node.positions[0] = math.sin(np.pi/2 * current_time) * np.pi/4 #add function call to calculated needed angle, add Period_Constant later
         
         #knee angle
-        node.positions[1] = #add function call to calculated needed angle
+        node.positions[1] = math.sin(np.pi/2 * current_time) * np.pi/4 + np.pi/4 #add function call to calculated needed angle, offset func.? 
         
         #ankle angle
-        node.positions[2] = #add function call to calculated needed angle
+        node.positions[2] = math.sin(np.pi/2 * current_time) * np.pi * 3/16 + np.pi/16#add function call to calculated needed angle
         
         node.publish_position()
         time.sleep(1/30.0)
@@ -100,7 +105,9 @@ class JetLegGait(Node):
 
         self.hip_joint_position_publisher.publish(hip_msg)
         self.knee_joint_position_publisher.publish(knee_msg)
-        self.ankle_joint_position_publisher.publish(ankle_msg)        
+        self.ankle_joint_position_publisher.publish(ankle_msg)   
+
+time = datetime.now()
 
 def main():
     settings = get_terminal_settings()
