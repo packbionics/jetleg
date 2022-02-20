@@ -5,11 +5,8 @@ import time
 import threading
 import numpy as np
 import math
-import datetime
+from datetime import datetime
 from queue import Queue
-
-if sys.platform == 'win32':
-    import msvcrt
 
 import rclpy
 from rclpy.node import Node
@@ -27,11 +24,6 @@ position_key_bindings = {
 position_delta_key_bindings = {'d': -1.0, 'f': 1.0}
 """
 
-def get_terminal_settings():
-    if sys.platform == 'win32':
-        return None
-    return termios.tcgetattr(sys.stdin)
-
 def get_key(settings, key):
     while not exit_signal.is_set():
         if sys.platform == 'win32':
@@ -48,7 +40,7 @@ def pub_cmd(node):
     while not exit_signal.is_set():
         #the period is 4 seconds
         #TO DO: add a speed variable
-        current_time = datetime.now() - time
+        current_time = datetime.now() - time_start
         #hip angle
         node.positions[0] = math.sin(np.pi/2 * current_time) * np.pi/4 #add function call to calculated needed angle, add Period_Constant later
         
@@ -107,17 +99,16 @@ class JetLegGait(Node):
         self.knee_joint_position_publisher.publish(knee_msg)
         self.ankle_joint_position_publisher.publish(ankle_msg)   
 
-time = datetime.now()
+time_start = datetime.now()
 
 def main():
-    settings = get_terminal_settings()
 
     node = JetLegGait()
 
-    t1 = threading.Thread(target=get_key, args=(settings,k_queue))
+    # t1 = threading.Thread(target=get_key, args=(settings,k_queue))
     t2 = threading.Thread(target=pub_cmd, args=(node,))
 
-    t1.start()
+    #t1.start()
     t2.start()
 
     try:
@@ -126,7 +117,7 @@ def main():
     except KeyboardInterrupt:  # on keyboard interrupt...
         exit_signal.set() 
 
-    t1.join()
+    #t1.join()
     t2.join()
 
     node.destroy()
