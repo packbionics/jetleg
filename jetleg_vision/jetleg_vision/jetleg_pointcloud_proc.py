@@ -6,6 +6,8 @@ import struct
 from sensor_msgs.msg import PointCloud2, PointField
 from std_msgs.msg import Header
 
+import numpy as np
+
 
 class PointCloudProcessing(Node):
 
@@ -20,6 +22,7 @@ class PointCloudProcessing(Node):
 
     def listener_callback(self, msg):
         print('Received pointcloud message')
+        cloud_array = np.frombuffer(msg.data, dtype=np.float32).reshape((msg.height, msg.width, 4))
         
 
 
