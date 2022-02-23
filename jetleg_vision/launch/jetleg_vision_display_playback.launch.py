@@ -24,9 +24,9 @@ def generate_launch_description():
 
     # Rviz2 Configurations to be loaded by ZED Node
     config_rviz2 = os.path.join(
-        get_package_share_directory('zed_display_rviz2'),
-        'rviz2',
-        camera_model + '.rviz'
+        get_package_share_directory('jetleg_description'),
+        'rviz',
+        'zed2i_visualize.rviz'
     )
 
     # Set LOG format
@@ -40,7 +40,7 @@ def generate_launch_description():
         name=camera_name+'_rviz2',
         output='screen',
         arguments=[["-d"], [config_rviz2]],
-        parameters=[{'use_sim_time': True}]
+        parameters=[{'use_sim_time': False}]
     )
 
     # Define LaunchDescription variable
