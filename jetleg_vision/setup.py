@@ -40,6 +40,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
+            'pointcloud_proc = jetleg_vision.jetleg_pointcloud_proc:main'
         ],
     },
 )
