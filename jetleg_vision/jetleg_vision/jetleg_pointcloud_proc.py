@@ -47,6 +47,8 @@ class PointCloudProcessing(Node):
         
         cloud_array[:,:2] = np.round(cloud_array[:, :2], decimals=2)
 
+        np.save('/home/anthony/dev_ws/pointcloud_array.npy', cloud_array)
+
         theta_z_upper = 5 * np.pi / 180
 
         # z view restriction

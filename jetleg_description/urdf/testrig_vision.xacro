@@ -3,12 +3,12 @@
     <xacro:include filename="$(find jetleg_description)/urdf/testrig.xacro"/>
     <xacro:include filename="$(find jetleg_description)/urdf/stereo_camera.xacro"/>
     <xacro:include filename="$(find obstacles)/urdf/prebuilts/staircase_var1.xacro"/>
-    <xacro:staircase_var1 postfix="1" offset_x = "2" offset_z = "0.0" />
+    <xacro:staircase_var1 postfix="1" offset_x = "0.5" offset_z = "0.0" />
     <xacro:stereo_camera baseline="0.1">
-        <joint name="mount_to_camera_base" type="fixed">
-            <parent link="mount" />
+        <joint name="gantry_to_camera_base" type="fixed">
+            <parent link="gantry" />
             <child link="camera_base" />
-            <origin xyz="0.1 0 0" rpy="0 ${15*pi/180} 0" />
+            <origin xyz="0.1 0 0" rpy="0 ${20*pi/180} 0" />
         </joint>
     </xacro:stereo_camera>
 </robot>
