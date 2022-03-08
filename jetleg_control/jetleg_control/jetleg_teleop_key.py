@@ -17,25 +17,28 @@ msg = """
         JetLeg Teleoperation
         ----------------------
         Moving the leg:
-        q/w : Move hip
-        a/s : Move knee
-        z/x : Move ankle
+        w/s : Move hip
+        a/d : Move knee
+        q/e : Move ankle
+        z/c : Move mount
         
-        d/f : Move faster/slower
-        c : Reset to zero
+        j/l : Move faster/slower
+        k : Reset to zero
     
         CTRL-C to quit
       """
 
 position_key_bindings = {
-        'q': np.array([1.0, 0.0, 0.0]),
-        'w': np.array([-1.0, 0.0, 0.0]),
-        'a': np.array([0.0, 1.0, 0.0]),
-        's': np.array([0.0, -1.0, 0.0]),
-        'z': np.array([0.0, 0.0, 1.0]),
-        'x': np.array([0.0, 0.0, -1.0])
+        'w': np.array([1.0, 0.0, 0.0, 0.0]),
+        's': np.array([-1.0, 0.0, 0.0, 0.0]),
+        'a': np.array([0.0, 1.0, 0.0, 0.0]),
+        'd': np.array([0.0, -1.0, 0.0, 0.0]),
+        'q': np.array([0.0, 0.0, 1.0, 0.0]),
+        'e': np.array([0.0, 0.0, -1.0, 0.0]),
+        'z': np.array([0.0, 0.0, 0.0, 1.0]),
+        'c': np.array([0.0, 0.0, 0.0, -1.0])
     }
-position_delta_key_bindings = {'d': -1.0, 'f': 1.0}
+position_delta_key_bindings = {'j': -1.0, 'l': 1.0}
 
 def get_terminal_settings():
     if sys.platform == 'win32':
@@ -63,17 +66,19 @@ def pub_cmd(node):
                     node.positions = np.minimum(
                         np.maximum(node.positions, node.joint_limit_min), 
                         node.joint_limit_max)
-                    node.get_logger().info("positions: {} degs".format(node.positions * 180.0 / np.pi))
+                    #node.get_logger().info("positions: {} degs".format(node.positions * 180.0 / np.pi))
+                    node.get_logger().info("positions: {} degs".format(node.positions))
                 elif key in position_delta_key_bindings:
                     node.position_multiplier += node.delta_position * position_delta_key_bindings[key]
                     node.position_multiplier = min(max(node.position_multiplier, 0.0), np.pi / 6.0)
                     node.get_logger().info("new position increment: {} degs".format(node.position_multiplier * 180.0 / np.pi))
                     continue
-                elif key == 'c':
-                    node.positions = np.zeros(3)
+                elif key == 'k':
+                    node.positions = np.zeros(4)
                     node.position_multiplier = np.pi/180.0
                     node.get_logger().info("resetting positions")
                 elif key == '\x03':
+                    exit_signal.set()
                     break
         
         node.publish_position()
@@ -90,15 +95,20 @@ class JetLegTeleop(Node):
 
         self.position_multiplier = np.pi / 180.0
 
-        self.max_position = 100.0
         self.delta_position = 2 * np.pi/180.0
-        self.positions = np.array([0.0,0.0,0.0])
-        self.joint_limit_max = np.array([np.pi/4.0, np.pi/2.0, np.pi/4.0])
-        self.joint_limit_min = np.array([-np.pi/4.0, 0.0, -np.pi/8.0])
+        self.positions = np.array([0.0,0.0,0.0,0.0])
+        self.joint_limit_max = np.array([np.pi/4.0, np.pi/2.0, np.pi/4.0, 0.6])
+        self.joint_limit_min = np.array([-np.pi/4.0, 0.0, -np.pi/8.0, 0.0])
+
+        self.wheel_joint_position_topics = ['/wheel_fore_left_position_controller/command',
+                                            '/wheel_fore_right_position_controller/command',
+                                            '/wheel_hind_left_position_controller/command',
+                                            '/wheel_hind_right_position_controller/command']
 
         self.knee_joint_position_topic = '/knee_joint_position_controller/command'
         self.ankle_joint_position_topic = '/ankle_joint_position_controller/command'
         self.gantry_to_mount_position_topic = '/gantry_to_mount_position_controller/command'
+        self.mount_to_leg_position_topic = '/mount_to_jetleg_position_controller/command'
 
         self.knee_joint_position_publisher = self.create_publisher(Float64,
                                                self.knee_joint_position_topic,
@@ -109,19 +119,25 @@ class JetLegTeleop(Node):
         self.hip_joint_position_publisher = self.create_publisher(Float64,
                                                self.gantry_to_mount_position_topic,
                                                10)
+        self.mount_to_leg_position_publisher = self.create_publisher(Float64,
+                                               self.mount_to_leg_position_topic,
+                                               10)
 
     def publish_position(self):
         hip_msg = Float64()
         knee_msg = Float64()
         ankle_msg = Float64()
+        mount_msg = Float64()
         
         hip_msg.data = self.positions[0]
         knee_msg.data = self.positions[1]
         ankle_msg.data = self.positions[2]
+        mount_msg.data = self.positions[3]
 
         self.hip_joint_position_publisher.publish(hip_msg)
         self.knee_joint_position_publisher.publish(knee_msg)
-        self.ankle_joint_position_publisher.publish(ankle_msg)        
+        self.ankle_joint_position_publisher.publish(ankle_msg)   
+        self.mount_to_leg_position_publisher.publish(mount_msg)     
 
 def main():
     settings = get_terminal_settings()
@@ -144,7 +160,6 @@ def main():
     t1.join()
     t2.join()
 
-    node.destroy()
     rclpy.shutdown()
 
 if __name__ == '__main__':
