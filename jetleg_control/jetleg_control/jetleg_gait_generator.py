@@ -41,7 +41,7 @@ def pub_cmd(node):
         #the period is 4 seconds
         #TO DO: add a speed variable
         current_time = datetime.now() - time_start
-        current_time = current_time.microseconds / 1000000
+        current_time = current_time.seconds + current_time.microseconds / 1000000.0
         #hip angle
         node.positions[0] = math.sin(np.pi/2 * current_time) * np.pi/4 #add function call to calculated needed angle, add Period_Constant later
         
@@ -52,6 +52,8 @@ def pub_cmd(node):
         node.positions[2] = math.sin(np.pi/2 * current_time) * np.pi * 3/16 + np.pi/16#add function call to calculated needed angle
         
         node.publish_position()
+        node.get_logger().info("current time: %f" % current_time)
+        node.get_logger().info("current position: %f" % node.positions[0])
         time.sleep(1/30.0)
 
 exit_signal = threading.Event()
