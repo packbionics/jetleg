@@ -1,10 +1,6 @@
 import rclpy
 from rclpy.node import Node
-import ctypes
-import struct
-from sensor_msgs.msg import PointCloud2, PointField, Image
-from std_msgs.msg import Header
-import matplotlib.pyplot as plt
+from sensor_msgs.msg import PointCloud2, Image
 
 import numpy as np
 import cv2
@@ -135,16 +131,6 @@ class PointCloudProcessing(Node):
             self.img_is_populated = True
 
         return heightmap
-
-    def display_heightmap(self, img_queue):
-        while not self.exit_signal.is_set(): 
-
-            #if not img_queue.empty():
-            #img = img_queue.get()
-            if self.img_is_populated:
-                plt.imshow(self.img)
-                plt.show(block=False)
-                plt.pause(1/30.0)
                 
     def compute_traversibility(self, heightmap):
         # compute sobel gradient in x and y direction
