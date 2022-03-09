@@ -125,7 +125,6 @@ class PointCloudProcessing(Node):
 
         self.publisher.publish(imgmsg)
 
-        #self.img_queue.put(heightmap)
         self.img = heightmap
         if not self.img_is_populated:
             self.img_is_populated = True
@@ -153,10 +152,6 @@ def main(args=None):
     rclpy.init(args=args)
 
     node = PointCloudProcessing()
-    
-    t1 = threading.Thread(target=node.display_heightmap, args=(node.img_queue,))
-    #t1.start()
-
     rclpy.spin(node)
 
     # Destroy the node explicitly
