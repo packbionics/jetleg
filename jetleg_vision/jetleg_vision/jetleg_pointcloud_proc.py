@@ -63,11 +63,11 @@ class PointCloudProcessing(Node):
         cloud_restricted = cloud_array[np.where(cloud_array[:,2] <= cloud_array[:,0]*np.tan(theta_z_upper))]
 
         # y view restriction
-        cloud_restricted = cloud_restricted[np.where(cloud_restricted[:,1] <= 0.6)]
-        cloud_restricted = cloud_restricted[np.where(cloud_restricted[:,1] >= -0.6)]
+        cloud_restricted = cloud_restricted[np.where(cloud_restricted[:,1] <= 1)]
+        cloud_restricted = cloud_restricted[np.where(cloud_restricted[:,1] >= -1)]
 
         # x view restriction
-        cloud_restricted = cloud_restricted[np.where(cloud_restricted[:,0] <= 2)]
+        cloud_restricted = cloud_restricted[np.where(cloud_restricted[:,0] <= 3)]
 
         x_minimum = np.min(cloud_restricted[:,0])
         x_maximum = np.max(cloud_restricted[:,0])
