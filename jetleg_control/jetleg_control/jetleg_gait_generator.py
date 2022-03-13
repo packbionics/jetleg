@@ -1,63 +1,19 @@
+import math
+from re import S
 import sys
 import termios
-import tty
-import time
 import threading
-import numpy as np
-import math
+import time
+import tty
 from datetime import datetime
 from queue import Queue
 
+import numpy as np
 import rclpy
 from rclpy.node import Node
+from scipy import interpolate
 from std_msgs.msg import Float64
-
-"""
-position_key_bindings = {
-        'q': np.array([1.0, 0.0, 0.0]),
-        'w': np.array([-1.0, 0.0, 0.0]),
-        'a': np.array([0.0, 1.0, 0.0]),
-        's': np.array([0.0, -1.0, 0.0]),
-        'z': np.array([0.0, 0.0, 1.0]),
-        'x': np.array([0.0, 0.0, -1.0])
-    }
-position_delta_key_bindings = {'d': -1.0, 'f': 1.0}
-"""
-
-def get_key(settings, key):
-    while not exit_signal.is_set():
-        if sys.platform == 'win32':
-            key = msvcrt.getwch()
-        else:
-            tty.setraw(sys.stdin.fileno())
-            key = sys.stdin.read(1)
-            k_queue.put(key)
-            termios.tcsetattr(sys.stdin, termios.TCSADRAIN, settings)
-        time.sleep(0.1)
-
-#process input keys, and updates positions array of node. Then, calls node's publish method.
-def pub_cmd(node):
-    while not exit_signal.is_set():
-        #the period is 4 seconds
-        #TO DO: add a speed variable
-        current_time = datetime.now() - time_start
-        current_time = current_time.seconds + current_time.microseconds / 1000000.0
-        #hip angle
-        node.positions[0] = math.sin(np.pi/2 * current_time) * np.pi/4 #add function call to calculated needed angle, add Period_Constant later
         
-        #knee angle
-        node.positions[1] = math.sin(np.pi/2 * current_time) * np.pi/4 + np.pi/4 #add function call to calculated needed angle, offset func.? 
-        
-        #ankle angle
-        node.positions[2] = math.sin(np.pi/2 * current_time) * np.pi * 3/16 + np.pi/16#add function call to calculated needed angle
-        
-        node.publish_position()
-        node.get_logger().info("current time: %f" % current_time)
-        node.get_logger().info("current position: %f" % node.positions[0])
-        time.sleep(1/30.0)
-
-exit_signal = threading.Event()
-k_queue = Queue()
 
 class JetLegGait(Node):
     
@@ -88,6 +44,14 @@ class JetLegGait(Node):
         self.hip_joint_position_publisher = self.create_publisher(Float64,
                                                self.gantry_to_mount_position_topic,
                                                10)
+        
+        
+        self.x_points = np.linspace(-0.5,1.5,21)
+        self.knee_setpoints = [16,38,60,55,18,8,18,20,12,10,16,38,60,55,18,8,18,20,12,10,16]
+        self.knee_tck = interpolate.splrep(self.x_points, self.knee_setpoints)
+        self.hip_setpoints = [-5,0,20,37,41,40,38,30,18,3,-5,0,20,37,41,40,38,30,18,3,-5]
+        self.hip_tck = interpolate.splrep(self.x_points, self.hip_setpoints)
+        self.ankle_setpoints = []
 
     def publish_position(self):
         hip_msg = Float64()
@@ -101,27 +65,36 @@ class JetLegGait(Node):
         self.hip_joint_position_publisher.publish(hip_msg)
         self.knee_joint_position_publisher.publish(knee_msg)
         self.ankle_joint_position_publisher.publish(ankle_msg)   
+        
+    #process input keys, and updates positions array of node. Then, calls node's publish method.
+    def pub_cmd(self, T=2.0):
+        while True:
+            #the period is 4 seconds
+            #TO DO: add a speed variable
+            current_time = datetime.now() - time_start
+            current_time = current_time.seconds + current_time.microseconds / 1000000.0
+            
+            percent = math.fmod(current_time, T) / T
+            
+            # hip angle
+            self.positions[0] = interpolate.splev(percent, self.hip_tck) * math.pi / 180.0
+            
+            # knee angle
+            self.positions[1] = interpolate.splev(percent, self.knee_tck) * math.pi / 180.0
+
+            #ankle angle
+            self.positions[2] = math.sin(np.pi/2 * current_time) * np.pi * 3/16 + np.pi/16#add function call to calculated needed angle
+            
+            self.publish_position()
+
+            time.sleep(1/30.0)
 
 time_start = datetime.now()
 
 def main():
 
     node = JetLegGait()
-
-    # t1 = threading.Thread(target=get_key, args=(settings,k_queue))
-    t2 = threading.Thread(target=pub_cmd, args=(node,))
-
-    #t1.start()
-    t2.start()
-
-    try:
-        while not exit_signal.is_set():  # enable children threads to exit the main thread, too
-            time.sleep(0.1)  # let it breathe a little
-    except KeyboardInterrupt:  # on keyboard interrupt...
-        exit_signal.set() 
-
-    #t1.join()
-    t2.join()
+    node.pub_cmd(T=1.0)
 
     node.destroy()
     rclpy.shutdown()
