@@ -115,9 +115,6 @@ class PointCloudProcessing(Node):
 
         heightmap_in_bytes = (heightmap*255).astype(np.uint8)
 
-
-        self.get_logger().info(str(heightmap_in_bytes.dtype))
-
         imgmsg = self.bridge.cv2_to_imgmsg(heightmap_in_bytes)
         imgmsg.header.frame_id = 'odom'
         imgmsg.header.stamp = self.get_clock().now().to_msg()
