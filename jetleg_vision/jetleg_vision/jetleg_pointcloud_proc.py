@@ -1,6 +1,7 @@
 import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import PointCloud2, Image
+from nav_msgs.msg import Odometry
 
 import numpy as np
 import cv2
@@ -15,12 +16,18 @@ class PointCloudProcessing(Node):
 
     def __init__(self):
         super().__init__('jetleg_pointcloud_proc')
-        self.subscription = self.create_subscription(
+        self.pointcloud_sub = self.create_subscription(
             PointCloud2,
             '/zed2i/zed_node/point_cloud/cloud_registered',
-            self.listener_callback,
-            10)
-        self.subscription  # prevent unused variable warning
+            self.cloud_callback,
+            10
+        )
+        self.odom_sub = self.create_subscription(
+            Odometry,
+            '/zed2i/zed_node/odom',
+            self.odom_callback,
+            10
+        )
 
         self.heightmap_publisher = self.create_publisher(
             Image,
@@ -37,11 +44,17 @@ class PointCloudProcessing(Node):
 
         self.time_start = time.time()
 
-    def listener_callback(self, msg):
+    def odom_callback(self, msg):
+        # get height from odom
+        height = msg.pose.pose.position.z
+        #self.get_logger().info('height: %f' % height)
+
+    def cloud_callback(self, msg):
         cloud_array = np.frombuffer(msg.data, dtype=np.float32).reshape((msg.height, msg.width, 4))
 
         heightmap = self.convert_heightmap(cloud_array)
-        self.compute_traversibility(heightmap)
+        if heightmap is not None:
+            self.compute_traversibility(heightmap)
         
     def convert_heightmap(self, cloud_array):
 
@@ -52,7 +65,7 @@ class PointCloudProcessing(Node):
         cloud_array = cloud_array[:, :3]
         cloud_array = cloud_array[np.isfinite(cloud_array).any(axis=1)]
         cloud_array = cloud_array[~np.isnan(cloud_array).any(axis=1)]
-        
+        #np.save('/home/packbionics/dev_ws/cloud_array.npy', cloud_array)
         # cloud array is (N x 3) array, with each row being [x, y, z]
         # sort by x,y coordinates into heightmap image pixels
         
@@ -62,65 +75,71 @@ class PointCloudProcessing(Node):
         cloud_restricted = cloud_array[np.where(cloud_array[:,2] <= cloud_array[:,0]*np.tan(theta_z_upper))]
 
         # y view restriction
-        cloud_restricted = cloud_restricted[np.where(cloud_restricted[:,1] <= 1)]
-        cloud_restricted = cloud_restricted[np.where(cloud_restricted[:,1] >= -1)]
+        cloud_restricted = cloud_restricted[np.where(cloud_restricted[:,1] <= 0.4)]
+        cloud_restricted = cloud_restricted[np.where(cloud_restricted[:,1] >= -0.4)]
 
         # x view restriction
-        cloud_restricted = cloud_restricted[np.where(cloud_restricted[:,0] <= 3)]
+        cloud_restricted = cloud_restricted[np.where(cloud_restricted[:,0] <= 1.5)]
+        cloud_restricted = cloud_restricted[np.where(cloud_restricted[:,0] >= 1.0)]
 
-        x_minimum = np.min(cloud_restricted[:,0])
-        x_maximum = np.max(cloud_restricted[:,0])
-        y_minimum = np.min(cloud_restricted[:,1])
-        y_maximum = np.max(cloud_restricted[:,1])
+        try:
+            assert cloud_restricted.shape[0] > 0
+            x_minimum = np.min(cloud_restricted[:,0])
+            x_maximum = np.max(cloud_restricted[:,0])
+            y_minimum = np.min(cloud_restricted[:,1])
+            y_maximum = np.max(cloud_restricted[:,1])
 
-        map_rows = 40
-        map_cols = 40
-        heightmap = np.zeros((map_rows,map_cols))
+            map_rows = 25
+            map_cols = 40
+            heightmap = np.zeros((map_rows,map_cols))
 
-        idx_x = 0
-        idx_y = 0
+            idx_x = 0
+            idx_y = 0
 
-        map_rows_minus_one = map_rows - 1
-        map_cols_minus_one = map_cols - 1
+            map_rows_minus_one = map_rows - 1
+            map_cols_minus_one = map_cols - 1
 
-        x_range = (x_maximum - x_minimum) / map_rows_minus_one
-        y_range = (y_maximum - y_minimum) / map_cols_minus_one
+            x_range = (x_maximum - x_minimum) / map_rows_minus_one
+            y_range = (y_maximum - y_minimum) / map_cols_minus_one
 
-        coord_minimums = np.array([[x_minimum, y_minimum, 0.0]])
-        coord_range = np.array([[x_range, y_range, 1.0]])
+            coord_minimums = np.array([[x_minimum, y_minimum, 0.0]])
+            coord_range = np.array([[x_range, y_range, 1.0]])
 
-        cloud_restricted -= coord_minimums
-        cloud_restricted /= coord_range
+            cloud_restricted -= coord_minimums
+            cloud_restricted /= coord_range
 
-        for point in cloud_restricted:
-            # index is (coordinate-minimum) / pixel spacing
-            idx_x = int(point[0])
-            idx_y = int(point[1])
-            if heightmap[idx_x, idx_y] == 0:
-                heightmap[idx_x,idx_y] = point[2]
-            else:
-                heightmap[idx_x,idx_y] = max(point[2], heightmap[idx_x,idx_y])
-                
-        kernel = np.array([[0,0,1,0,0],
-                        [1,1,1,1,1],
-                        [1,1,1,1,1],
-                        [1,1,1,1,1],
-                        [0,0,1,0,0]], dtype=np.uint8)
+            for point in cloud_restricted:
+                # index is (coordinate-minimum) / pixel spacing
+                idx_x = int(point[0])
+                idx_y = int(point[1])
+                if heightmap[idx_x, idx_y] == 0:
+                    heightmap[idx_x,idx_y] = point[2]
+                else:
+                    heightmap[idx_x,idx_y] = max(point[2], heightmap[idx_x,idx_y])
+                    
+            kernel = np.array([[0,0,1,0,0],
+                            [1,1,1,1,1],
+                            [1,1,1,1,1],
+                            [1,1,1,1,1],
+                            [0,0,1,0,0]], dtype=np.uint8)
 
-        # image erosion with kernel
-        heightmap = cv2.erode(heightmap, kernel, iterations=1)
-        # image dilation with kernel
-        heightmap = cv2.dilate(heightmap, kernel, iterations=1)
+            # image erosion with kernel
+            heightmap = cv2.erode(heightmap, kernel, iterations=1)
+            # image dilation with kernel
+            heightmap = cv2.dilate(heightmap, kernel, iterations=2)
 
-        heightmap_in_bytes = (heightmap*255).astype(np.uint8)
+            heightmap_in_bytes = (heightmap*255).astype(np.uint8)
 
-        imgmsg = self.bridge.cv2_to_imgmsg(heightmap_in_bytes)
-        imgmsg.header.frame_id = 'odom'
-        imgmsg.header.stamp = self.get_clock().now().to_msg()
+            imgmsg = self.bridge.cv2_to_imgmsg(heightmap_in_bytes)
+            imgmsg.header.frame_id = 'odom'
+            imgmsg.header.stamp = self.get_clock().now().to_msg()
 
-        self.heightmap_publisher.publish(imgmsg)
+            self.heightmap_publisher.publish(imgmsg)
+            return heightmap
 
-        return heightmap
+        except:
+            self.get_logger().info('no points within range')
+            return None
                 
     def compute_traversibility(self, heightmap):
         # compute sobel gradient in x and y direction
