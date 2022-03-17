@@ -22,19 +22,18 @@ class PointCloudProcessing(Node):
             10)
         self.subscription  # prevent unused variable warning
 
-        self.publisher = self.create_publisher(
+        self.heightmap_publisher = self.create_publisher(
             Image,
             '/heightmap',
             10
         )
-
-        self.exit_signal = threading.Event()
+        self.traversibility_publisher = self.create_publisher(
+            Image,
+            '/traversibility',
+            10,
+        )
 
         self.bridge = CvBridge()
-
-        self.img_queue = Queue()
-        self.img = None
-        self.img_is_populated = False
 
         self.time_start = time.time()
 
@@ -119,12 +118,7 @@ class PointCloudProcessing(Node):
         imgmsg.header.frame_id = 'odom'
         imgmsg.header.stamp = self.get_clock().now().to_msg()
 
-
-        self.publisher.publish(imgmsg)
-
-        self.img = heightmap
-        if not self.img_is_populated:
-            self.img_is_populated = True
+        self.heightmap_publisher.publish(imgmsg)
 
         return heightmap
                 
@@ -142,6 +136,14 @@ class PointCloudProcessing(Node):
         traversibility_map[np.where((gradient_map >=20) & (gradient_map < 35))] = 4
         traversibility_map[np.where((gradient_map >=35) & (gradient_map < 50))] = 4
         traversibility_map[np.where(heightmap == 0)] = 4
+        
+        traversibility_map_in_bytes = (traversibility_map*255).astype(np.uint8)
+        
+        imgmsg = self.bridge.cv2_to_imgmsg(traversibility_map_in_bytes)
+        imgmsg.header.frame_id = 'odom'
+        imgmsg.header.stamp = self.get_clock().now().to_msg()
+        
+        self.traversibility_publisher.publish(imgmsg)
         
         return traversibility_map
 
