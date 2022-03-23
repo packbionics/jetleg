@@ -75,12 +75,11 @@ class PointCloudProcessing(Node):
         cloud_restricted = cloud_array[np.where(cloud_array[:,2] <= cloud_array[:,0]*np.tan(theta_z_upper))]
 
         # y view restriction
-        cloud_restricted = cloud_restricted[np.where(cloud_restricted[:,1] <= 1.5)]
-        cloud_restricted = cloud_restricted[np.where(cloud_restricted[:,1] >= -1.5)]
+        cloud_restricted = cloud_restricted[np.where(cloud_restricted[:,1] <= 2)]
+        cloud_restricted = cloud_restricted[np.where(cloud_restricted[:,1] >= -2)]
 
         # x view restriction
-        cloud_restricted = cloud_restricted[np.where(cloud_restricted[:,0] <= 1.5)]
-        cloud_restricted = cloud_restricted[np.where(cloud_restricted[:,0] >= 0.0)]
+        cloud_restricted = cloud_restricted[np.where(cloud_restricted[:,0] <= 4)]
 
         try:
             assert cloud_restricted.shape[0] > 0
