@@ -18,7 +18,7 @@ class PointCloudProcessing(Node):
         super().__init__('jetleg_pointcloud_proc')
         self.pointcloud_sub = self.create_subscription(
             PointCloud2,
-            '/zed2i/zed_node/point_cloud/cloud_registered',
+            '/zed2i/zed_node/mapping/fused_cloud',
             self.cloud_callback,
             10
         )
@@ -69,18 +69,18 @@ class PointCloudProcessing(Node):
         # cloud array is (N x 3) array, with each row being [x, y, z]
         # sort by x,y coordinates into heightmap image pixels
         
-        theta_z_upper = 5 * np.pi / 180
+        theta_z_upper = 55 * np.pi / 180
 
         # z view restriction
         cloud_restricted = cloud_array[np.where(cloud_array[:,2] <= cloud_array[:,0]*np.tan(theta_z_upper))]
 
         # y view restriction
-        cloud_restricted = cloud_restricted[np.where(cloud_restricted[:,1] <= 0.4)]
-        cloud_restricted = cloud_restricted[np.where(cloud_restricted[:,1] >= -0.4)]
+        cloud_restricted = cloud_restricted[np.where(cloud_restricted[:,1] <= 1.5)]
+        cloud_restricted = cloud_restricted[np.where(cloud_restricted[:,1] >= -1.5)]
 
         # x view restriction
         cloud_restricted = cloud_restricted[np.where(cloud_restricted[:,0] <= 1.5)]
-        cloud_restricted = cloud_restricted[np.where(cloud_restricted[:,0] >= 1.0)]
+        cloud_restricted = cloud_restricted[np.where(cloud_restricted[:,0] >= 0.0)]
 
         try:
             assert cloud_restricted.shape[0] > 0
@@ -89,8 +89,8 @@ class PointCloudProcessing(Node):
             y_minimum = np.min(cloud_restricted[:,1])
             y_maximum = np.max(cloud_restricted[:,1])
 
-            map_rows = 25
-            map_cols = 40
+            map_rows = 60
+            map_cols = 60
             heightmap = np.zeros((map_rows,map_cols))
 
             idx_x = 0
@@ -124,7 +124,7 @@ class PointCloudProcessing(Node):
                             [0,0,1,0,0]], dtype=np.uint8)
 
             # image erosion with kernel
-            heightmap = cv2.erode(heightmap, kernel, iterations=1)
+            #heightmap = cv2.erode(heightmap, kernel, iterations=1)
             # image dilation with kernel
             heightmap = cv2.dilate(heightmap, kernel, iterations=2)
 
