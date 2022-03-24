@@ -54,12 +54,18 @@ class PointCloudProcessing(Node):
                                 self.pose.pose.orientation.y, 
                                 self.pose.pose.orientation.z, 
                                 self.pose.pose.orientation.w])
+
+        # remove x,y component rotation
+        eulers = r.as_euler('xyz')
+        eulers[0] = 0.0
+        eulers[1] = 0.0
+        eulers[2] = -eulers[2]
+        r_xz = R.from_euler('xyz', eulers)
         # get translation vector
         translation = np.array([self.pose.pose.position.x, self.pose.pose.position.y, self.pose.pose.position.z])
 
-        self.get_logger().info('cloud_array: %s' % str(cloud_array.shape))
         # transform point cloud
-        transformed_cloud = r.apply(cloud_array) - r.apply(translation)
+        transformed_cloud = r_xz.apply(cloud_array) - r_xz.apply(translation)
         return transformed_cloud
 
     def pose_callback(self, msg):
@@ -73,7 +79,7 @@ class PointCloudProcessing(Node):
 
         if cloud_array.shape[0] == 0 or self.pose is None:
             return
-            
+
         cloud_array = cloud_array[:, :3]
         cloud_array = cloud_array[np.isfinite(cloud_array).any(axis=1)]
         cloud_array = cloud_array[~np.isnan(cloud_array).any(axis=1)]
@@ -86,16 +92,16 @@ class PointCloudProcessing(Node):
     def convert_heightmap(self, cloud_array):
 
 
-        #np.save('/home/packbionics/dev_ws/cloud_array.npy', cloud_array)
+        np.save('/home/packbionics/dev_ws/cloud_array.npy', cloud_array)
         # cloud array is (N x 3) array, with each row being [x, y, z]
         # sort by x,y coordinates into heightmap image pixels
 
         # clip point cloud according to current position
         x_minimum = 0.0
-        x_maximum = 2.0
+        x_maximum = 1.5
 
-        y_minimum = -0.5
-        y_maximum = 0.5
+        y_minimum = -0.4
+        y_maximum = 0.4
         theta_z_upper = 55 * np.pi / 180
 
         # z view restriction
@@ -110,8 +116,8 @@ class PointCloudProcessing(Node):
 
         assert cloud_restricted.shape[0] > 0
 
-        map_rows = int((x_maximum - x_minimum) * 100)
-        map_cols = int((y_maximum - y_minimum) * 100)
+        map_rows = int((x_maximum - x_minimum) * 42)
+        map_cols = int((y_maximum - y_minimum) * 42)
         heightmap = np.zeros((map_rows,map_cols))
 
         idx_x = 0
@@ -144,10 +150,18 @@ class PointCloudProcessing(Node):
                         [1,1,1,1,1],
                         [0,0,1,0,0]], dtype=np.uint8)
 
-        # image erosion with kernel
-        #heightmap = cv2.erode(heightmap, kernel, iterations=1)
-        # image dilation with kernel
-        #heightmap = cv2.dilate(heightmap, kernel, iterations=2)
+        #floor detection
+        heightmap[np.where(heightmap == 0)] = np.infty
+        heights = heightmap.flatten()
+        k = 10
+        small_idx = np.argpartition(heights, k)
+
+        floor_height = np.mean(heights[small_idx[:10]])
+        heightmap = heightmap - floor_height
+        heightmap[np.where(heightmap == np.infty)] = -10
+
+        heightmap = cv2.dilate(heightmap, kernel, iterations=2)
+        heightmap[np.where(heightmap == -10)] = np.infty
 
         heightmap_in_bytes = (heightmap*255).astype(np.uint8)
 
