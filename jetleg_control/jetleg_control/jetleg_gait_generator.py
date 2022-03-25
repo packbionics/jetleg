@@ -33,7 +33,7 @@ class JetLegGait(Node):
 
         self.knee_joint_position_topic = '/knee_joint_position_controller/command'
         self.ankle_joint_position_topic = '/ankle_joint_position_controller/command'
-        self.gantry_to_mount_position_topic = '/gantry_to_mount_position_controller/command'
+        self.gantry_to_mount_position_topic = '/vertical_rail_to_mount_position_controller/command'
 
         self.knee_joint_position_publisher = self.create_publisher(Float64,
                                                self.knee_joint_position_topic,
@@ -47,9 +47,11 @@ class JetLegGait(Node):
         
         
         self.x_points = np.linspace(-0.5,1.5,21)
-        self.knee_setpoints = [16,38,60,55,18,8,18,20,12,10,16,38,60,55,18,8,18,20,12,10,16]
+        self.knee_setpoints = [16,38,60,55,18,8,18,20,12,10]
+        self.knee_setpoints = np.array(self.knee_setpoints + self.knee_setpoints + [self.knee_setpoints[0]])
         self.knee_tck = interpolate.splrep(self.x_points, self.knee_setpoints)
-        self.hip_setpoints = [-5,0,20,37,41,40,38,30,18,3,-5,0,20,37,41,40,38,30,18,3,-5]
+        self.hip_setpoints = [-5,0,20,37,41,40,38,30,18,3]
+        self.hip_setpoints = np.array(self.hip_setpoints + self.hip_setpoints + [self.hip_setpoints[0]]) - 20
         self.hip_tck = interpolate.splrep(self.x_points, self.hip_setpoints)
         self.ankle_setpoints = []
 
@@ -64,7 +66,7 @@ class JetLegGait(Node):
 
         self.hip_joint_position_publisher.publish(hip_msg)
         self.knee_joint_position_publisher.publish(knee_msg)
-        self.ankle_joint_position_publisher.publish(ankle_msg)   
+        #self.ankle_joint_position_publisher.publish(ankle_msg)   
         
     #process input keys, and updates positions array of node. Then, calls node's publish method.
     def pub_cmd(self, T=2.0):
@@ -94,7 +96,7 @@ time_start = datetime.now()
 def main():
 
     node = JetLegGait()
-    node.pub_cmd(T=1.0)
+    node.pub_cmd(T=12.0)
 
     node.destroy()
     rclpy.shutdown()
