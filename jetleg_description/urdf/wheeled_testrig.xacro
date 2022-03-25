@@ -1,0 +1,126 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="jetleg_testrig">
+
+    <xacro:include filename="colors.xacro"/>
+
+    <xacro:property name="gantry_height" value="1" />
+    <xacro:property name="gantry_width" value="1.6" />
+
+    <xacro:property name="mount_angle_lim" value="${40*pi/180}" />
+    <xacro:property name="mount_length" value="0.24" />
+
+    <xacro:property name="wheel_length" value="0.04" />
+    <xacro:property name="wheel_radius" value="0.15" />
+    <xacro:property name="wheel_offset" value="0.4" />
+
+    <link name="base_link">
+    </link>
+
+    <link name="gantry">
+        <visual>
+            <geometry>
+                <box size="0.05 ${gantry_width} 0.05"/>
+            </geometry>
+            <material name="white_transluscent"/> 
+        </visual>
+    </link>
+
+    <joint name="base_to_gantry" type="fixed">
+        <origin rpy="0 0 0" xyz="0 0 ${gantry_height}"/>
+        <parent link="base_link"/>
+        <child link="gantry"/>
+    </joint>
+
+    <xacro:macro name="support" params="postfix reflect">
+        <link name="support_${postfix}">
+            <visual>
+                <geometry>
+                    <box size="0.5 0.25 ${gantry_height}"/>
+                </geometry>
+                <material name="red_transluscent"/> 
+            </visual>
+            <collision>
+                <geometry>
+                    <box size="0.5 0.25 ${gantry_height}"/>
+                </geometry>
+            </collision>
+            <inertial>
+                <mass value="50"/>
+                <inertia ixx="0.01" ixy="0" ixz="0" iyy="0.01" iyz="0" izz="0.01"/>
+            </inertial>
+        </link>
+
+        <joint name="gantry_to_support_${postfix}" type="fixed">
+            <parent link="gantry"/>
+            <child link="support_${postfix}"/>
+            <origin xyz="0 ${reflect * gantry_width/2} ${-gantry_height/2}" />
+        </joint>
+    </xacro:macro>
+
+    <xacro:macro name="wheel" params="wheelpos parentsupport reflect offset">
+        <link name="wheel_${wheelpos}">
+            <visual>
+                <geometry>
+                    <cylinder length="${wheel_length}" radius="${wheel_radius}" />
+                </geometry>
+                <material name="white" />
+            </visual>
+
+            <collision>
+                <geometry>
+                    <cylinder length="${wheel_length}" radius="${wheel_radius}" />
+                </geometry>
+                <contact_coefficients mu="1.0" />
+            </collision>
+
+            <inertial>
+                <mass value="10"/>
+                <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001"/>
+            </inertial>
+        </link>
+
+        <joint name="wheel_${wheelpos}" type="continuous">
+            <parent link="support_${parentsupport}" />
+            <child link="wheel_${wheelpos}" />
+            <origin xyz="${offset} ${0.2 * reflect} -${gantry_height / 2}" rpy="1.57 0 0" />
+            <axis xyz="0 0 -1" />
+        </joint>
+    </xacro:macro>
+
+    <xacro:support postfix="left" reflect="1" />
+    <xacro:support postfix="right" reflect="-1" />
+
+    <xacro:wheel wheelpos="fore_left" parentsupport="left" reflect="1" offset="${wheel_offset}" />
+    <xacro:wheel wheelpos="fore_right" parentsupport="right" reflect="-1" offset="${wheel_offset}" />
+
+    <xacro:wheel wheelpos="hind_left" parentsupport="left" reflect="1" offset="${-wheel_offset}" />
+    <xacro:wheel wheelpos="hind_right" parentsupport="right" reflect="-1" offset="${-wheel_offset}" />
+
+    <joint name="gantry_to_mount" type="revolute">
+        <origin rpy="0 0 0" xyz="0 0 0"/>
+        <parent link="gantry"/>
+        <child link="mount"/>
+        <limit effort="100" lower="${-mount_angle_lim}" upper="${mount_angle_lim}" velocity="10"/>
+        <axis xyz="0 1 0"/>
+    </joint>
+
+    <link name="mount">
+        <visual>
+            <geometry>
+                <cylinder length="${mount_length}" radius="0.08"/>
+            </geometry>
+            <material name="white_transluscent"/> 
+        </visual>
+    </link>
+
+    <xacro:include filename="jetleg.xacro"/> 
+    
+    <joint name="mount_to_jetleg" type="prismatic">
+        <parent link="mount"/>
+        <child link="thigh"/>
+        <origin xyz="0 0 ${-thigh_length/2}" rpy="0 0 0"/>
+        <axis xyz="0 0 -1" />
+        <limit effort="1000" velocity="10" lower="0" upper="0.6" />
+    </joint>
+
+</robot>
