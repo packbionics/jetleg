@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="jetleg_intact">
 
-    <xacro:property name="thigh_intact_length" value="0.3" />
-    <xacro:property name="shank_intact_length" value="0.3" />
+    <xacro:property name="thigh_intact_length" value="0.5" />
+    <xacro:property name="shank_intact_length" value="0.4" />
     <xacro:property name="knee_intact_joint_radius" value="0.025" />
     <xacro:property name="ankle_intact_joint_radius" value="0.025" />
     <xacro:property name="foot_intact_length" value="0.3" />
@@ -22,7 +22,7 @@
             </geometry>
         </collision>
         <inertial>
-            <mass value="10"/>
+            <mass value="20"/>
             <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
         </inertial>
     </link>
@@ -71,7 +71,7 @@
             <origin xyz="${(foot_intact_length/2-0.05)} 0 ${-ankle_intact_joint_radius-foot_intact_height/2}"/>
         </collision>
         <inertial>
-            <mass value="10"/>
+            <mass value="1.5"/>
             <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
             <origin xyz="${(foot_intact_length/2-0.05)} 0 ${-ankle_intact_joint_radius-foot_intact_height/2}"/>
         </inertial>
