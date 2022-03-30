@@ -43,10 +43,20 @@ class PointCloudProcessing(Node):
         self.time_start = time.time()
 
     def listener_callback(self, msg):
+        self.time_start = time.time()
+
         cloud_array = np.frombuffer(msg.data, dtype=np.float32).reshape((msg.height, msg.width, 4))
 
         heightmap = self.convert_heightmap(cloud_array)
-        self.compute_traversibility(heightmap)
+        for j in range(40):
+            for i in range(40):
+                self.get_logger().info(str(i) + ', ' + str(j) + ': ' + str(heightmap[i,j]))
+
+        traversibility_map = self.compute_traversibility(heightmap)
+
+        # self.get_logger().info(str(traversibility_map[:,0]))
+
+        self.get_logger().info('Time (s) per Tick: ' + str(time.time() - self.time_start))
         
     def convert_heightmap(self, cloud_array):
 
@@ -119,9 +129,6 @@ class PointCloudProcessing(Node):
 
         heightmap_in_bytes = (heightmap*255).astype(np.uint8)
 
-
-        self.get_logger().info(str(heightmap_in_bytes.dtype))
-
         imgmsg = self.bridge.cv2_to_imgmsg(heightmap_in_bytes)
         imgmsg.header.frame_id = 'odom'
         imgmsg.header.stamp = self.get_clock().now().to_msg()
@@ -151,7 +158,10 @@ class PointCloudProcessing(Node):
         sobel_x = cv2.Sobel(heightmap, cv2.CV_64F, 1, 0, ksize=5)
         # compute sobel gradient in y direction
         sobel_y = cv2.Sobel(heightmap, cv2.CV_64F, 0, 1, ksize=5)
-        
+
+        # self.get_logger().info('Sobel X: ' + str(sobel_x[5,20]))
+        # self.get_logger().info('Sobel Y: ' + str(sobel_y[5,20]))
+
         gradient_map = np.maximum(np.abs(sobel_x), np.abs(sobel_y))
         traversibility_map = np.zeros(gradient_map.shape)
 
