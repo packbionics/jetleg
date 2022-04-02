@@ -72,6 +72,10 @@
 
     <xacro:macro name="wheel" params="wheelpos parentsupport reflect offset">
         <link name="wheel_${wheelpos}">
+            <contact>
+                <rolling_friction value="0.001"/>
+                <spinning_friction value="0.001"/>
+            </contact>
             <visual>
                 <geometry>
                     <cylinder length="${wheel_length}" radius="${wheel_radius}" />

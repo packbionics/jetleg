@@ -57,6 +57,10 @@
     </joint>
 
     <link name="foot">
+        <contact>
+            <lateral_friction value="100"/>
+        </contact>
+
         <visual>
             <geometry>
                 <box size="${foot_length} ${foot_width} ${foot_height}"/>

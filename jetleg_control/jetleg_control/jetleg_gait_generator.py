@@ -102,8 +102,8 @@ class JetLegGait(Node):
         self.hip_tck_comfort = interpolate.splrep(self.x_points, self.hip_setpoints_comfort)"""
         
         gait_pub_period = 1.0/30.0
-        #self.gait_timer = self.create_timer(gait_pub_period, self.pub_cmd)
-        self.wheel_timer = self.create_timer(1.0/60.0, self.publish_effort)
+        self.gait_timer = self.create_timer(gait_pub_period, self.pub_cmd)
+        #self.wheel_timer = self.create_timer(1.0/60.0, self.publish_effort)
         
         self.T = 4.0
 
