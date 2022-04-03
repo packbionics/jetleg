@@ -1,12 +1,17 @@
 #include "jetleg_pointcloud_proc.hpp"
 
 JetLegPointCloudProc::JetLegPointCloudProc() : rclcpp::Node("jetleg_pointcloud_proc"),
-                                               map_rows(40),
-                                               map_cols(40),
-                                               x_min_restriction(0.0f),
-                                               x_max_restriction(2.0f),
-                                               y_min_restriction(-0.6f),
-                                               y_max_restriction(0.6f) {
+                                               MAP_ROWS(40),
+                                               MAP_COLS(40),
+                                               X(0),
+                                               Y(1),
+                                               Z(2),
+                                               PI(3.141592f),
+                                               X_MIN(0.0f),
+                                               X_MAX(2.0f),
+                                               Y_MIN(-0.6f),
+                                               Y_MAX(0.6f),
+                                               Z_MAX(5.0 * PI / 180.0f) {
   RCLCPP_INFO(this->get_logger(), "jetleg_pointcloud_proc node has been created...");
 
   subscriber = this->create_subscription<sensor_msgs::msg::PointCloud2>("/zed2i/zed_node/point_cloud/cloud_registered", 
@@ -14,56 +19,30 @@ JetLegPointCloudProc::JetLegPointCloudProc() : rclcpp::Node("jetleg_pointcloud_p
                                                                         std::bind(&JetLegPointCloudProc::listener_callback, this, std::placeholders::_1));
   publisher = this->create_publisher<sensor_msgs::msg::Image>("/heightmap", 10);
 
-  heightmap_array = new float*[map_rows];
-  for(unsigned int i = 0; i < map_rows; i++) {
-    heightmap_array[i] = new float[map_cols];
+  heightmap = cv::Mat(MAP_ROWS, MAP_COLS, CV_32FC1);
+  traversibility_map = cv::Mat(MAP_ROWS, MAP_COLS, CV_32FC1);
 
-    for(unsigned int j = 0; j < map_cols; j++) {
-      heightmap_array[i][j] = 0;
-    }
-  }
-
-  heightmap = cv::Mat(map_rows, map_cols, CV_32FC1);
-  heightmap_in_bytes = cv::Mat(map_rows, map_cols, CV_8UC1);
-}
-
-JetLegPointCloudProc::~JetLegPointCloudProc() {
-  for(unsigned int i = 0; i < map_rows; i++) {
-    delete[] heightmap_array[i];
-  }
-
-  delete[] heightmap_array;
+  heightmap_in_bytes = cv::Mat(MAP_ROWS, MAP_COLS, CV_8UC1);
 }
 
 void JetLegPointCloudProc::listener_callback(const sensor_msgs::msg::PointCloud2::SharedPtr msg) {
   auto time_start = std::chrono::steady_clock::now();
 
+  // Bytes per field (e.g. sizeof(float) = 4)
   const unsigned int step_size = sizeof(float);
   std::vector<std::array<float, 3>> cloud_array(msg->data.size() / step_size);
     
-  // Convert from bytes to floats
+  // Convert from byte array to float array of structure XYZ
   load_data(cloud_array, step_size, msg);
 
-  // for(int i = 0; i < cloud_array.size(); i += 4) {
-  //   std::array<float, 3> tmp = {data[i], data[i + 1], data[i + 2]};
-  //   cloud_array[i / 4] = tmp;
-  // }
-
-  cv::Mat traversibility_map;
   convert_heightmap(cloud_array);
+  compute_traversibility(heightmap, traversibility_map);
 
-  // for(int j = 0; j < 40; j++) {
-  //   for(int i = 0; i < 40; i++) {
-  //     RCLCPP_INFO(this->get_logger(), std::to_string(i) + ", " + std::to_string(j) + ": " + std::to_string(heightmap.at<float>(i,j)));
-  //   }
-  // }
-  
-  // compute_traversibility(heightmap, traversibility_map);
-
-  // std::string column = "";
+  // std::string column = "[";
   // for(unsigned int i = 0; i < traversibility_map.size().width; i++) {
-  //   column += std::to_string(traversibility_map.at<uchar>(i, 0)) + " ";
+  //   column += std::to_string(traversibility_map.at<uchar>(i, 0)) + ". ";
   // }
+  // column += "]";
   // RCLCPP_INFO(this->get_logger(), column);
 
   auto time_end = std::chrono::steady_clock::now();
@@ -71,76 +50,70 @@ void JetLegPointCloudProc::listener_callback(const sensor_msgs::msg::PointCloud2
 }
 
 void JetLegPointCloudProc::load_data(std::vector<std::array<float, 3>> &data, const unsigned int step_size, const sensor_msgs::msg::PointCloud2::SharedPtr msg) {
-  uchar bytes[step_size];
+  // Stores byte array representing single floating-point value
+  uchar* bytes = new uchar[step_size];
 
+  // Step taken in the data field
   unsigned int data_step;
+
+  // Number of fields for each point (e.g. xyz_ --> 4)
   unsigned int point_offset = 4;
 
+  // Iterate through points
   for(unsigned int i = 0; i < data.size(); i += 4) {
     data_step = i * point_offset;
 
-    // X-Axis
-    for(unsigned int j = 0; j < step_size; j++) {
-      bytes[j] = msg->data[data_step + step_size * 0 + j];
-    }
-    memcpy(&data[i][0], &bytes, step_size);
+    // Iterates through fields per point
+    for(unsigned int j = 0; j < 3; j++) {
 
-    // Y-Axis
-    for(unsigned int j = 0; j < step_size; j++) {
-      bytes[j] = msg->data[data_step + step_size * 1 + j];
-    }
-    memcpy(&data[i][1], &bytes, step_size);
+      // Iterate through bytes per float
+      for(unsigned int k = 0; k < step_size; k++) {
+        bytes[k] = msg->data[data_step + step_size * j + k];
+      }
 
-    // Z-Axis
-    for(unsigned int j = 0; j < step_size; j++) {
-      bytes[j] = msg->data[data_step + step_size * 2 + j];
+      // Convert from byte array to float
+      memcpy(&data[i][j], bytes, step_size);
     }
-    memcpy(&data[i][2], &bytes, step_size);
   }
+
+  delete[] bytes;
 }
 
 void JetLegPointCloudProc::convert_heightmap(std::vector<std::array<float, 3>> cloud_array) {
-  const float PI = 3.141592f;
-  float theta_z_upper = 5.0 * PI / 180.0f;
 
-  float x_minimum;
-  float x_maximum;
+  // Minimum and maximum value for X found in restricted point cloud
+  float x_min;
+  float x_max;
 
-  float y_minimum;
-  float y_maximum;
+  // Minimum and maximum value for Y found in restricted point cloud
+  float y_min;
+  float y_max;
 
-  std::vector<std::array<float, 3>> cloud_restriction;
+  std::vector<std::array<float, 3>> filtered_cloud;
   for(unsigned int i = 0; i < cloud_array.size(); i++) {
-    if(cloud_array[i][0] <= x_max_restriction && cloud_array[i][0] > x_min_restriction) {
-      if(cloud_array[i][1] <= y_max_restriction && cloud_array[i][1] >= y_min_restriction) {
-        if(cloud_array[i][2] <= cloud_array[i][0] * tan(theta_z_upper)) {
-          cloud_restriction.push_back(cloud_array[i]);
 
-          if(cloud_restriction.size() == 1) {
-            x_minimum = cloud_restriction[0][0];
-            x_maximum = cloud_restriction[0][0];
+    // Applies X restrictions
+    if(cloud_array[i][X] <= X_MAX && cloud_array[i][X] > X_MIN) {
 
-            y_minimum = cloud_restriction[0][1];
-            y_maximum = cloud_restriction[0][1];
+      // Applies Y restrictions
+      if(cloud_array[i][Y] <= Y_MAX && cloud_array[i][Y] >= Y_MIN) {
+
+        // Applies Z restriction
+        if(cloud_array[i][Z] <= cloud_array[i][X] * tan(Z_MAX)) {
+
+          filtered_cloud.push_back(cloud_array[i]);
+
+          if(filtered_cloud.size() == 1) {
+            x_min = filtered_cloud[0][X];
+            x_max = filtered_cloud[0][X];
+
+            y_min = filtered_cloud[0][Y];
+            y_max = filtered_cloud[0][Y];
 
             continue;
           }
 
-          if(cloud_restriction.back()[0] < x_minimum && cloud_restriction.back()[0] != 0.0f) {
-            x_minimum = cloud_restriction.back()[0];
-          }
-
-          if(cloud_restriction.back()[0] > x_maximum) {
-            x_maximum = cloud_restriction.back()[0];
-          }
-
-          if(cloud_restriction.back()[1] < y_minimum) {
-            y_minimum = cloud_restriction.back()[1];
-          }
-
-          if(cloud_restriction.back()[1] > y_maximum) {
-            y_maximum = cloud_restriction.back()[1];
-          }
+          update_minmax(filtered_cloud.back(), x_min, x_max, y_min, y_max);
         }
       }
     }
@@ -149,69 +122,89 @@ void JetLegPointCloudProc::convert_heightmap(std::vector<std::array<float, 3>> c
   int idx_x = 0;
   int idx_y = 0;
 
-  float x_range = (x_maximum - x_minimum) / (map_rows - 1);
-  float y_range = (y_maximum - y_minimum) / (map_cols - 1);
+  float x_range = (x_max - x_min) / (MAP_ROWS - 1);
+  float y_range = (y_max - y_min) / (MAP_COLS - 1);
 
-  for(unsigned int i = 0; i < cloud_restriction.size(); i++) {
-    idx_x = (cloud_restriction[i][0] - x_minimum) / x_range;
-    idx_y = (cloud_restriction[i][1] - y_minimum) / y_range;
+  const float FLOATING_POINT_THRESHOLD = 0.0001f;
 
-    if(abs(heightmap_array[idx_x][idx_y]) < 0.0001f) {
-      heightmap_array[idx_x][idx_y] = cloud_restriction[i][2];
+  for(unsigned int i = 0; i < filtered_cloud.size(); i++) {
+    idx_x = (filtered_cloud[i][X] - x_min) / x_range;
+    idx_y = (filtered_cloud[i][Y] - y_min) / y_range;
+
+    if(abs(heightmap.at<float>(idx_x, idx_y)) < FLOATING_POINT_THRESHOLD) {
+      heightmap.at<float>(idx_x, idx_y) = filtered_cloud[i][Z];
     } else {
-      heightmap_array[idx_x][idx_y] = std::max(cloud_restriction[i][2], heightmap_array[idx_x][idx_y]);
+      heightmap.at<float>(idx_x, idx_y) = std::max(filtered_cloud[i][Z], heightmap.at<float>(idx_x, idx_y));
     }
   }
 
-  for(unsigned int i = 0; i < map_rows; i++) {
-    for(unsigned int j = 0; j < map_cols; j++) {
-      heightmap.at<float>(i, j) = heightmap_array[i][j];
-    }
-  }
+  const unsigned int KERNEL_SIZE = 5;
 
-  cv::Mat kernel(5, 5, CV_8UC1);
+  // Kernel used to process raw heightmap
+  cv::Mat kernel(KERNEL_SIZE, KERNEL_SIZE, CV_8UC1);
 
-  kernel.col(0) = (cv::Mat_<uint8_t>(1,5) << 0, 0, 1, 0, 0);
-  kernel.col(1) = (cv::Mat_<uint8_t>(1,5) << 1, 1, 1, 1, 1);
-  kernel.col(2) = (cv::Mat_<uint8_t>(1,5) << 1, 1, 1, 1, 1);
-  kernel.col(3) = (cv::Mat_<uint8_t>(1,5) << 1, 1, 1, 1, 1);
-  kernel.col(4) = (cv::Mat_<uint8_t>(1,5) << 0, 0, 1, 0, 0);
+  kernel.col(0) = (cv::Mat_<uint8_t>(1, KERNEL_SIZE) << 0, 0, 1, 0, 0);
+  kernel.col(1) = (cv::Mat_<uint8_t>(1, KERNEL_SIZE) << 1, 1, 1, 1, 1);
+  kernel.col(2) = (cv::Mat_<uint8_t>(1, KERNEL_SIZE) << 1, 1, 1, 1, 1);
+  kernel.col(3) = (cv::Mat_<uint8_t>(1, KERNEL_SIZE) << 1, 1, 1, 1, 1);
+  kernel.col(4) = (cv::Mat_<uint8_t>(1, KERNEL_SIZE) << 0, 0, 1, 0, 0);
 
+  // Applies image processing
   cv::erode(heightmap, heightmap, kernel);
   cv::dilate(heightmap, heightmap, kernel);
 
+  // Publishes heightmap to visualize with RVIZ
   publish_heightmap(heightmap);
 } 
 
-void JetLegPointCloudProc::publish_heightmap(cv::Mat source) {
-  for(int i = 0; i < source.size().height; i++) {
-    for(int j = 0; j < source.size().width; j++) {
-      heightmap_in_bytes.at<uchar>(i, j) = source.at<float>(i, j) * 255.0f;
+void JetLegPointCloudProc::publish_heightmap(cv::Mat src) {
+
+  // Scales heightmap from 0...1 to 0...255
+  for(int i = 0; i < src.size().height; i++) {
+    for(int j = 0; j < src.size().width; j++) {
+      heightmap_in_bytes.at<uchar>(i, j) = src.at<float>(i, j) * 255;
     }
   }
 
+  // Generates Image msg from cv::Mat
   cv_bridge::CvImage img_bridge = cv_bridge::CvImage(std_msgs::msg::Header(), sensor_msgs::image_encodings::TYPE_8UC1, heightmap_in_bytes);
   sensor_msgs::msg::Image imgmsg;
 
+  // Publishes to topic
   img_bridge.toImageMsg(imgmsg);
   publisher->publish(imgmsg);
+}
+
+void JetLegPointCloudProc::update_minmax(std::array<float, 3> point, float &x_min, float &x_max, float &y_min, float &y_max) {
+  if(point[X] < x_min) {
+    x_min = point[X];
+  }
+
+  if(point[X] > x_max) {
+    x_max = point[X];
+  }
+
+  if(point[Y] < y_min) {
+    y_min = point[Y];
+  }
+
+  if(point[Y] > y_max) {
+    y_max = point[Y];
+  }
 }
 
 void JetLegPointCloudProc::compute_traversibility(cv::Mat &heightmap, cv::Mat &traversibility_map) {
   cv::Mat sobel_x;
   cv::Mat sobel_y;
 
-  // for(int j = 0; j < 40; j++) {
-  //   for(int i = 0; i < 40; i++) {
-  //     RCLCPP_INFO(this->get_logger(), std::to_string(i) + ", " + std::to_string(j) + ": " + std::to_string(heightmap.at<float>(i,j)));
+  cv::Sobel(heightmap, sobel_x, CV_64F, 1, 0, 5);
+  // for(int i = 0; i < MAP_ROWS; i++) {
+  //   for(int j = 0; j < MAP_COLS; j++) {
+  //     print_info("(" + std::to_string(i) + ", " + std::to_string(j) + "): " + std::to_string(sobel_x.at<double>(i, j)));
   //   }
   // }
 
-  cv::Sobel(heightmap, sobel_x, CV_64F, 1, 0, 5);
-  // RCLCPP_INFO(this->get_logger(), "Sobel X: " + std::to_string(sobel_x.at<double>(5,20)));
-
   cv::Sobel(heightmap, sobel_y, CV_64F, 0, 1, 5);
-  // RCLCPP_INFO(this->get_logger(), "Sobel Y: " + std::to_string(sobel_y.at<double>(5,20)));
 
   cv::Mat gradient_map(sobel_x.size(), CV_32FC1);
   for(int i = 0; i < sobel_x.size().width; i++) {
@@ -242,4 +235,8 @@ void JetLegPointCloudProc::compute_traversibility(cv::Mat &heightmap, cv::Mat &t
       }
     }
   }
+}
+
+void JetLegPointCloudProc::print_info(std::string msg) {
+  RCLCPP_INFO(this->get_logger(), msg);
 }

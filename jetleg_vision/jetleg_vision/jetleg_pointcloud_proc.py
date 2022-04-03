@@ -48,10 +48,6 @@ class PointCloudProcessing(Node):
         cloud_array = np.frombuffer(msg.data, dtype=np.float32).reshape((msg.height, msg.width, 4))
 
         heightmap = self.convert_heightmap(cloud_array)
-        for j in range(40):
-            for i in range(40):
-                self.get_logger().info(str(i) + ', ' + str(j) + ': ' + str(heightmap[i,j]))
-
         traversibility_map = self.compute_traversibility(heightmap)
 
         # self.get_logger().info(str(traversibility_map[:,0]))
@@ -156,11 +152,12 @@ class PointCloudProcessing(Node):
     def compute_traversibility(self, heightmap):
         # compute sobel gradient in x and y direction
         sobel_x = cv2.Sobel(heightmap, cv2.CV_64F, 1, 0, ksize=5)
+        # for i in range(40):
+        #     for j in range(40):
+        #         self.get_logger().info('(' + str(i) + ', ' + str(j) + '): ' + str(sobel_x[i,j]))
+
         # compute sobel gradient in y direction
         sobel_y = cv2.Sobel(heightmap, cv2.CV_64F, 0, 1, ksize=5)
-
-        # self.get_logger().info('Sobel X: ' + str(sobel_x[5,20]))
-        # self.get_logger().info('Sobel Y: ' + str(sobel_y[5,20]))
 
         gradient_map = np.maximum(np.abs(sobel_x), np.abs(sobel_y))
         traversibility_map = np.zeros(gradient_map.shape)
