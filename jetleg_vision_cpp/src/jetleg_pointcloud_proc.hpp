@@ -30,7 +30,7 @@ class JetLegPointCloudProc : public rclcpp::Node {
         void compute_traversibility(cv::Mat &heightmap, cv::Mat &traversibility_map);
 
         // Visualizes heightmap by publishing Image topic
-        void publish_heightmap(cv::Mat src);
+        void publish_image(const cv::Mat &src, cv::Mat &out, float scale = 255.0f);
 
         // Prints RCLCPP Info message
         void print_info(std::string msg);
@@ -59,12 +59,14 @@ class JetLegPointCloudProc : public rclcpp::Node {
 
         const float Z_MAX;
 
-        // Contains processed heightmap
+        // Contains processed images
         cv::Mat heightmap;
         cv::Mat traversibility_map;
+        cv::Mat gradient_map;
 
-        // Contains processed heightmap (in bytes)
+        // Contains processed images (in bytes)
         cv::Mat heightmap_in_bytes;
+        cv::Mat traversibility_in_bytes;
 };
 
 #endif //_POINTCLOUD_PROC_HPP

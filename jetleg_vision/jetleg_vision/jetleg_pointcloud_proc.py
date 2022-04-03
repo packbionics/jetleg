@@ -48,9 +48,10 @@ class PointCloudProcessing(Node):
         cloud_array = np.frombuffer(msg.data, dtype=np.float32).reshape((msg.height, msg.width, 4))
 
         heightmap = self.convert_heightmap(cloud_array)
-        traversibility_map = self.compute_traversibility(heightmap)
+        # self.publish_map(heightmap)
 
-        # self.get_logger().info(str(traversibility_map[:,0]))
+        traversibility_map = self.compute_traversibility(heightmap)
+        self.publish_map(traversibility_map, 63.0)
 
         self.get_logger().info('Time (s) per Tick: ' + str(time.time() - self.time_start))
         
@@ -123,15 +124,6 @@ class PointCloudProcessing(Node):
         # image dilation with kernel
         heightmap = cv2.dilate(heightmap, kernel, iterations=1)
 
-        heightmap_in_bytes = (heightmap*255).astype(np.uint8)
-
-        imgmsg = self.bridge.cv2_to_imgmsg(heightmap_in_bytes)
-        imgmsg.header.frame_id = 'odom'
-        imgmsg.header.stamp = self.get_clock().now().to_msg()
-
-
-        self.publisher.publish(imgmsg)
-
         #self.img_queue.put(heightmap)
         self.img = heightmap
         if not self.img_is_populated:
@@ -148,14 +140,22 @@ class PointCloudProcessing(Node):
                 plt.imshow(self.img)
                 plt.show(block=False)
                 plt.pause(1/30.0)
+
+    def publish_map(self, image, scale=255.0):
+        image_in_bytes = (image*scale).astype(np.uint8)
+
+        imgmsg = self.bridge.cv2_to_imgmsg(image_in_bytes)
+        imgmsg.header.frame_id = 'odom'
+        imgmsg.header.stamp = self.get_clock().now().to_msg()
+
+
+        self.publisher.publish(imgmsg)
+
                 
     def compute_traversibility(self, heightmap):
         # compute sobel gradient in x and y direction
         sobel_x = cv2.Sobel(heightmap, cv2.CV_64F, 1, 0, ksize=5)
-        # for i in range(40):
-        #     for j in range(40):
-        #         self.get_logger().info('(' + str(i) + ', ' + str(j) + '): ' + str(sobel_x[i,j]))
-
+        
         # compute sobel gradient in y direction
         sobel_y = cv2.Sobel(heightmap, cv2.CV_64F, 0, 1, ksize=5)
 

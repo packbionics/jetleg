@@ -19,10 +19,14 @@ JetLegPointCloudProc::JetLegPointCloudProc() : rclcpp::Node("jetleg_pointcloud_p
                                                                         std::bind(&JetLegPointCloudProc::listener_callback, this, std::placeholders::_1));
   publisher = this->create_publisher<sensor_msgs::msg::Image>("/heightmap", 10);
 
+  // Stores output as floats
   heightmap = cv::Mat(MAP_ROWS, MAP_COLS, CV_32FC1);
-  traversibility_map = cv::Mat(MAP_ROWS, MAP_COLS, CV_32FC1);
+  traversibility_map = cv::Mat(MAP_ROWS, MAP_COLS, CV_8UC1);
+  gradient_map = cv::Mat(MAP_ROWS, MAP_COLS, CV_32FC1);
 
+  // Stores outputs as bytes to be compatible with RVIZ
   heightmap_in_bytes = cv::Mat(MAP_ROWS, MAP_COLS, CV_8UC1);
+  traversibility_in_bytes = cv::Mat(MAP_ROWS, MAP_COLS, CV_8UC1);
 }
 
 void JetLegPointCloudProc::listener_callback(const sensor_msgs::msg::PointCloud2::SharedPtr msg) {
@@ -38,12 +42,11 @@ void JetLegPointCloudProc::listener_callback(const sensor_msgs::msg::PointCloud2
   convert_heightmap(cloud_array);
   compute_traversibility(heightmap, traversibility_map);
 
-  // std::string column = "[";
-  // for(unsigned int i = 0; i < traversibility_map.size().width; i++) {
-  //   column += std::to_string(traversibility_map.at<uchar>(i, 0)) + ". ";
-  // }
-  // column += "]";
-  // RCLCPP_INFO(this->get_logger(), column);
+  // Publishes heightmap to visualize with RVIZ
+  // publish_image(heightmap, heightmap_in_bytes);
+
+  // Publishes heightmap to visualize with RVIZ
+  publish_image(traversibility_map, traversibility_in_bytes, 63.0f);
 
   auto time_end = std::chrono::steady_clock::now();
   RCLCPP_INFO(this->get_logger(), "Time (s) per Tick: " + std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(time_end - time_start).count() / 1000.0f));
@@ -152,22 +155,29 @@ void JetLegPointCloudProc::convert_heightmap(std::vector<std::array<float, 3>> c
   // Applies image processing
   cv::erode(heightmap, heightmap, kernel);
   cv::dilate(heightmap, heightmap, kernel);
-
-  // Publishes heightmap to visualize with RVIZ
-  publish_heightmap(heightmap);
 } 
 
-void JetLegPointCloudProc::publish_heightmap(cv::Mat src) {
+void JetLegPointCloudProc::publish_image(const cv::Mat &src, cv::Mat &out, float scale) {
 
-  // Scales heightmap from 0...1 to 0...255
-  for(int i = 0; i < src.size().height; i++) {
-    for(int j = 0; j < src.size().width; j++) {
-      heightmap_in_bytes.at<uchar>(i, j) = src.at<float>(i, j) * 255;
+  // Scales image using "scale" variable
+  if(src.type() == CV_32FC1) {
+    for(int i = 0; i < src.size().height; i++) {
+      for(int j = 0; j < src.size().width; j++) {
+        out.at<uchar>(i, j) = src.at<float>(i, j) * scale;
+      }
+    }
+  }
+
+  if(src.type() == CV_8UC1) {
+    for(int i = 0; i < src.size().height; i++) {
+      for(int j = 0; j < src.size().width; j++) {
+        out.at<uchar>(i, j) = src.at<uchar>(i, j) * scale;
+      }
     }
   }
 
   // Generates Image msg from cv::Mat
-  cv_bridge::CvImage img_bridge = cv_bridge::CvImage(std_msgs::msg::Header(), sensor_msgs::image_encodings::TYPE_8UC1, heightmap_in_bytes);
+  cv_bridge::CvImage img_bridge = cv_bridge::CvImage(std_msgs::msg::Header(), sensor_msgs::image_encodings::TYPE_8UC1, out);
   sensor_msgs::msg::Image imgmsg;
 
   // Publishes to topic
@@ -194,44 +204,43 @@ void JetLegPointCloudProc::update_minmax(std::array<float, 3> point, float &x_mi
 }
 
 void JetLegPointCloudProc::compute_traversibility(cv::Mat &heightmap, cv::Mat &traversibility_map) {
+  const float FLOATING_POINT_THRESHOLD = 0.0001f;
+  
   cv::Mat sobel_x;
   cv::Mat sobel_y;
 
   cv::Sobel(heightmap, sobel_x, CV_64F, 1, 0, 5);
-  // for(int i = 0; i < MAP_ROWS; i++) {
-  //   for(int j = 0; j < MAP_COLS; j++) {
-  //     print_info("(" + std::to_string(i) + ", " + std::to_string(j) + "): " + std::to_string(sobel_x.at<double>(i, j)));
-  //   }
-  // }
-
   cv::Sobel(heightmap, sobel_y, CV_64F, 0, 1, 5);
 
-  cv::Mat gradient_map(sobel_x.size(), CV_32FC1);
-  for(int i = 0; i < sobel_x.size().width; i++) {
-    for(int j = 0; j < sobel_x.size().height; j++) {
-      gradient_map.at<float>(j, i) = std::max(sobel_x.at<float>(j, i), sobel_y.at<float>(j, i));
+  for(int i = 0; i < MAP_ROWS; i++) {
+    for(int j = 0; j < MAP_COLS; j++) {
+      float x_grad = sobel_x.at<double>(i, j);
+      float y_grad = sobel_y.at<double>(i, j);
+
+      float max_grad = std::max(std::abs(x_grad), std::abs(y_grad));
+      gradient_map.at<float>(i, j) = max_grad;
     }
   }
 
-  traversibility_map = cv::Mat(gradient_map.size(), CV_8UC1);
-  for(int i = 0; i < traversibility_map.size().width; i++) {
-    for(int j = 0; j < traversibility_map.size().height; j++) {
-      if(gradient_map.at<float>(j, i) < 5) {
+  for(int i = 0; i < MAP_ROWS; i++) {
+    for(int j = 0; j < MAP_COLS; j++) {
+      if(abs(heightmap.at<float>(i, j)) < FLOATING_POINT_THRESHOLD) {
+        traversibility_map.at<uchar>(i, j) = (uchar)4;
 
-        traversibility_map.at<uchar>(j, i) = 1;
-      } else if(gradient_map.at<float>(j, i) >= 5) {
+      } else if(gradient_map.at<float>(i, j) < 5) {
+        traversibility_map.at<uchar>(i, j) = (uchar)1;
 
-        traversibility_map.at<uchar>(j, i) = 2;
-      } else if(gradient_map.at<float>(j, i) >= 20) {
+      } else if(gradient_map.at<float>(i, j) < 20) {
+        traversibility_map.at<uchar>(i, j) = (uchar)2;
 
-        traversibility_map.at<uchar>(j, i) = 4;
-      } else if(gradient_map.at<float>(j, i) >= 35) {
+      } else if(gradient_map.at<float>(i, j) < 35) {
+        traversibility_map.at<uchar>(i, j) = (uchar)4;
 
-        traversibility_map.at<uchar>(j, i) = 4;
-      }
+      } else if(gradient_map.at<float>(i, j) < 50) {
+        traversibility_map.at<uchar>(i, j) = (uchar)4;
 
-      else {
-        traversibility_map.at<uchar>(j, i) = 4;
+      } else {
+        traversibility_map.at<uchar>(i, j) = (uchar)0;
       }
     }
   }
