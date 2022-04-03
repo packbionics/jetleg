@@ -20,13 +20,13 @@ class PointCloudProcessing(Node):
         super().__init__('jetleg_pointcloud_proc')
         self.pointcloud_sub = self.create_subscription(
             PointCloud2,
-            '/zed2i/zed_node/mapping/fused_cloud',
+            '/zed2i/zed_node/point_cloud/cloud_registered',
             self.cloud_callback,
             10
         )
         self.pose_sub = self.create_subscription(
             PoseStamped,
-            '/zed2i/zed_node/pose',
+            'camera/state',
             self.pose_callback,
             10
         )
@@ -92,7 +92,7 @@ class PointCloudProcessing(Node):
     def convert_heightmap(self, cloud_array):
 
 
-        np.save('/home/packbionics/dev_ws/cloud_array.npy', cloud_array)
+        # np.save('/home/packbionics/dev_ws/cloud_array.npy', cloud_array)
         # cloud array is (N x 3) array, with each row being [x, y, z]
         # sort by x,y coordinates into heightmap image pixels
 
