@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="jetleg_testrig_odrive">
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="jetleg_testrig_vision">
     <xacro:include filename="$(find jetleg_description)/urdf/wheeled_testrig.xacro"/>
     <xacro:include filename="$(find jetleg_description)/urdf/stereo_camera.xacro"/>
     <xacro:include filename="$(find obstacles)/urdf/prebuilts/staircase_var1.xacro"/>

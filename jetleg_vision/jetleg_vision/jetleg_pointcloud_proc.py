@@ -1,10 +1,9 @@
 import rclpy
 from rclpy.node import Node
-import ctypes
-import struct
-from sensor_msgs.msg import PointCloud2, PointField, Image
-from std_msgs.msg import Header
-import matplotlib.pyplot as plt
+from sensor_msgs.msg import PointCloud2, Image
+from scipy.spatial.transform import Rotation as R
+#from nav_msgs.msg import Odometry
+from geometry_msgs.msg import PoseStamped
 
 import numpy as np
 import cv2
@@ -19,28 +18,34 @@ class PointCloudProcessing(Node):
 
     def __init__(self):
         super().__init__('jetleg_pointcloud_proc')
-        self.subscription = self.create_subscription(
+        self.pointcloud_sub = self.create_subscription(
             PointCloud2,
             '/zed2i/zed_node/point_cloud/cloud_registered',
-            self.listener_callback,
-            10)
-        self.subscription  # prevent unused variable warning
+            self.cloud_callback,
+            10
+        )
+        self.pose_sub = self.create_subscription(
+            PoseStamped,
+            'camera/state',
+            self.pose_callback,
+            10
+        )
 
-        self.publisher = self.create_publisher(
+        self.heightmap_publisher = self.create_publisher(
             Image,
             '/heightmap',
             10
         )
-
-        self.exit_signal = threading.Event()
+        self.traversibility_publisher = self.create_publisher(
+            Image,
+            '/traversibility',
+            10,
+        )
 
         self.bridge = CvBridge()
 
-        self.img_queue = Queue()
-        self.img = None
-        self.img_is_populated = False
-
         self.time_start = time.time()
+<<<<<<< HEAD
 
     def listener_callback(self, msg):
         self.time_start = time.time()
@@ -58,35 +63,81 @@ class PointCloudProcessing(Node):
     def convert_heightmap(self, cloud_array):
 
         # flatten
+=======
+        self.pose = None
+
+    # transforms point cloud from map frame to base_link frame  
+    def transform_cloud(self, cloud_array, pose):
+        # get rotation from quaternion
+        r = R.from_quat([self.pose.pose.orientation.x, 
+                                self.pose.pose.orientation.y, 
+                                self.pose.pose.orientation.z, 
+                                self.pose.pose.orientation.w])
+
+        # remove x,y component rotation
+        eulers = r.as_euler('xyz')
+        eulers[0] = 0.0
+        eulers[1] = 0.0
+        eulers[2] = -eulers[2]
+        r_xz = R.from_euler('xyz', eulers)
+        # get translation vector
+        translation = np.array([self.pose.pose.position.x, self.pose.pose.position.y, self.pose.pose.position.z])
+
+        # transform point cloud
+        transformed_cloud = r_xz.apply(cloud_array) - r_xz.apply(translation)
+        return transformed_cloud
+
+    def pose_callback(self, msg):
+        # print pose positions
+        self.get_logger().info('pose: %s' % str(msg.pose.position))
+        self.pose = msg
+
+    def cloud_callback(self, msg):
+        cloud_array = np.frombuffer(msg.data, dtype=np.float32).reshape((msg.height, msg.width, 4))
+>>>>>>> vision
         cloud_array = cloud_array.reshape((cloud_array.shape[0] * cloud_array.shape[1], 4))
 
-        # remove nan values
+        if cloud_array.shape[0] == 0 or self.pose is None:
+            return
+
         cloud_array = cloud_array[:, :3]
         cloud_array = cloud_array[np.isfinite(cloud_array).any(axis=1)]
         cloud_array = cloud_array[~np.isnan(cloud_array).any(axis=1)]
+        cloud_array = self.transform_cloud(cloud_array, self.pose)
+
+        heightmap = self.convert_heightmap(cloud_array)
+        if heightmap is not None:
+            self.compute_traversibility(heightmap)
         
+    def convert_heightmap(self, cloud_array):
+
+
+        # np.save('/home/packbionics/dev_ws/cloud_array.npy', cloud_array)
         # cloud array is (N x 3) array, with each row being [x, y, z]
         # sort by x,y coordinates into heightmap image pixels
-        
-        theta_z_upper = 5 * np.pi / 180
+
+        # clip point cloud according to current position
+        x_minimum = 0.0
+        x_maximum = 1.5
+
+        y_minimum = -0.4
+        y_maximum = 0.4
+        theta_z_upper = 55 * np.pi / 180
 
         # z view restriction
         cloud_restricted = cloud_array[np.where(cloud_array[:,2] <= cloud_array[:,0]*np.tan(theta_z_upper))]
-
         # y view restriction
-        cloud_restricted = cloud_restricted[np.where(cloud_restricted[:,1] <= 0.6)]
-        cloud_restricted = cloud_restricted[np.where(cloud_restricted[:,1] >= -0.6)]
+        cloud_restricted = cloud_restricted[np.where(cloud_restricted[:,1] <= y_maximum)]
+        cloud_restricted = cloud_restricted[np.where(cloud_restricted[:,1] >= y_minimum)]
 
         # x view restriction
-        cloud_restricted = cloud_restricted[np.where(cloud_restricted[:,0] <= 2)]
+        cloud_restricted = cloud_restricted[np.where(cloud_restricted[:,0] <= x_maximum)]
+        cloud_restricted = cloud_restricted[np.where(cloud_restricted[:,0] >= x_minimum)]
 
-        x_minimum = np.min(cloud_restricted[:,0])
-        x_maximum = np.max(cloud_restricted[:,0])
-        y_minimum = np.min(cloud_restricted[:,1])
-        y_maximum = np.max(cloud_restricted[:,1])
+        assert cloud_restricted.shape[0] > 0
 
-        map_rows = 40
-        map_cols = 40
+        map_rows = int((x_maximum - x_minimum) * 42)
+        map_cols = int((y_maximum - y_minimum) * 42)
         heightmap = np.zeros((map_rows,map_cols))
 
         idx_x = 0
@@ -119,11 +170,13 @@ class PointCloudProcessing(Node):
                         [1,1,1,1,1],
                         [0,0,1,0,0]], dtype=np.uint8)
 
-        # image erosion with kernel
-        heightmap = cv2.erode(heightmap, kernel, iterations=1)
-        # image dilation with kernel
-        heightmap = cv2.dilate(heightmap, kernel, iterations=1)
+        #floor detection
+        heightmap[np.where(heightmap == 0)] = np.infty
+        heights = heightmap.flatten()
+        k = 10
+        small_idx = np.argpartition(heights, k)
 
+<<<<<<< HEAD
         #self.img_queue.put(heightmap)
         self.img = heightmap
         if not self.img_is_populated:
@@ -151,6 +204,23 @@ class PointCloudProcessing(Node):
 
         self.publisher.publish(imgmsg)
 
+=======
+        floor_height = np.mean(heights[small_idx[:10]])
+        heightmap = heightmap - floor_height
+        heightmap[np.where(heightmap == np.infty)] = -10
+
+        heightmap = cv2.dilate(heightmap, kernel, iterations=2)
+        heightmap[np.where(heightmap == -10)] = np.infty
+
+        heightmap_in_bytes = (heightmap*255).astype(np.uint8)
+
+        imgmsg = self.bridge.cv2_to_imgmsg(heightmap_in_bytes)
+        imgmsg.header.frame_id = 'odom'
+        imgmsg.header.stamp = self.get_clock().now().to_msg()
+
+        self.heightmap_publisher.publish(imgmsg)
+        return heightmap
+>>>>>>> vision
                 
     def compute_traversibility(self, heightmap):
         # compute sobel gradient in x and y direction
@@ -168,16 +238,20 @@ class PointCloudProcessing(Node):
         traversibility_map[np.where((gradient_map >=35) & (gradient_map < 50))] = 4
         traversibility_map[np.where(heightmap == 0)] = 4
         
+        traversibility_map_in_bytes = (traversibility_map*255).astype(np.uint8)
+        
+        imgmsg = self.bridge.cv2_to_imgmsg(traversibility_map_in_bytes)
+        imgmsg.header.frame_id = 'odom'
+        imgmsg.header.stamp = self.get_clock().now().to_msg()
+        
+        self.traversibility_publisher.publish(imgmsg)
+        
         return traversibility_map
 
 def main(args=None):
     rclpy.init(args=args)
 
     node = PointCloudProcessing()
-    
-    t1 = threading.Thread(target=node.display_heightmap, args=(node.img_queue,))
-    #t1.start()
-
     rclpy.spin(node)
 
     # Destroy the node explicitly
