@@ -45,25 +45,6 @@ class PointCloudProcessing(Node):
         self.bridge = CvBridge()
 
         self.time_start = time.time()
-<<<<<<< HEAD
-
-    def listener_callback(self, msg):
-        self.time_start = time.time()
-
-        cloud_array = np.frombuffer(msg.data, dtype=np.float32).reshape((msg.height, msg.width, 4))
-
-        heightmap = self.convert_heightmap(cloud_array)
-        # self.publish_map(heightmap)
-
-        traversibility_map = self.compute_traversibility(heightmap)
-        self.publish_map(traversibility_map, 63.0)
-
-        self.get_logger().info('Time (s) per Tick: ' + str(time.time() - self.time_start))
-        
-    def convert_heightmap(self, cloud_array):
-
-        # flatten
-=======
         self.pose = None
 
     # transforms point cloud from map frame to base_link frame  
@@ -94,7 +75,6 @@ class PointCloudProcessing(Node):
 
     def cloud_callback(self, msg):
         cloud_array = np.frombuffer(msg.data, dtype=np.float32).reshape((msg.height, msg.width, 4))
->>>>>>> vision
         cloud_array = cloud_array.reshape((cloud_array.shape[0] * cloud_array.shape[1], 4))
 
         if cloud_array.shape[0] == 0 or self.pose is None:
@@ -176,35 +156,6 @@ class PointCloudProcessing(Node):
         k = 10
         small_idx = np.argpartition(heights, k)
 
-<<<<<<< HEAD
-        #self.img_queue.put(heightmap)
-        self.img = heightmap
-        if not self.img_is_populated:
-            self.img_is_populated = True
-
-        return heightmap
-
-    def display_heightmap(self, img_queue):
-        while not self.exit_signal.is_set(): 
-
-            #if not img_queue.empty():
-            #img = img_queue.get()
-            if self.img_is_populated:
-                plt.imshow(self.img)
-                plt.show(block=False)
-                plt.pause(1/30.0)
-
-    def publish_map(self, image, scale=255.0):
-        image_in_bytes = (image*scale).astype(np.uint8)
-
-        imgmsg = self.bridge.cv2_to_imgmsg(image_in_bytes)
-        imgmsg.header.frame_id = 'odom'
-        imgmsg.header.stamp = self.get_clock().now().to_msg()
-
-
-        self.publisher.publish(imgmsg)
-
-=======
         floor_height = np.mean(heights[small_idx[:10]])
         heightmap = heightmap - floor_height
         heightmap[np.where(heightmap == np.infty)] = -10
@@ -220,7 +171,6 @@ class PointCloudProcessing(Node):
 
         self.heightmap_publisher.publish(imgmsg)
         return heightmap
->>>>>>> vision
                 
     def compute_traversibility(self, heightmap):
         # compute sobel gradient in x and y direction
