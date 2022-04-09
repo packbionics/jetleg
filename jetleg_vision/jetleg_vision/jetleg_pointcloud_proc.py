@@ -83,7 +83,7 @@ class PointCloudProcessing(Node):
         cloud_array = cloud_array[:, :3]
         cloud_array = cloud_array[np.isfinite(cloud_array).any(axis=1)]
         cloud_array = cloud_array[~np.isnan(cloud_array).any(axis=1)]
-        cloud_array = self.transform_cloud(cloud_array, self.pose)
+        # cloud_array = self.transform_cloud(cloud_array, self.pose)
 
         heightmap = self.convert_heightmap(cloud_array)
         if heightmap is not None:
