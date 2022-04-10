@@ -41,7 +41,7 @@ void JetLegPointCloudProc::cloud_callback(const sensor_msgs::msg::PointCloud2::S
 
   // Bytes per field (e.g. sizeof(float) = 4)
   const unsigned int step_size = sizeof(float);
-  std::vector<PointXYZ> cloud_array(msg->data.size() / step_size);
+  std::vector<glm::vec3> cloud_array(msg->data.size() / step_size);
     
   // Convert from byte array to float array of structure XYZ
   load_data(cloud_array, step_size, msg);
@@ -59,7 +59,7 @@ void JetLegPointCloudProc::cloud_callback(const sensor_msgs::msg::PointCloud2::S
   RCLCPP_INFO(this->get_logger(), "Time (s) per Tick: " + std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(time_end - time_start).count() / 1000.0f));
 }
 
-void JetLegPointCloudProc::load_data(std::vector<PointXYZ> &data, const unsigned int step_size, const sensor_msgs::msg::PointCloud2::SharedPtr msg) {
+void JetLegPointCloudProc::load_data(std::vector<glm::vec3> &data, const unsigned int step_size, const sensor_msgs::msg::PointCloud2::SharedPtr msg) {
   // Stores byte array representing single floating-point value
   uchar* bytes = new uchar[step_size];
 
@@ -99,11 +99,11 @@ void JetLegPointCloudProc::load_data(std::vector<PointXYZ> &data, const unsigned
   delete[] bytes;
 }
 
-void JetLegPointCloudProc::convert_heightmap(std::vector<PointXYZ> cloud_array) {
+void JetLegPointCloudProc::convert_heightmap(std::vector<glm::vec3> cloud_array) {
 
   float floor_height = Z_MAX;
 
-  std::vector<PointXYZ> filtered_cloud;
+  std::vector<glm::vec3> filtered_cloud;
   for(unsigned int i = 0; i < cloud_array.size(); i++) {
 
     // Applies X restrictions
@@ -265,63 +265,12 @@ bool JetLegPointCloudProc::close_to(float a, float b, float threshold) {
 }
 
 /**
- * Performs hamilton product calculations
- * 
- * @param a left quaternion
- * @param b right quaternion
- * @return geometry_msgs::msg::Quaternion hamilton product of a and b
- */
-geometry_msgs::msg::Quaternion JetLegPointCloudProc::calc_hamilton_product(geometry_msgs::msg::Quaternion a, geometry_msgs::msg::Quaternion b) {
-  geometry_msgs::msg::Quaternion newQuaternion;
-
-  newQuaternion.x = a.w * b.x + a.x * b.w + a.y * b.z - a.z * b.y;
-  newQuaternion.y = a.w * b.y - a.x * b.z + a.y * b.w + a.z * b.x;
-  newQuaternion.z = a.w * b.z + a.x * b.y - a.y * b.x + a.z * b.w;
-  newQuaternion.w = a.w * b.w - a.x * b.x - a.y * b.y + a.z * b.z;
-
-  return newQuaternion;
-}
-
-/**
- * Rotates a point using the left hamilton product of camera orientation and the right hamilton product of the orientation's conjugate
- * 
- * @param quaternion orientation of camera
- * @param point point to be rotated
- * @param conjugateQuaternion conjugate of the orientation of the camera
- */
-void JetLegPointCloudProc::rotate_point(geometry_msgs::msg::Quaternion quaternion, PointXYZ &point, geometry_msgs::msg::Quaternion conjugateQuaternion) {
-
-  //Converts point to pure quaternion to perform hamilton product
-  geometry_msgs::msg::Quaternion pointQuaternion;
-
-  pointQuaternion.x = point.x;
-  pointQuaternion.y = point.y;
-  pointQuaternion.z = point.z;
-  pointQuaternion.w = 0.0f;
-
-  geometry_msgs::msg::Quaternion partialRotationCalculation = calc_hamilton_product(quaternion, pointQuaternion);
-  geometry_msgs::msg::Quaternion fullRotationCalculation = calc_hamilton_product(partialRotationCalculation, conjugateQuaternion);
-
-  //Convert pure quaternion to 3-D vector
-  point.x = fullRotationCalculation.x;
-  point.y = fullRotationCalculation.y;
-  point.z = fullRotationCalculation.z;
-}
-
-/**
  * Converts point from camera space to world space using camera orientation and translation
  * 
  * @param index index of the point in the flatData vector
  */
-void JetLegPointCloudProc::convertToWorldFramePoint(std::vector<PointXYZ> &cloud_array, unsigned int index) {
-
-    //Perform rotation transformation
-    rotate_point(pose.pose.orientation, cloud_array[index], orientation_conjugate);
-
-    //Perform translation transformation
-    cloud_array[index].x = cloud_array[index].x - this->pose.pose.position.x;
-    cloud_array[index].y = cloud_array[index].y - this->pose.pose.position.y;
-    cloud_array[index].z = cloud_array[index].z - this->pose.pose.position.z;
+void JetLegPointCloudProc::convertToWorldFramePoint(std::vector<glm::vec3> &cloud_array, unsigned int index) {
+    cloud_array[index] = glm::rotateZ(cloud_array[index], orientation.z) - position;
 }
 
 /**
@@ -331,22 +280,14 @@ void JetLegPointCloudProc::convertToWorldFramePoint(std::vector<PointXYZ> &cloud
  * @param msg pointer to PoseStamped message
  */
 void JetLegPointCloudProc::pose_callback(const geometry_msgs::msg::PoseStamped::SharedPtr msg) {
-  updatePoseStamped(msg);
-
-  orientation_conjugate.x = -this->pose.pose.orientation.x;
-  orientation_conjugate.y = -this->pose.pose.orientation.y;
-  orientation_conjugate.z = -this->pose.pose.orientation.z;
-  orientation_conjugate.w =  this->pose.pose.orientation.w;
-}
-
-void JetLegPointCloudProc::updatePoseStamped(const geometry_msgs::msg::PoseStamped::SharedPtr msg) {
-
+  
   //Stores rotation and translation transformations of simulated camera
-  this->pose = *msg;
+  position.x = msg->pose.position.x;
+  position.y = msg->pose.position.y;
+  position.z = msg->pose.position.z;
 
-  this->pose.pose.orientation.x = 0.0f;
-  this->pose.pose.orientation.y = 0.0f;
-  this->pose.pose.orientation.z = -this->pose.pose.orientation.z;
-
-  // print_info(std::to_string(this->pose.pose.position.y));
+  orientation.x = 0.0f;
+  orientation.y = 0.0f;
+  orientation.z = -msg->pose.orientation.z;
+  orientation.w = msg->pose.orientation.w;
 }

@@ -85,8 +85,6 @@ class PointCloudProcessing(Node):
         cloud_array = cloud_array[~np.isnan(cloud_array).any(axis=1)]
         cloud_array = self.transform_cloud(cloud_array, self.pose)
 
-        self.get_logger().info(str(cloud_array[:10]))
-
         heightmap = self.convert_heightmap(cloud_array)
         if heightmap is not None:
             self.compute_traversibility(heightmap)
