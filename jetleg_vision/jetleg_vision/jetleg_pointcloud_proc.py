@@ -92,7 +92,6 @@ class PointCloudProcessing(Node):
     def convert_heightmap(self, cloud_array):
 
 
-        # np.save('/home/packbionics/dev_ws/cloud_array.npy', cloud_array)
         # cloud array is (N x 3) array, with each row being [x, y, z]
         # sort by x,y coordinates into heightmap image pixels
 
@@ -157,7 +156,6 @@ class PointCloudProcessing(Node):
         small_idx = np.argpartition(heights, k)
 
         floor_height = np.mean(heights[small_idx[:10]])
-        self.get_logger().info('Floor height is: ' + str(floor_height))
         heightmap = heightmap - floor_height
         heightmap[np.where(heightmap == np.infty)] = -10
 

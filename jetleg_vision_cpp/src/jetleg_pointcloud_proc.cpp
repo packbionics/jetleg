@@ -52,9 +52,6 @@ void JetLegPointCloudProc::cloud_callback(const sensor_msgs::msg::PointCloud2::S
   // Publishes heightmap to visualize with RVIZ
   publish_image(processed_heightmap, heightmap_in_bytes);
 
-  // Publishes heightmap to visualize with RVIZ
-  // publish_image(traversibility_map, traversibility_in_bytes, 63.0f);
-
   auto time_end = std::chrono::steady_clock::now();
   RCLCPP_INFO(this->get_logger(), "Time (s) per Tick: " + std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(time_end - time_start).count() / 1000.0f));
 }
@@ -270,7 +267,7 @@ bool JetLegPointCloudProc::close_to(float a, float b, float threshold) {
  * @param index index of the point in the flatData vector
  */
 void JetLegPointCloudProc::convertToWorldFramePoint(std::vector<glm::vec3> &cloud_array, unsigned int index) {
-    cloud_array[index] = glm::rotateZ(cloud_array[index], orientation.z) - position;
+    cloud_array[index] = glm::rotateZ(cloud_array[index], eulerAngles.z) - position;
 }
 
 /**
@@ -286,8 +283,13 @@ void JetLegPointCloudProc::pose_callback(const geometry_msgs::msg::PoseStamped::
   position.y = msg->pose.position.y;
   position.z = msg->pose.position.z;
 
-  orientation.x = 0.0f;
-  orientation.y = 0.0f;
-  orientation.z = -msg->pose.orientation.z;
+  orientation.x = msg->pose.orientation.x;
+  orientation.y = msg->pose.orientation.y;
+  orientation.z = msg->pose.orientation.z;
   orientation.w = msg->pose.orientation.w;
+
+  eulerAngles = glm::eulerAngles(orientation);
+  eulerAngles.x = 0.0f;
+  eulerAngles.y = 0.0f;
+  eulerAngles.z = -eulerAngles.z;
 }

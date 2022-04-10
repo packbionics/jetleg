@@ -58,6 +58,8 @@ class JetLegPointCloudProc : public rclcpp::Node {
         glm::vec3 position;
         glm::quat orientation;
 
+        glm::vec3 eulerAngles;
+
         //geometry_msgs::msg::PoseStamped pose;
         //geometry_msgs::msg::Quaternion orientation_conjugate;
 
