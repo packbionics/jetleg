@@ -23,7 +23,7 @@ find_package(std_msgs REQUIRED)
 find_package(cv_bridge REQUIRED)
 find_package(rclcpp REQUIRED)
 
-add_executable(jetleg_pointcloud_proc src/jetleg_pointcloud_proc.hpp src/jetleg_pointcloud_proc.cpp src/main.cpp)
+add_executable(jetleg_pointcloud_proc src/jetleg_pointcloud_proc.hpp src/jetleg_pointcloud_proc.cpp src/main.cpp glm/vec3.hpp)
 target_include_directories(jetleg_pointcloud_proc PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>)

@@ -83,7 +83,9 @@ class PointCloudProcessing(Node):
         cloud_array = cloud_array[:, :3]
         cloud_array = cloud_array[np.isfinite(cloud_array).any(axis=1)]
         cloud_array = cloud_array[~np.isnan(cloud_array).any(axis=1)]
-        # cloud_array = self.transform_cloud(cloud_array, self.pose)
+        cloud_array = self.transform_cloud(cloud_array, self.pose)
+
+        self.get_logger().info(str(cloud_array[:10]))
 
         heightmap = self.convert_heightmap(cloud_array)
         if heightmap is not None:
@@ -157,6 +159,7 @@ class PointCloudProcessing(Node):
         small_idx = np.argpartition(heights, k)
 
         floor_height = np.mean(heights[small_idx[:10]])
+        self.get_logger().info('Floor height is: ' + str(floor_height))
         heightmap = heightmap - floor_height
         heightmap[np.where(heightmap == np.infty)] = -10
 
