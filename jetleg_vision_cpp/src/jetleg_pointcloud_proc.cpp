@@ -66,11 +66,11 @@ void JetLegPointCloudProc::load_data(std::vector<glm::vec3> &data, const unsigne
   // Step taken in the data field
   unsigned int data_step;
 
-  // Number of fields for each point (e.g. xyz --> 3)
+  // Number of fields for each point (e.g. xyz_ --> 4)
   const unsigned int point_offset = 4;
 
   // Iterate through points
-  for(unsigned int i = 0; i < data.size(); i += 4) {
+  for(unsigned int i = 0; i < data.size(); i += sizeof(float)) {
     data_step = i * point_offset;
 
       // Retrieves x-coordinate of point
