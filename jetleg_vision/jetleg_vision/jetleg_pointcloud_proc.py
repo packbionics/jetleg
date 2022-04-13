@@ -161,7 +161,6 @@ class PointCloudProcessing(Node):
         heightmap[np.where(heightmap == np.infty)] = -10
 
         heightmap = cv2.dilate(heightmap, kernel, iterations=2)
-        heightmap[np.where(heightmap == -10)] = np.infty
 
         heightmap_in_bytes = (heightmap*255).astype(np.uint8)
 
