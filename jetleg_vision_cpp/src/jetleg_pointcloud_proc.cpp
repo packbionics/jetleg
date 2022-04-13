@@ -14,6 +14,7 @@ JetLegPointCloudProc::JetLegPointCloudProc() : rclcpp::Node("jetleg_pointcloud_p
                                                MAP_COLS((Y_MAX - Y_MIN) * 42) {
   RCLCPP_INFO(this->get_logger(), "jetleg_pointcloud_proc node has been created...");
 
+  // Creates subscribers and publishers
   cloud_subscriber = this->create_subscription<sensor_msgs::msg::PointCloud2>("/zed2i/zed_node/point_cloud/cloud_registered", 
                                                                         10, std::bind(&JetLegPointCloudProc::cloud_callback, this, std::placeholders::_1));
   pose_subscriber = this->create_subscription<geometry_msgs::msg::PoseStamped>("camera/state",
@@ -46,7 +47,9 @@ void JetLegPointCloudProc::cloud_callback(const sensor_msgs::msg::PointCloud2::S
   // Convert from byte array to float array of structure XYZ
   load_data(cloud_array, step_size, msg);
 
+  //Generate heightmap
   convert_heightmap(cloud_array);
+  //Generate traversibility map
   compute_traversibility(processed_heightmap, traversibility_map);
 
   // Publishes heightmap to visualize with RVIZ
@@ -63,13 +66,14 @@ void JetLegPointCloudProc::load_data(std::vector<glm::vec3> &data, const unsigne
   // Step taken in the data field
   unsigned int data_step;
 
-  // Number of fields for each point (e.g. xyz_ --> 4)
-  unsigned int point_offset = 4;
+  // Number of fields for each point (e.g. xyz --> 3)
+  const unsigned int point_offset = 4;
 
   // Iterate through points
   for(unsigned int i = 0; i < data.size(); i += 4) {
     data_step = i * point_offset;
 
+      // Retrieves x-coordinate of point
       for(unsigned int j = 0; j < step_size; j++) {
         bytes[j] = msg->data[data_step + step_size * X + j];
       }
@@ -77,6 +81,7 @@ void JetLegPointCloudProc::load_data(std::vector<glm::vec3> &data, const unsigne
       // Convert from byte array to float
       memcpy(&data[i].x, bytes, step_size);
 
+      // Retrieves y-coordinate of point
       for(unsigned int j = 0; j < step_size; j++) {
         bytes[j] = msg->data[data_step + step_size * Y + j];
       }
@@ -84,20 +89,24 @@ void JetLegPointCloudProc::load_data(std::vector<glm::vec3> &data, const unsigne
       // Convert from byte array to float
       memcpy(&data[i].y, bytes, step_size);
 
+      // Retrieves z-coordinate of point
       for(unsigned int j = 0; j < step_size; j++) {
         bytes[j] = msg->data[data_step + step_size * Z + j];
       }
 
       // Convert from byte array to float
       memcpy(&data[i].z, bytes, step_size);
+
+      // Transforms point
       convertToWorldFramePoint(data, i);
   }
 
   delete[] bytes;
 }
 
-void JetLegPointCloudProc::convert_heightmap(std::vector<glm::vec3> cloud_array) {
+void JetLegPointCloudProc::convert_heightmap(const std::vector<glm::vec3> &cloud_array) {
 
+  // Set initial floor height to maximum possible value
   float floor_height = Z_MAX;
 
   std::vector<glm::vec3> filtered_cloud;

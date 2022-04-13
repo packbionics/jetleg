@@ -26,15 +26,18 @@ class JetLegPointCloudProc : public rclcpp::Node {
         JetLegPointCloudProc();
         ~JetLegPointCloudProc();
     private:
+
+        // Updates point cloud information
         void cloud_callback(const sensor_msgs::msg::PointCloud2::SharedPtr msg);
 
+        // Updates camera pose information
         void pose_callback(const geometry_msgs::msg::PoseStamped::SharedPtr msg);
 
         // Loads point cloud data from PointCloud2 topic
         void load_data(std::vector<glm::vec3> &data, const unsigned int step_size, const sensor_msgs::msg::PointCloud2::SharedPtr msg);
 
         // Generates heightmap
-        void convert_heightmap(std::vector<glm::vec3> cloud_array);
+        void convert_heightmap(const std::vector<glm::vec3> &cloud_array);
 
         // Generates traversibility map used to determine possible steps
         void compute_traversibility(cv::Mat &heightmap, cv::Mat &traversibility_map);
@@ -50,18 +53,19 @@ class JetLegPointCloudProc : public rclcpp::Node {
         // Transforms points from camera space to world space
         void convertToWorldFramePoint(std::vector<glm::vec3> &cloud_array, unsigned int index);
 
+        // ROS subscribers
         rclcpp::Subscription<sensor_msgs::msg::PointCloud2>::SharedPtr cloud_subscriber;
         rclcpp::Subscription<geometry_msgs::msg::PoseStamped>::SharedPtr pose_subscriber;
 
+        // ROS publishers
         rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr publisher;
 
+        // Position and orientation of camera
         glm::vec3 position;
         glm::quat orientation;
 
+        // Orientation of camera represented as euler rotations XYZ
         glm::vec3 eulerAngles;
-
-        //geometry_msgs::msg::PoseStamped pose;
-        //geometry_msgs::msg::Quaternion orientation_conjugate;
 
         // Fields per point
         const unsigned int X;

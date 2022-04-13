@@ -74,8 +74,10 @@ class PointCloudProcessing(Node):
         self.pose = msg
 
     def cloud_callback(self, msg):
-        cloud_array = np.frombuffer(msg.data, dtype=np.float32).reshape((msg.height, msg.width, 4))
-        cloud_array = cloud_array.reshape((cloud_array.shape[0] * cloud_array.shape[1], 4))
+        num_fields = 4
+
+        cloud_array = np.frombuffer(msg.data, dtype=np.float32).reshape((msg.height, msg.width, num_fields))
+        cloud_array = cloud_array.reshape((cloud_array.shape[0] * cloud_array.shape[1], num_fields))
 
         if cloud_array.shape[0] == 0 or self.pose is None:
             return
