@@ -2,16 +2,15 @@
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
   <name>jetleg_vision_cpp</name>
-  <version>0.0.0</version>
-  <description>TODO: Package description</description>
+  <version>1.0.0</version>
+  <description>Publishes transformed heightmap/traversibility map from given pointcloud</description>
   <maintainer email="anthonybrown0528@protonmail.com">anthony</maintainer>
-  <license>TODO: License declaration</license>
+  <license>Apache License 2.0</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
   <depend>sensor_msgs</depend>
   <depend>std_msgs</depend>
-  <depend>opencv</depend>
   <depend>cv_bridge</depend>
   <depend>rclcpp</depend>
 
