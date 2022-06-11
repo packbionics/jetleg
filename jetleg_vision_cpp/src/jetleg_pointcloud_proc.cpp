@@ -32,7 +32,7 @@ JetLegPointCloudProc::~JetLegPointCloudProc() {
 void JetLegPointCloudProc::pointcloudSubCallback(const sensor_msgs::msg::PointCloud2::SharedPtr msg) {
   auto timeStart = std::chrono::steady_clock::now();
 
-  std::vector<glm::vec3> cloudArray(msg->data.size() / STEP_SIZE);
+  std::vector<glm::vec4> cloudArray(msg->data.size() / STEP_SIZE);
     
   // Convert from byte array to float array of structure XYZ
   loadData(cloudArray, msg);
@@ -49,38 +49,21 @@ void JetLegPointCloudProc::pointcloudSubCallback(const sensor_msgs::msg::PointCl
   RCLCPP_INFO(this->get_logger(), "Time (s) per Tick: " + std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(timeEnd - timeStart).count() / 1000.0f));
 }
 
-void JetLegPointCloudProc::loadData(std::vector<glm::vec3> &data, const sensor_msgs::msg::PointCloud2::SharedPtr msg) {
-  //Number of fields
-  unsigned int numFields = 3;
+void JetLegPointCloudProc::loadData(std::vector<glm::vec4> &data, const sensor_msgs::msg::PointCloud2::SharedPtr msg) {
+  memcpy(&data[0], &msg->data[0], msg->data.size());
 
-  // Stores byte array representing single floating-point value
-  uchar pointBytes[STEP_SIZE * numFields];
-
-  // Step taken in the data field
-  unsigned int data_step;
-
-  // Iterate through points
-  for(unsigned int i = 0; i < data.size(); i += POINT_OFFSET) {
-    data_step = i * POINT_OFFSET;
-
-    // Populate byte array with bytes for 3 consecutive floats
-    for(int j = 0; j < STEP_SIZE * numFields; j++) {
-      pointBytes[j] = msg->data[data_step + j];
-    }
-
-    memcpy(&data[i], pointBytes, STEP_SIZE * numFields);
-
-    // Transforms point
+  // Transforms points
+  for(unsigned int i = 0; i < data.size(); i += POINT_OFFSET) {    
     convertToWorldFramePoint(data, i);
   }
 }
 
-void JetLegPointCloudProc::convertHeightmap(const std::vector<glm::vec3> &cloud_array) {
+void JetLegPointCloudProc::convertHeightmap(const std::vector<glm::vec4> &cloud_array) {
 
   // Set initial floor height to maximum possible value
   float floor_height = Z_MAX;
 
-  std::vector<glm::vec3> filtered_cloud;
+  std::vector<glm::vec4> filtered_cloud;
   for(unsigned int i = 0; i < cloud_array.size(); i++) {
 
     // Applies X restrictions
@@ -240,7 +223,7 @@ bool JetLegPointCloudProc::closeTo(float a, float b, float threshold) {
  * 
  * @param index index of the point in the flatData vector
  */
-void JetLegPointCloudProc::convertToWorldFramePoint(std::vector<glm::vec3> &cloud_array, unsigned int index) {
+void JetLegPointCloudProc::convertToWorldFramePoint(std::vector<glm::vec4> &cloud_array, unsigned int index) {
     cloud_array[index] = glm::rotateZ(cloud_array[index], eulerAngles.z) - position;
 }
 

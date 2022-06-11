@@ -5,7 +5,7 @@
 #include <chrono>
 #include <cv_bridge/cv_bridge.h>
 
-#include <glm/vec3.hpp>
+#include <glm/vec4.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtx/rotate_vector.hpp>
@@ -36,10 +36,10 @@ class JetLegPointCloudProc : public rclcpp::Node {
         void poseStampedSubCallback(const geometry_msgs::msg::PoseStamped::SharedPtr msg);
 
         // Loads point cloud data from PointCloud2 topic
-        void loadData(std::vector<glm::vec3> &data, const sensor_msgs::msg::PointCloud2::SharedPtr msg);
+        void loadData(std::vector<glm::vec4> &data, const sensor_msgs::msg::PointCloud2::SharedPtr msg);
 
         // Generates heightmap
-        void convertHeightmap(const std::vector<glm::vec3> &cloud_array);
+        void convertHeightmap(const std::vector<glm::vec4> &cloud_array);
 
         // Generates traversibility map used to determine possible steps
         void computeTraversibility(cv::Mat &heightmap, cv::Mat &traversibility_map);
@@ -53,7 +53,7 @@ class JetLegPointCloudProc : public rclcpp::Node {
         void printInfo(std::string msg);
         
         // Transforms points from camera space to world space
-        void convertToWorldFramePoint(std::vector<glm::vec3> &cloud_array, unsigned int index);
+        void convertToWorldFramePoint(std::vector<glm::vec4> &cloud_array, unsigned int index);
 
         /************ MEMBER VARIABLES ************/
 
@@ -65,7 +65,7 @@ class JetLegPointCloudProc : public rclcpp::Node {
         rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr publisher;
 
         // Position and orientation of camera
-        glm::vec3 position;
+        glm::vec4 position;
         glm::quat orientation;
 
         // Orientation of camera represented as euler rotations XYZ
