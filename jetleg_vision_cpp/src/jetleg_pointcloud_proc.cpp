@@ -50,10 +50,12 @@ void JetLegPointCloudProc::pointcloudSubCallback(const sensor_msgs::msg::PointCl
 }
 
 void JetLegPointCloudProc::loadData(std::vector<glm::vec4> &data, const sensor_msgs::msg::PointCloud2::SharedPtr msg) {
+
+  //Copy byte data into vector of glm::vec4 float data
   memcpy(&data[0], &msg->data[0], msg->data.size());
 
   // Transforms points
-  for(unsigned int i = 0; i < data.size(); i += POINT_OFFSET) {    
+  for(unsigned int i = 0; i < data.size(); i++) {    
     convertToWorldFramePoint(data, i);
   }
 }
@@ -223,8 +225,9 @@ bool JetLegPointCloudProc::closeTo(float a, float b, float threshold) {
  * 
  * @param index index of the point in the flatData vector
  */
-void JetLegPointCloudProc::convertToWorldFramePoint(std::vector<glm::vec4> &cloud_array, unsigned int index) {
-    cloud_array[index] = glm::rotateZ(cloud_array[index], eulerAngles.z) - position;
+void JetLegPointCloudProc::convertToWorldFramePoint(std::vector<glm::vec4> &cloudArray, unsigned int index) {
+    glm::rotateZ(cloudArray[index], eulerAngles.z);
+    cloudArray[index] -= position;
 }
 
 /**

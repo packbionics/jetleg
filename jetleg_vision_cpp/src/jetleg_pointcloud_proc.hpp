@@ -5,6 +5,7 @@
 #include <chrono>
 #include <cv_bridge/cv_bridge.h>
 
+#include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>
@@ -53,7 +54,7 @@ class JetLegPointCloudProc : public rclcpp::Node {
         void printInfo(std::string msg);
         
         // Transforms points from camera space to world space
-        void convertToWorldFramePoint(std::vector<glm::vec4> &cloud_array, unsigned int index);
+        void convertToWorldFramePoint(std::vector<glm::vec4> &cloudArray, unsigned int index);
 
         /************ MEMBER VARIABLES ************/
 
@@ -96,7 +97,7 @@ class JetLegPointCloudProc : public rclcpp::Node {
         const unsigned int QOS = 10;
 
         // Bytes per field (e.g. sizeof(float) = 4)
-        const unsigned int STEP_SIZE = sizeof(float);
+        const unsigned int STEP_SIZE = sizeof(glm::vec4);
 
         // Number of fields for each point (e.g. xyz_ --> 4)
         const unsigned int POINT_OFFSET = 4;
