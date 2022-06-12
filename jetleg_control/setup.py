@@ -41,6 +41,7 @@ setup(
     entry_points={
         'console_scripts': [
         		'jetleg_teleop_key = jetleg_control.jetleg_teleop_key:main',
+                'jetleg_gait_generator = jetleg_control.jetleg_gait_generator:main'
         ],
     },
 )
