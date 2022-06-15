@@ -107,7 +107,7 @@ class JetLegTeleop(Node):
 
         self.knee_joint_position_topic = '/knee_joint_position_controller/command'
         self.ankle_joint_position_topic = '/ankle_joint_position_controller/command'
-        self.gantry_to_mount_position_topic = '/gantry_to_mount_position_controller/command'
+        self.gantry_to_mount_position_topic = '/vertical_rail_to_mount_position_controller/command'
         self.mount_to_leg_position_topic = '/mount_to_jetleg_position_controller/command'
 
         self.knee_joint_position_publisher = self.create_publisher(Float64,

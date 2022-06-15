@@ -74,6 +74,9 @@
 
     <xacro:include filename="jetleg.xacro"/> 
     
+    <xacro:jetleg identifer="">
+    </xacro:jetleg>
+    
     <joint name="mount_to_jetleg" type="fixed">
         <parent link="mount"/>
         <child link="thigh"/>

@@ -46,7 +46,7 @@ void JetLegPointCloudProc::pointcloudSubCallback(const sensor_msgs::msg::PointCl
   publishImage(processedHeightmap, heightmapInBytes);
 
   auto timeEnd = std::chrono::steady_clock::now();
-  RCLCPP_INFO(this->get_logger(), "Time (s) per Tick: " + std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(timeEnd - timeStart).count() / 1000.0f));
+  // RCLCPP_INFO(this->get_logger(), "Time (s) per Tick: " + std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(timeEnd - timeStart).count() / 1000.0f));
 }
 
 void JetLegPointCloudProc::loadData(std::vector<glm::vec4> &data, const sensor_msgs::msg::PointCloud2::SharedPtr msg) {

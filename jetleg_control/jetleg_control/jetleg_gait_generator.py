@@ -36,8 +36,8 @@ class JetLegGait(Node):
         self.ankle_joint_position_topic = '/ankle_joint_position_controller/command'
         self.gantry_to_mount_position_topic = '/vertical_rail_to_mount_position_controller/command'
         
-        self.knee_intact_joint_position_topic = '/knee_intact_joint_position_controller/command'
-        self.ankle_intact_joint_position_topic = '/ankle_intact_joint_position_controller/command'
+        self.knee_intact_joint_position_topic = '/knee_joint_intact_position_controller/command'
+        self.ankle_intact_joint_position_topic = '/ankle_joint_intact_position_controller/command'
         self.gantry_to_mount_intact_position_topic = '/vertical_rail_to_mount_intact_position_controller/command'
         
         self.wheel_fore_left_effort_topic = '/wheel_fore_left_effort_controller/command'

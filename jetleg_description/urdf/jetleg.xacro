@@ -9,84 +9,86 @@
     <xacro:property name="foot_width" value="0.1" />
     <xacro:property name="foot_height" value="0.05" />
 
-    <link name="thigh">
-        <visual>
-            <geometry>
-                <cylinder length="${thigh_length}" radius="0.06"/>
-            </geometry>
-            <material name="white"/> 
-        </visual>
-        <collision>
-            <geometry>
-                <cylinder length="${thigh_length}" radius="0.06"/>
-            </geometry>
-        </collision>
-        <inertial>
-            <mass value="20"/>
-            <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
-        </inertial>
-    </link>
+    <xacro:macro name="jetleg" params="identifier">
+        <link name="thigh${identifier}">
+            <visual>
+                <geometry>
+                    <cylinder length="${thigh_length}" radius="0.06"/>
+                </geometry>
+                <material name="white"/> 
+            </visual>
+            <collision>
+                <geometry>
+                    <cylinder length="${thigh_length}" radius="0.06"/>
+                </geometry>
+            </collision>
+            <inertial>
+                <mass value="20"/>
+                <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
+            </inertial>
+        </link>
 
-    <link name="shank">
-        <visual>
-            <geometry>
-                <cylinder length="${shank_length}" radius="0.06"/>
-            </geometry>
-            <material name="white"/> 
-            <origin rpy="0 0 0" xyz="0 0 ${-shank_length/2-knee_joint_radius}"/>
-        </visual>
-        <collision>
-            <geometry>
-                <cylinder length="${shank_length}" radius="0.06"/>
-            </geometry>
-            <origin rpy="0 0 0" xyz="0 0 ${-shank_length/2-knee_joint_radius}"/>
-        </collision>
-        <inertial>
-            <mass value="10"/>
-            <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
-            <origin rpy="0 0 0" xyz="0 0 ${-shank_length/2-knee_joint_radius}"/>
-        </inertial>
-    </link>
+        <link name="shank${identifier}">
+            <visual>
+                <geometry>
+                    <cylinder length="${shank_length}" radius="0.06"/>
+                </geometry>
+                <material name="white"/> 
+                <origin rpy="0 0 0" xyz="0 0 ${-shank_length/2-knee_joint_radius}"/>
+            </visual>
+            <collision>
+                <geometry>
+                    <cylinder length="${shank_length}" radius="0.06"/>
+                </geometry>
+                <origin rpy="0 0 0" xyz="0 0 ${-shank_length/2-knee_joint_radius}"/>
+            </collision>
+            <inertial>
+                <mass value="10"/>
+                <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
+                <origin rpy="0 0 0" xyz="0 0 ${-shank_length/2-knee_joint_radius}"/>
+            </inertial>
+        </link>
 
-    <joint name="knee_joint" type="revolute">
-        <origin rpy="0 0 0" xyz="0 0 ${-thigh_length/2-knee_joint_radius}"/>
-        <parent link="thigh"/>
-        <child link="shank"/>
-        <axis xyz="0 1 0"/>
-        <limit effort="100" lower="0.0" upper="1.5" velocity="10"/>
-    </joint>
+        <joint name="knee_joint${identifier}" type="revolute">
+            <origin rpy="0 0 0" xyz="0 0 ${-thigh_length/2-knee_joint_radius}"/>
+            <parent link="thigh${identifier}"/>
+            <child link="shank${identifier}"/>
+            <axis xyz="0 1 0"/>
+            <limit effort="100" lower="0.0" upper="1.5" velocity="10"/>
+        </joint>
 
-    <link name="foot">
-        <contact>
-            <lateral_friction value="100"/>
-        </contact>
+        <link name="foot${identifier}">
+            <contact>
+                <lateral_friction value="100"/>
+            </contact>
 
-        <visual>
-            <geometry>
-                <box size="${foot_length} ${foot_width} ${foot_height}"/>
-            </geometry>
-            <material name="white"/> 
-            <origin xyz="${(foot_length/2-0.05)} 0 ${-ankle_joint_radius-foot_height/2}"/>
-        </visual>
-        <collision>
-            <geometry>
-                <box size="${foot_length} ${foot_width} ${foot_height}"/>
-            </geometry>
-            <origin xyz="${(foot_length/2-0.05)} 0 ${-ankle_joint_radius-foot_height/2}"/>
-        </collision>
-        <inertial>
-            <mass value="1.5"/>
-            <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
-            <origin xyz="${(foot_length/2-0.05)} 0 ${-ankle_joint_radius-foot_height/2}"/>
-        </inertial>
-    </link>
+            <visual>
+                <geometry>
+                    <box size="${foot_length} ${foot_width} ${foot_height}"/>
+                </geometry>
+                <material name="white"/> 
+                <origin xyz="${(foot_length/2-0.05)} 0 ${-ankle_joint_radius-foot_height/2}"/>
+            </visual>
+            <collision>
+                <geometry>
+                    <box size="${foot_length} ${foot_width} ${foot_height}"/>
+                </geometry>
+                <origin xyz="${(foot_length/2-0.05)} 0 ${-ankle_joint_radius-foot_height/2}"/>
+            </collision>
+            <inertial>
+                <mass value="1.5"/>
+                <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
+                <origin xyz="${(foot_length/2-0.05)} 0 ${-ankle_joint_radius-foot_height/2}"/>
+            </inertial>
+        </link>
 
-    <joint name="ankle_joint" type="revolute">
-        <origin rpy="0 0 0" xyz="0 0 ${-(knee_joint_radius + shank_length + ankle_joint_radius)}"/>
-        <parent link="shank"/>
-        <child link="foot"/>
-        <axis xyz="0 1 0"/>
-        <limit effort="100" lower="-0.1" upper="0.5" velocity="10"/>
-    </joint>
+        <joint name="ankle_joint${identifier}" type="revolute">
+            <origin rpy="0 0 0" xyz="0 0 ${-(knee_joint_radius + shank_length + ankle_joint_radius)}"/>
+            <parent link="shank${identifier}"/>
+            <child link="foot${identifier}"/>
+            <axis xyz="0 1 0"/>
+            <limit effort="100" lower="-0.1" upper="0.5" velocity="10"/>
+        </joint>
+    </xacro:macro>
 
 </robot>
