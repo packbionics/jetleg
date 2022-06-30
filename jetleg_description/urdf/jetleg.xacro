@@ -9,6 +9,10 @@
     <xacro:property name="foot_width" value="0.1" />
     <xacro:property name="foot_height" value="0.05" />
 
+    <xacro:property name="thigh_mass" value="20" />
+    <xacro:property name="shank_mass" value="10" />
+    <xacro:property name="foot_mass" value="1.5" />
+
     <xacro:macro name="jetleg" params="identifier">
         <link name="thigh${identifier}">
             <visual>
@@ -23,8 +27,8 @@
                 </geometry>
             </collision>
             <inertial>
-                <mass value="20"/>
-                <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
+                <mass value="${thigh_mass}"/>
+                <inertia ixx="${thigh_mass/12*(3*0.06**2+thigh_length**2)}" ixy="0" ixz="0" iyy="${thigh_mass/12*(3*0.06**2+thigh_length**2)}" iyz="0" izz="${0.5*thigh_mass*0.06**2}"/>
             </inertial>
         </link>
 
@@ -43,8 +47,8 @@
                 <origin rpy="0 0 0" xyz="0 0 ${-shank_length/2-knee_joint_radius}"/>
             </collision>
             <inertial>
-                <mass value="10"/>
-                <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
+                <mass value="${shank_mass}"/>
+                <inertia ixx="${shank_mass/12*(3*0.06**2+shank_length**2)}" ixy="0" ixz="0" iyy="${shank_mass/12*(3*0.06**2+shank_length**2)}" iyz="0" izz="${0.5*shank_mass*0.06**2}"/>
                 <origin rpy="0 0 0" xyz="0 0 ${-shank_length/2-knee_joint_radius}"/>
             </inertial>
         </link>

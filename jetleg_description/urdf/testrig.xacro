@@ -74,13 +74,15 @@
 
     <xacro:include filename="jetleg.xacro"/> 
     
-    <xacro:jetleg identifer="">
+    <xacro:jetleg identifier="">
     </xacro:jetleg>
-    
+
     <joint name="mount_to_jetleg" type="fixed">
         <parent link="mount"/>
         <child link="thigh"/>
         <origin xyz="0 0 ${-thigh_length/2}" rpy="0 0 0"/>
+        <axis xyz="0 0 -1" />
+        <limit effort="1000" velocity="10" lower="0" upper="0.6" />
     </joint>
 
 </robot>

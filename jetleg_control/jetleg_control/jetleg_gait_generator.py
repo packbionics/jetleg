@@ -101,6 +101,8 @@ class JetLegGait(Node):
         self.hip_setpoints_comfort = np.array(self.hip_setpoints_comfort[5:] + self.hip_setpoints_comfort + self.hip_setpoints_comfort[:6]) - 20
         self.hip_tck_comfort = interpolate.splrep(self.x_points, self.hip_setpoints_comfort)"""
         
+        self.time_start = datetime.now()
+
         gait_pub_period = 1.0/30.0
         self.gait_timer = self.create_timer(gait_pub_period, self.pub_cmd)
         #self.wheel_timer = self.create_timer(1.0/60.0, self.publish_effort)
@@ -151,27 +153,27 @@ class JetLegGait(Node):
     #process input keys, and updates positions array of node. Then, calls node's publish method.
     def pub_cmd(self):
         #TO DO: add a speed variable
-        current_time = datetime.now() - time_start
+        current_time = datetime.now() - self.time_start
         current_time = current_time.seconds + current_time.microseconds / 1000000.0
+
+        TO_RADIANS = math.pi / 180.0
         
         percent = math.fmod(current_time,self.T) /self.T
         percent_shifted = math.fmod(current_time +self.T / 2,self.T) /self.T
         
         # hip angle
-        self.positions[0] = - interpolate.splev(percent, self.hip_tck_quick) * math.pi / 180.0
-        self.positions_intact[0] = - interpolate.splev(percent_shifted, self.hip_tck_quick) * math.pi / 180.0
+        self.positions[0] = - interpolate.splev(percent, self.hip_tck_quick) * TO_RADIANS
+        self.positions_intact[0] = - interpolate.splev(percent_shifted, self.hip_tck_quick) * TO_RADIANS
         
         # knee angle
-        self.positions[1] = interpolate.splev(percent, self.knee_tck_quick) * math.pi / 180.0
-        self.positions_intact[1] = interpolate.splev(percent_shifted, self.knee_tck_quick) * math.pi / 180.0
+        self.positions[1] = interpolate.splev(percent, self.knee_tck_quick) * TO_RADIANS
+        self.positions_intact[1] = interpolate.splev(percent_shifted, self.knee_tck_quick) * TO_RADIANS
 
         #ankle angle
-        self.positions[2] = interpolate.splev(percent, self.ankle_tck_quick) * math.pi / 180.0
-        self.positions_intact[2] = interpolate.splev(percent_shifted, self.ankle_tck_quick) * math.pi / 180.0
+        self.positions[2] = interpolate.splev(percent, self.ankle_tck_quick) * TO_RADIANS
+        self.positions_intact[2] = interpolate.splev(percent_shifted, self.ankle_tck_quick) * TO_RADIANS
         
         self.publish_position()
-
-time_start = datetime.now()
 
 def main():
     node = JetLegGait()
