@@ -1,8 +1,9 @@
-from http.server import executable
 import os
 from ament_index_python.packages import get_package_share_directory
 
 from launch_ros.actions import Node
+from launch_ros.actions import ComposableNodeContainer
+from launch_ros.descriptions import ComposableNode
 from launch import LaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.actions import IncludeLaunchDescription
@@ -19,21 +20,31 @@ def generate_launch_description():
             '/vision_example.launch.py'])
         )
 
-    gen_pointcloud = Node(package='pointcloud_proc_cpp',
-                          executable='gen_pointcloud',
-                          output='screen',
-                          remappings=[('image', 'camera/depth/image_raw'),
-                                      ('pointcloud', 'camera/point_cloud'),
-                                      ('camera_state', 'camera/state'),
-                                      ('camera_params', 'camera/params')]
-                    )
+    # launch plugin through rclcpp_components container
+    pointcloud_xyz_node = ComposableNodeContainer(
+            name='container',
+            namespace='',
+            package='rclcpp_components',
+            executable='component_container',
+            composable_node_descriptions=[
+                # Driver itself
+                ComposableNode(
+                    package='depth_image_proc',
+                    plugin='depth_image_proc::PointCloudXyzNode',
+                    name='point_cloud_xyz_node',
+                    remappings=[('image_rect', '/camera/depth/image_raw'),
+                                ('camera_info', '/camera/info'),
+                                ('image', '/camera/depth/converted_image')]
+                ),
+            ],
+            output='screen',
+    )
 
-    jetleg_pointcloud_proc = Node(package='jetleg_vision_cpp',
-                                  executable='jetleg_pointcloud_proc',
-                                  output='screen',
-                                  remappings=[('pointcloud', 'camera/point_cloud'),
-                                             ('camera_state', 'camera/state')]
-                            )
+    pointcloud_processing = Node(
+        package='pointcloud_processor',
+        executable='pointcloud_processor',
+        output='screen'
+    )
     
     rviz_config = Node(package='rviz2',
                        executable='rviz2',
@@ -41,4 +52,4 @@ def generate_launch_description():
                        arguments=['-d', rviz_config_file]
                     )
 
-    return LaunchDescription([pybullet_sim_launch, gen_pointcloud, jetleg_pointcloud_proc, rviz_config])
+    return LaunchDescription([pybullet_sim_launch, pointcloud_xyz_node, pointcloud_processing, rviz_config])
