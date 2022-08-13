@@ -8,18 +8,16 @@ from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.actions import IncludeLaunchDescription
 
 def generate_launch_description():
-
     pybullet_ros_dir = get_package_share_directory('pybullet_ros')
     jetleg_vision_cpp_dir = get_package_share_directory('jetleg_vision_cpp')
 
     rviz_config_file = os.path.join(jetleg_vision_cpp_dir, 'config/pybullet_pointcloud_vision_config.rviz')
     pybullet_launch_dir = os.path.join(pybullet_ros_dir, 'launch')
 
-
     pybullet_sim_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([pybullet_launch_dir,
-            '/pointcloud_vision_example.launch.py'])
-    )
+            '/vision_example.launch.py'])
+        )
 
     gen_pointcloud = Node(package='pointcloud_proc_cpp',
                           executable='gen_pointcloud',

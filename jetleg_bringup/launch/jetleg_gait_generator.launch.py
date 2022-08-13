@@ -12,12 +12,21 @@ from launch.substitutions import LaunchConfiguration
 
 def generate_launch_description():
     description_path = get_package_share_path('jetleg_description')
+    description_directory_path = get_package_share_directory('jetleg_description')
+
     default_rviz_config_path = description_path / 'rviz/urdf.rviz'
     rviz_arg = DeclareLaunchArgument(name='rvizconfig', default_value=str(default_rviz_config_path),
                                     description='Absolute path to rviz config file')
 
     bringup_path = get_package_share_path('jetleg_bringup')
     models_to_load = bringup_path / 'resource/model_descriptions.yaml'
+
+    model_path = os.path.join(description_directory_path, 'urdf/jetleg_standalone.xacro')
+
+    redefined_launch_arguments = {
+        'models_to_load': str(models_to_load),
+        'model': model_path
+    }
     
     teleop_node = Node(
         package='jetleg_control',
@@ -29,7 +38,7 @@ def generate_launch_description():
             get_package_share_directory('pybullet_ros'), 'launch'),
             '/jetleg_pybullet_ros.launch.py']
             ),
-        launch_arguments={'models_to_load': str(models_to_load)}.items()
+        launch_arguments=redefined_launch_arguments.items()
     )
     rviz_node = Node(
         package='rviz2',
