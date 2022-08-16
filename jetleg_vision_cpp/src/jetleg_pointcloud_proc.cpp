@@ -209,7 +209,7 @@ void JetLegPointCloudProc::computeTraversibility(cv::Mat &heightmap, cv::Mat &tr
 }
 
 void JetLegPointCloudProc::printInfo(std::string msg) {
-  RCLCPP_INFO(this->get_logger(), msg);
+  RCLCPP_INFO(this->get_logger(), msg.c_str());
 }
 
 bool JetLegPointCloudProc::closeTo(float a, float b, float threshold) {

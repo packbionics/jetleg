@@ -20,6 +20,13 @@ def generate_launch_description():
             '/vision_example.launch.py'])
         )
 
+    # create a static tf2 transform publisher
+    pointcloud_tf = Node(
+        package='tf2_ros',
+        executable='static_transform_publisher',
+        arguments=['0', '0', '0', '0.5', '0.5', '0.5', '0.5', 'camera_link', 'pc2']
+    )
+
     # launch plugin through rclcpp_components container
     pointcloud_xyz_node = ComposableNodeContainer(
             name='container',
@@ -39,12 +46,6 @@ def generate_launch_description():
             ],
             output='screen',
     )
-
-    pointcloud_processing = Node(
-        package='pointcloud_processor',
-        executable='pointcloud_processor',
-        output='screen'
-    )
     
     rviz_config = Node(package='rviz2',
                        executable='rviz2',
@@ -52,4 +53,4 @@ def generate_launch_description():
                        arguments=['-d', rviz_config_file]
                     )
 
-    return LaunchDescription([pybullet_sim_launch, pointcloud_xyz_node, pointcloud_processing, rviz_config])
+    return LaunchDescription([pointcloud_tf, pybullet_sim_launch, pointcloud_xyz_node, rviz_config])
