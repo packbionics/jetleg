@@ -46,7 +46,7 @@ class JetLegPointCloudProc : public rclcpp::Node {
         void computeTraversibility(cv::Mat &heightmap, cv::Mat &traversibility_map);
 
         // Visualizes heightmap by publishing Image topic
-        void publishImage(const cv::Mat &src, cv::Mat &out, float scale = 255.0f);
+        void publishImage(rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr &pub, const cv::Mat &src, cv::Mat &out, float min, float max, float scale = 255.0f);
 
         bool closeTo(float a, float b, float threshold);
 
@@ -63,7 +63,8 @@ class JetLegPointCloudProc : public rclcpp::Node {
         rclcpp::Subscription<geometry_msgs::msg::PoseStamped>::SharedPtr subPoseStamped;
 
         // ROS publishers
-        rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr publisher;
+        rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr heightmapPub;
+        rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr traversePub;
 
         // Position and orientation of camera
         glm::vec4 position;
@@ -81,17 +82,18 @@ class JetLegPointCloudProc : public rclcpp::Node {
         const float PI = 3.141592f;
 
         // Clip values for point cloud
-        const float X_MIN = 0.0f;
-        const float X_MAX = 1.5f;
+        const float X_MIN = this->declare_parameter("X_MIN", -1.0);
+        const float X_MAX = this->declare_parameter("X_MAX", 1.0);
 
-        const float Y_MIN = -0.4f;
-        const float Y_MAX =  0.4f;
+        const float Y_MIN = this->declare_parameter("Y_MIN", -1.0);
+        const float Y_MAX = this->declare_parameter("Y_MAX", 1.5);
 
-        const float Z_MAX = 55.0 * PI / 180.0f;
+        const float Z_MIN = this->declare_parameter("Z_MIN", 1.0);
+        const float Z_MAX = this->declare_parameter("Z_MAX", 1.5);
 
         // Dimensions of heightmap
-        const unsigned int MAP_ROWS = (X_MAX - X_MIN) * 42;
-        const unsigned int MAP_COLS = (Y_MAX - Y_MIN) * 42;
+        const unsigned int MAP_ROWS = (Z_MAX - Z_MIN) * 42;
+        const unsigned int MAP_COLS = (X_MAX - X_MIN) * 42;
 
         //QOS of topics
         const unsigned int QOS = 10;

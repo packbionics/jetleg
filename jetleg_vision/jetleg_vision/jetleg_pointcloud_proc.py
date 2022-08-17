@@ -1,5 +1,6 @@
 import rclpy
 from rclpy.node import Node
+import rclpy.qos
 from sensor_msgs.msg import PointCloud2, Image
 from scipy.spatial.transform import Rotation as R
 #from nav_msgs.msg import Odometry
@@ -10,6 +11,7 @@ import cv2
 import threading
 from queue import Queue
 import time
+import math
 
 from cv_bridge import CvBridge
 
@@ -22,7 +24,7 @@ class PointCloudProcessing(Node):
             PointCloud2,
             '/zed2i/zed_node/point_cloud/cloud_registered',
             self.cloud_callback,
-            10
+            rclpy.qos.qos_profile_sensor_data
         )
         self.pose_sub = self.create_subscription(
             PoseStamped,
@@ -70,7 +72,7 @@ class PointCloudProcessing(Node):
 
     def pose_callback(self, msg):
         # print pose positions
-        self.get_logger().info('pose: %s' % str(msg.pose.position))
+        # self.get_logger().info('pose: %s' % str(msg.pose.position))
         self.pose = msg
 
     def cloud_callback(self, msg):
@@ -85,7 +87,7 @@ class PointCloudProcessing(Node):
         cloud_array = cloud_array[:, :3]
         cloud_array = cloud_array[np.isfinite(cloud_array).any(axis=1)]
         cloud_array = cloud_array[~np.isnan(cloud_array).any(axis=1)]
-        cloud_array = self.transform_cloud(cloud_array, self.pose)
+        # cloud_array = self.transform_cloud(cloud_array, self.pose)
 
         heightmap = self.convert_heightmap(cloud_array)
         if heightmap is not None:
@@ -103,7 +105,7 @@ class PointCloudProcessing(Node):
 
         y_minimum = -0.4
         y_maximum = 0.4
-        theta_z_upper = 55 * np.pi / 180
+        theta_z_upper = math.radians(55)
 
         # z view restriction
         cloud_restricted = cloud_array[np.where(cloud_array[:,2] <= cloud_array[:,0]*np.tan(theta_z_upper))]

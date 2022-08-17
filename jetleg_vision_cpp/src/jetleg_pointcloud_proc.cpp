@@ -9,10 +9,11 @@ JetLegPointCloudProc::JetLegPointCloudProc() : rclcpp::Node("jetleg_pointcloud_p
   auto poseWrap = std::bind(&JetLegPointCloudProc::poseStampedSubCallback, this, std::placeholders::_1);
 
   // Creates subscribers and publishers
-  subPointCloud = this->create_subscription<sensor_msgs::msg::PointCloud2>("pointcloud", QOS, cloudWrap);
+  subPointCloud = this->create_subscription<sensor_msgs::msg::PointCloud2>("pointcloud", rclcpp::SensorDataQoS(), cloudWrap);
   subPoseStamped = this->create_subscription<geometry_msgs::msg::PoseStamped>("camera_state", QOS, poseWrap);
 
-  publisher = this->create_publisher<sensor_msgs::msg::Image>("heightmap", QOS);
+  heightmapPub = this->create_publisher<sensor_msgs::msg::Image>("heightmap", QOS);
+  traversePub = this->create_publisher<sensor_msgs::msg::Image>("traversibility", QOS);
 
   // Stores output as floats
   heightmap = cv::Mat(MAP_ROWS, MAP_COLS, CV_32FC1);
@@ -43,7 +44,9 @@ void JetLegPointCloudProc::pointcloudSubCallback(const sensor_msgs::msg::PointCl
   computeTraversibility(processedHeightmap, traversibilityMap);
 
   // Publishes heightmap to visualize with RVIZ
-  publishImage(processedHeightmap, heightmapInBytes);
+  publishImage(heightmapPub, processedHeightmap, heightmapInBytes, Y_MIN, Y_MAX);
+  // Publishes traversibility map to visualize with RVIZ
+  publishImage(traversePub, traversibilityMap, traversibilityInBytes, 0.0f, 4.0f, 63.9);
 
   auto timeEnd = std::chrono::steady_clock::now();
   // RCLCPP_INFO(this->get_logger(), "Time (s) per Tick: " + std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(timeEnd - timeStart).count() / 1000.0f));
@@ -55,9 +58,9 @@ void JetLegPointCloudProc::loadData(std::vector<glm::vec4> &data, const sensor_m
   memcpy(&data[0], &msg->data[0], msg->data.size());
 
   // Transforms points
-  for(unsigned int i = 0; i < data.size(); i++) {    
-    convertToWorldFramePoint(data, i);
-  }
+  // for(unsigned int i = 0; i < data.size(); i++) {    
+  //   convertToWorldFramePoint(data, i);
+  // }
 }
 
 void JetLegPointCloudProc::convertHeightmap(const std::vector<glm::vec4> &cloud_array) {
@@ -69,13 +72,13 @@ void JetLegPointCloudProc::convertHeightmap(const std::vector<glm::vec4> &cloud_
   for(unsigned int i = 0; i < cloud_array.size(); i++) {
 
     // Applies X restrictions
-    if(cloud_array[i].x <= X_MAX && cloud_array[i].x > X_MIN) {
+    if(cloud_array[i].x < X_MAX && cloud_array[i].x > X_MIN) {
 
       // Applies Y restrictions
-      if(cloud_array[i].y <= Y_MAX && cloud_array[i].y >= Y_MIN) {
+      if(cloud_array[i].y < Y_MAX && cloud_array[i].y > Y_MIN) {
 
         // Applies Z restriction
-        if(cloud_array[i].z <= cloud_array[i].x* tan(Z_MAX)) {
+        if(cloud_array[i].z < Z_MAX && cloud_array[i].z > Z_MIN) {
 
           // Add points that fit all restrictions
           filtered_cloud.push_back(cloud_array[i]);
@@ -87,42 +90,30 @@ void JetLegPointCloudProc::convertHeightmap(const std::vector<glm::vec4> &cloud_
   int idx_x = 0;
   int idx_y = 0;
 
-  float x_range = (X_MAX - X_MIN) / (MAP_ROWS - 1);
-  float y_range = (Y_MAX - Y_MIN) / (MAP_COLS - 1);
+  float x_range = (X_MAX - X_MIN) / (MAP_COLS - 1);
+  float z_range = (Z_MAX - 0) / (MAP_ROWS - 1);
 
   for(unsigned int i = 0; i < MAP_ROWS; i++) {
     for(unsigned int j = 0; j < MAP_COLS; j++) {
-      heightmap.at<float>(i, j) = 0.0f;
+      heightmap.at<float>(i, j) = Y_MIN;
     }
   }
 
   for(unsigned int i = 0; i < filtered_cloud.size(); i++) {
     idx_x = (filtered_cloud[i].x - X_MIN) / x_range;
-    idx_y = (filtered_cloud[i].y - Y_MIN) / y_range;
+    idx_y = (filtered_cloud[i].z - Z_MIN) / z_range;
 
-    if(closeTo(heightmap.at<float>(idx_x, idx_y), 0.0f, FLOATING_POINT_THRESHOLD)) {
-      heightmap.at<float>(idx_x, idx_y) = filtered_cloud[i].z;
+    heightmap.at<float>(idx_y, idx_x) = std::max(filtered_cloud[i].y, heightmap.at<float>(idx_y, idx_x));
 
-      if(heightmap.at<float>(idx_x, idx_y) < floor_height) {
-        floor_height = heightmap.at<float>(idx_x, idx_y);
-      }
-    } else {
-      heightmap.at<float>(idx_x, idx_y) = std::max(filtered_cloud[i].z, heightmap.at<float>(idx_x, idx_y));
-
-      if(heightmap.at<float>(idx_x, idx_y) < floor_height) {
-        floor_height = heightmap.at<float>(idx_x, idx_y);
-      }
+    if(heightmap.at<float>(idx_y, idx_x) < floor_height) {
+      floor_height = heightmap.at<float>(idx_y, idx_x);
     }
   }
 
   for(unsigned int i = 0; i < MAP_ROWS; i++) {
     for(unsigned int j = 0; j < MAP_COLS; j++) {
-      if(closeTo(heightmap.at<float>(i, j), 0.0f, FLOATING_POINT_THRESHOLD)) {
-        heightmap.at<float>(i, j) = -10.0f;
-        continue;
-      }
 
-      heightmap.at<float>(i, j) = heightmap.at<float>(i, j) - floor_height;
+      // heightmap.at<float>(i, j) = heightmap.at<float>(i, j) - floor_height;
     }
   }
 
@@ -137,15 +128,18 @@ void JetLegPointCloudProc::convertHeightmap(const std::vector<glm::vec4> &cloud_
 
   // Applies image processing
   cv::dilate(heightmap, processedHeightmap, kernel, cv::Point(-1, -1), 2);
+  cv::flip(processedHeightmap, processedHeightmap, 0);
 } 
 
-void JetLegPointCloudProc::publishImage(const cv::Mat &src, cv::Mat &out, float scale) {
+void JetLegPointCloudProc::publishImage(rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr &pub, const cv::Mat &src, cv::Mat &out, float min, float max, float scale) {
+
+  float range = max - min;
 
   // Scales image using "scale" variable
   if(src.type() == CV_32FC1) {
     for(int i = 0; i < src.size().height; i++) {
       for(int j = 0; j < src.size().width; j++) {
-        out.at<uchar>(i, j) = src.at<float>(i, j) * scale;
+        out.at<uchar>(i, j) = (src.at<float>(i, j) - min) / range * scale;
       }
     }
   }
@@ -164,7 +158,7 @@ void JetLegPointCloudProc::publishImage(const cv::Mat &src, cv::Mat &out, float 
 
   // Publishes to topic
   imgBridge.toImageMsg(imgMsg);
-  publisher->publish(imgMsg);
+  pub->publish(imgMsg);
 }
 
 void JetLegPointCloudProc::computeTraversibility(cv::Mat &heightmap, cv::Mat &traversibility_map) {  
@@ -213,6 +207,7 @@ void JetLegPointCloudProc::printInfo(std::string msg) {
 }
 
 bool JetLegPointCloudProc::closeTo(float a, float b, float threshold) {
+
   if(std::abs(a - b) < threshold) {
     return true;
   }

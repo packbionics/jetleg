@@ -18,7 +18,7 @@ def generate_launch_description():
     pybullet_sim_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([pybullet_launch_dir,
             '/vision_example.launch.py'])
-        )
+    )
 
     # create a static tf2 transform publisher
     pointcloud_tf = Node(
