@@ -97,7 +97,7 @@ class JetLegTeleop(Node):
 
         self.delta_position = 2 * np.pi/180.0
         self.positions = np.array([0.0,0.0,0.0,0.0])
-        self.joint_limit_max = np.array([np.pi/4.0, np.pi/2.0, np.pi/4.0, 0.6])
+        self.joint_limit_max = np.array([np.pi/4.0, 3*np.pi/4.0, np.pi/4.0, 0.6])
         self.joint_limit_min = np.array([-np.pi/4.0, 0.0, -np.pi/8.0, 0.0])
 
         self.wheel_joint_position_topics = ['/wheel_fore_left_position_controller/command',

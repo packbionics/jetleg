@@ -11,28 +11,18 @@ from launch.substitutions import LaunchConfiguration
 
 
 def generate_launch_description():
-    description_path = get_package_share_path('jetleg_description')
     description_directory_path = get_package_share_directory('jetleg_description')
 
-    default_rviz_config_path = description_path / 'rviz/urdf.rviz'
-    rviz_arg = DeclareLaunchArgument(name='rvizconfig', default_value=str(default_rviz_config_path),
-                                    description='Absolute path to rviz config file')
-
     bringup_path = get_package_share_path('jetleg_bringup')
-    models_to_load = bringup_path / 'resource/model_descriptions.yaml'
+    models_to_load = bringup_path / 'resource/jetleg_standalone_description.yaml'
 
-    model_path = os.path.join(description_directory_path, 'urdf/wheeled_testrig.xacro')
+    model_path = os.path.join(description_directory_path, 'urdf/jetleg_standalone.xacro')
 
     redefined_launch_arguments = {
         'models_to_load': str(models_to_load),
         'model': model_path
     }
     
-    teleop_node = Node(
-        package='jetleg_control',
-        executable='jetleg_gait_generator',
-        output='screen'
-    )
     pybullet_sim = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([os.path.join(
             get_package_share_directory('pybullet_ros'), 'launch'),
@@ -40,12 +30,5 @@ def generate_launch_description():
             ),
         launch_arguments=redefined_launch_arguments.items()
     )
-    rviz_node = Node(
-        package='rviz2',
-        executable='rviz2',
-        name='rviz2',
-        output='screen',
-        arguments=['-d', LaunchConfiguration('rvizconfig')],
-    )
     
-    return LaunchDescription([rviz_arg, teleop_node, pybullet_sim, rviz_node])
+    return LaunchDescription([pybullet_sim])

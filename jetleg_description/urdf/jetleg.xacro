@@ -58,7 +58,7 @@
             <parent link="thigh${identifier}"/>
             <child link="shank${identifier}"/>
             <axis xyz="0 1 0"/>
-            <limit effort="100" lower="0.0" upper="1.5" velocity="10"/>
+            <limit effort="100" lower="0.0" upper="2.5" velocity="10"/>
         </joint>
 
         <link name="foot${identifier}">
