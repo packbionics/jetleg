@@ -37,11 +37,11 @@ def generate_launch_description():
                 # Driver itself
                 ComposableNode(
                     package='depth_image_proc',
-                    plugin='depth_image_proc::PointCloudXyzNode',
-                    name='point_cloud_xyz_node',
-                    remappings=[('image_rect', '/camera/depth/image_raw'),
-                                ('camera_info', '/camera/info'),
-                                ('image', '/camera/depth/converted_image')]
+                    plugin='depth_image_proc::PointCloudXyzrgbNode',
+                    name='point_cloud_xyz_rgb_node',
+                    remappings=[('depth_registered/image_rect', '/camera/depth/image_raw'),
+                                ('rgb/camera_info', '/camera/info'),
+                                ('rgb/image_rect_color', 'camera/image_raw')]
                 ),
             ],
             output='screen',
