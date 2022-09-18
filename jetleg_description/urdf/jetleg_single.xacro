@@ -4,37 +4,23 @@
     <xacro:include filename="colors.xacro"/>
     <xacro:include filename="jetleg.xacro"/> 
 
-    <xacro:property name="mount_length" value="0.24" />
-
     <link name="base_link">
+        <inertial>
+                <mass value="1"/>
+                <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
+                <origin rpy="0 0 0" xyz="0 0 0"/>
+        </inertial>
     </link>
 
     <!-- Leg Configuration -->
 
-    <link name="mount">
-        <visual>
-            <geometry>
-                <cylinder length="${mount_length}" radius="0.08"/>
-            </geometry>
-            <material name="white_transluscent"/> 
-        </visual>
-    </link>
-
-    <joint name="base_to_mount" type="fixed">
-        <origin rpy="0 0 0" xyz="0 0 ${mount_length + 1}"/>
+    <joint name="base_to_jetleg" type="fixed">
+        <origin rpy="0 0 0" xyz="0 0 1"/>
         <parent link="base_link"/>
-        <child link="mount"/>
+        <child link="thigh"/>
     </joint>
 
     <xacro:jetleg identifier="">
     </xacro:jetleg>
-
-    <joint name="mount_to_jetleg" type="revolute">
-        <parent link="mount"/>
-        <child link="thigh"/>
-        <origin xyz="0 0 ${-thigh_length/2}" rpy="0 0 0"/>
-        <axis xyz="0 1 0" />
-        <limit effort="1000" velocity="10" lower="${-40*pi/180}" upper="${40*pi/180}" />
-    </joint>
 
 </robot>

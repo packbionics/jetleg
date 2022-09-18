@@ -14,6 +14,11 @@
     <xacro:property name="wheel_offset" value="0.4" />
 
     <link name="base_link">
+        <inertial>
+                <mass value="1"/>
+                <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
+                <origin rpy="0 0 0" xyz="0 0 0"/>
+        </inertial>
     </link>
 
     <link name="vertical_rail">
@@ -36,6 +41,11 @@
             </geometry>
             <material name="white_transluscent"/> 
         </visual>
+        <inertial>
+                <mass value="1"/>
+                <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
+                <origin rpy="0 0 0" xyz="0 0 0"/>
+        </inertial>
     </link>
 
     <joint name="base_to_gantry" type="fixed">
@@ -144,6 +154,11 @@
             </geometry>
             <material name="white_transluscent"/> 
         </visual>
+        <inertial>
+                <mass value="1"/>
+                <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
+                <origin rpy="0 0 0" xyz="0 0 0"/>
+        </inertial>
     </link>
 
     <link name="mount_intact">
@@ -153,6 +168,11 @@
             </geometry>
             <material name="white_transluscent"/> 
         </visual>
+        <inertial>
+                <mass value="1"/>
+                <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
+                <origin rpy="0 0 0" xyz="0 0 0"/>
+        </inertial>
     </link>
 
     <xacro:include filename="jetleg.xacro"/> 

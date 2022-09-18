@@ -6,7 +6,9 @@ from model import Linear_QNet, QTrainer
 import rclpy
 import rclpy.qos;
 from rclpy.node import Node
+
 from sensor_msgs.msg import JointState
+from geometry_msgs.msg import PoseStamped
 
 MAX_MEMORY = 100 * 1000
 BATCH_SIZE = 1000
@@ -17,20 +19,32 @@ class Agent(Node):
     def __init__(self):
         super().__init__('single_leg_stabilizer')
 
-        # Topics to make subscription
-        self.topic = self.get_parameter('joints_topic').value
+        # Topics to make subscriptions
+        self.joints_topic = self.get_parameter('joints_topic').value
+        self.link_topic = self.get_parameter('links_topic').value
+
         # Subscription to joint states
-        self.subscription = self.create_subscription(JointState, self.topic, self.train, rclpy.qos.qos_profile_system_default)
-        
+        self.joints_subscription = self.create_subscription(JointState, self.joints_topic, self.update_joint_states, rclpy.qos.qos_profile_system_default)
+        # Subscription to link states
+        self.links_subscription = self.create_subscription(PoseStamped, self.joints_topic, self.update_link_state, rclpy.qos.qos_profile_system_default)
+
         # Stores most current joint states
         self.joints = {}
+        # Stores most current link states
+        self.links = {}
 
         # Number of joints in model
         self.num_joints = 2
         # Number of parameters per joint (position, velocity, effort)
         self.per_joint_data = 3
-        # Total number of parameters for all joints
-        self.num_state_params = self.num_joints * self.per_joint_data
+
+        # Number of links
+        self.num_links = 2
+        # Number of parameters per link (positionx3 orientationx4)
+        self.per_link_data = 7
+
+        # Total number of parameters for all joints and links
+        self.num_state_params = self.num_joints * self.per_joint_data + self.num_links * self.per_link_data
 
         self.n_games = 0
         self.epsilon = 0 # randomness
@@ -38,15 +52,44 @@ class Agent(Node):
         self.memory = deque(maxlen=MAX_MEMORY)
         self.model = Linear_QNet(self.num_state_params, 512, self.num_joints)
         self.trainer = QTrainer(self.model, lr=LR, gamma=self.gamma)
-    
-    def update_state(self, msg):
-        state = []
+
+    def update_joint_states(self, msg):
+        """Update link state from subscription"""
 
         for i in range(len(msg.name)):
             self.joints[msg.name] = [self.msg.position[i], self.msg.velocity[i], self.msg.effort[i]]
-            state += self.joints[msg.name]
 
-        return state
+    def update_link_state(self, msg):
+        """Update link state from subscription"""
+
+        position = [msg.pose.position.x, msg.pose.position.y, msg.pose.position.z]
+        orientation = [msg.orientation.x, msg.orientation.y, msg.orientation.z, msg.orientation.w]
+
+        self.links[msg.header.frame_id] = [position, orientation]
+
+    def get_joint_states(self):
+        joint_states = []
+        for joint_name in self.joints: # Iterates through all joints
+
+            joint_state = []
+            for joint_param in self.joints[joint_name]:
+                joint_state += joint_param
+
+            joint_states += joint_state
+
+        return joint_states
+
+    def get_link_states(self):
+        link_states = []
+        for link_name in self.links: # Iterates through all joints
+
+            link_state = []
+            for link_param in self.links[link_name]:
+                link_state += link_param
+                
+            link_states += link_state
+
+        return link_states
 
     def remember(self, state, action, reward, next_state, done):
         self.memory.append((state, action, reward, next_state, done)) # popleft if MAX_MEMORY is reached
@@ -84,7 +127,10 @@ class Agent(Node):
 
     def train(self, msg):
         # get state
-        state = self.update_state(msg)
+        joint_states = self.get_joint_states()
+        link_states = self.get_link_states()
+
+        state = joint_states + link_states
 
         # get move
         next_move = self.get_action(state)
@@ -92,7 +138,7 @@ class Agent(Node):
         reward, done, score = self.act(next_move)
 
         # get new state
-        new_state = self.update_state(msg)
+        new_state = self.update_joint_states(msg)
 
         # train short memory
         self.train_short_memory(state, next_move, reward, new_state, done)
