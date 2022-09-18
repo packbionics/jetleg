@@ -1,0 +1,78 @@
+controller_manager:
+  ros__parameters:
+    update_rate: 100 # Hz
+
+    joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+
+    joint0_position_controller:
+      type: position_controllers/JointGroupPositionController
+
+    joint0_velocity_controller:
+      type: velocity_controllers/JointGroupVelocityController
+
+    joint0_effort_controller:
+      type: effort_controllers/JointGroupEffortController
+
+    joint1_position_controller:
+      type: position_controllers/JointGroupPositionController
+
+    joint1_velocity_controller:
+      type: velocity_controllers/JointGroupVelocityController
+
+    joint1_effort_controller:
+      type: effort_controllers/JointGroupEffortController
+
+    joint2_position_controller:
+      type: position_controllers/JointGroupPositionController
+
+    joint2_velocity_controller:
+      type: velocity_controllers/JointGroupVelocityController
+
+    joint2_effort_controller:
+      type: effort_controllers/JointGroupEffortController
+
+joint0_position_controller:
+  ros__parameters:
+    joints:
+      - knee_joint
+
+joint0_velocity_controller:
+  ros__parameters:
+    joints:
+      - knee_joint
+
+joint0_effort_controller:
+  ros__parameters:
+    joints:
+      - knee_joint
+
+joint1_position_controller:
+  ros__parameters:
+    joints:
+      - ankle_joint
+
+joint1_velocity_controller:
+  ros__parameters:
+    joints:
+      - ankle_joint
+
+joint1_effort_controller:
+  ros__parameters:
+    joints:
+      - ankle_joint
+
+joint2_position_controller:
+  ros__parameters:
+    joints:
+      - gantry_to_mount
+
+joint2_velocity_controller:
+  ros__parameters:
+    joints:
+      - gantry_to_mount
+
+joint2_effort_controller:
+  ros__parameters:
+    joints:
+      - gantry_to_mount

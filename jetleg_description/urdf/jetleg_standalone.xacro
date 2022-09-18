@@ -1,0 +1,68 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="jetleg_standalone">
+
+    <xacro:include filename="colors.xacro"/>
+    <xacro:include filename="jetleg.xacro"/> 
+
+    <xacro:property name="mount_length" value="0.24" />
+
+    <link name="base_link">
+    </link>
+
+    <!-- First Leg Configuration -->
+
+    <link name="mount">
+        <visual>
+            <geometry>
+                <cylinder length="${mount_length}" radius="0.08"/>
+            </geometry>
+            <material name="white_transluscent"/> 
+        </visual>
+    </link>
+
+    <joint name="base_to_mount" type="fixed">
+        <origin rpy="0 0 0" xyz="0 -0.1 ${mount_length + 1}"/>
+        <parent link="base_link"/>
+        <child link="mount"/>
+    </joint>
+
+    <xacro:jetleg identifier="">
+    </xacro:jetleg>
+
+    <joint name="mount_to_jetleg" type="revolute">
+        <parent link="mount"/>
+        <child link="thigh"/>
+        <origin xyz="0 0 ${-thigh_length/2}" rpy="0 0 0"/>
+        <axis xyz="0 1 0" />
+        <limit effort="1000" velocity="10" lower="${-40*pi/180}" upper="${40*pi/180}" />
+    </joint>
+
+    <!-- Second Leg Configuration -->
+
+    <link name="mount_intact">
+        <visual>
+            <geometry>
+                <cylinder length="${mount_length}" radius="0.08"/>
+            </geometry>
+            <material name="white_transluscent"/> 
+        </visual>
+    </link>
+
+    <joint name="base_to_mount_intact" type="fixed">
+        <origin rpy="0 0 0" xyz="0 0.1 ${mount_length + 1}"/>
+        <parent link="base_link"/>
+        <child link="mount_intact"/>
+    </joint>
+
+    <xacro:jetleg identifier="_intact">
+    </xacro:jetleg>
+
+    <joint name="mount_to_jetleg_intact" type="fixed">
+        <parent link="mount_intact"/>
+        <child link="thigh_intact"/>
+        <origin xyz="0 0 ${-thigh_length/2}" rpy="0 0 0"/>
+        <axis xyz="0 0 -1" />
+        <limit effort="1000" velocity="10" lower="0" upper="0.6" />
+    </joint>
+
+</robot>
