@@ -7,6 +7,9 @@ class SingleLegController(Node):
 
     def __init__(self):
         super().__init__('single_leg_controller')
+        self.last_joint_state = []
+        self.last_link_state = []
+
 
         self.jointStateSubscriber = self.create_subscription(JointState, 'joint_states', self.jointStateCallback, 10)
         self.get_logger().info('Created jointStateSubscriber')
@@ -16,9 +19,11 @@ class SingleLegController(Node):
 
     def jointStateCallback(self, message):
         self.get_logger().info(str(message.name))
+        self.last_joint_state = message
 
     def poseStampedCallback(self, message):
         self.get_logger().info(str(message))
+        self.last_link_state = message
 
 
 def main():
