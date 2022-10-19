@@ -68,7 +68,12 @@ class QTrainer:
 
         target = pred.clone()
         for idx in range(len(done)):
-            Q_new = reward[idx] - pred[idx][torch.argmax(action).item()]
+            try:
+                Q_new = reward[idx] - pred[idx][torch.argmax(action).item()]
+            except IndexError:
+                print('Action is empty during training step')
+                print(action)
+                exit(1)
             if not done[idx]:
                 Q_new = reward[idx] + self.gamma * torch.max(self.model(next_state[idx])) - pred[idx][torch.argmax(action).item()]
 

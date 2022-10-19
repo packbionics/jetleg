@@ -42,7 +42,7 @@ setup(
         'console_scripts': [
         		'jetleg_teleop_key = jetleg_control.jetleg_teleop_key:main',
                 'jetleg_gait_generator = jetleg_control.jetleg_gait_generator:main',
-                'single_leg_controller = jetleg_control.single_leg_controller:main'
+                'train_leg_agent = jetleg_control.train_leg_agent:main'
         ],
     },
 )

@@ -3,10 +3,10 @@ from rclpy.node import Node
 from sensor_msgs.msg import JointState
 from geometry_msgs.msg import PoseStamped
 
-class SingleLegController(Node):
+class StateLegReader(Node):
 
     def __init__(self):
-        super().__init__('single_leg_controller')
+        super().__init__('state_leg_reader')
         self.last_joint_state = []
         self.last_link_state = []
 
@@ -28,7 +28,7 @@ class SingleLegController(Node):
 
 def main():
     rclpy.init()
-    node = SingleLegController()
+    node = StateLegReader()
 
     rclpy.spin(node)
     node.destroy()
