@@ -10,7 +10,6 @@ from jetleg_control.leg_agent import LegAgent
 from jetleg_interfaces.action import LegAction
 
 import numpy as np
-import time
 
 class StateLegActor(Node):
     """
@@ -39,6 +38,9 @@ class StateLegActor(Node):
 
         # Indicates the end of a training epoch
         self.done = False
+
+        # Reward at end of epoch
+        self.highest_reward = 0
     
     def execute_action(self, action):
         """
@@ -55,7 +57,7 @@ class StateLegActor(Node):
         future = self.send_goal_future = self.action_client.send_goal_async(goal_msg, feedback_callback=self.feedback_callback)
         self.send_goal_future.add_done_callback(self.goal_response_callback)
 
-        return future
+        rclpy.spin_until_future_complete(self, future)
 
     def goal_response_callback(self, future):
         """
@@ -89,9 +91,8 @@ class StateLegActor(Node):
         self.old_state = result.state
 
         if result.done:
-            self.done = result.done
-            # self.get_logger().info('Leg has fallen down!')
-            
+            self.done = result.done  
+            self.highest_reward = result.reward
 
     def feedback_callback(self, feedback_msg):
         """
@@ -100,6 +101,43 @@ class StateLegActor(Node):
 
         feedback = feedback_msg.feedback
         self.get_logger().info('Received feedback: {0}'.format(feedback.state))
+
+    def run_epoch(self, epoch):
+
+        # Perform actions until leg falls down
+        while not self.done:
+            self.test_counter = 0
+
+            # Determine action based on current state
+            action = self.leg_agent.get_action(self.old_state)
+
+            # Process action and retrieve results
+            self.execute_action(action)
+        
+        self.get_logger().info('Leg has fallen down!')
+
+        # Process end-of-epoch training and reset simulation
+        cost = self.process_end_epoch()
+
+        epoch_reward = self.highest_reward
+        self.highest_reward = 0
+        
+        # Increment for next epoch
+        return epoch + 1, epoch_reward, cost
+
+
+    def process_end_epoch(self):
+        # Train leg agent after finishing one training epoch
+        cost = self.leg_agent.train_long_memory()
+
+        # Reset simulation and prepare for another epoch
+        self.get_logger().info('Sending reset request...')
+        reset_future = self.reset_sim()
+
+        rclpy.spin_until_future_complete(self, reset_future)
+        self.done = False
+
+        return cost
 
     def reset_sim(self):
         req = Empty.Request()

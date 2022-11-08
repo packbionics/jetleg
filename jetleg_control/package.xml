@@ -3,9 +3,9 @@
 <package format="3">
   <name>jetleg_control</name>
   <version>0.0.0</version>
-  <description>TODO: Package description</description>
+  <description>Contains necessary software for controlling Jetleg robotic leg system</description>
   <maintainer email="59701038+JChunX@users.noreply.github.com">jasonx</maintainer>
-  <license>TODO: License declaration</license>
+  <license>Apache License 2.0</license>
 
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>
