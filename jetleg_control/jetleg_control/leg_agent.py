@@ -27,10 +27,12 @@ class LegAgent(Agent):
         self.NUM_STATE_VAR_PER_JOINT = 2
         self.NUM_JOINTS = 2
 
+        self.OUTPUT_VARS_NUM = 9
+
         # Number of input variables for learning model
         self.total_num_state_var = (self.NUM_STATE_VAR_PER_JOINT*self.NUM_JOINTS) + (self.NUM_STATE_VAR_PER_LINK*self.NUM_LINKS)
 
-        self.model = Linear_QNet([self.total_num_state_var, 1024, 4])
+        self.model = Linear_QNet([self.total_num_state_var, 1024, self.OUTPUT_VARS_NUM])
         self.trainer = QTrainer(self.model, lr=agent.LR, gamma=self.gamma)
 
     def get_state(self, state_reader_node):
@@ -65,9 +67,9 @@ class LegAgent(Agent):
     def get_action(self,state):
         # random moves: tradeoff between exploration / exploitation
         # self.epsilon = 200 - self.n_games
-        final_move = [0, 0, 0, 0]
+        final_move = [0] * self.OUTPUT_VARS_NUM
         if random.randint(0, 200) < self.epsilon or len(state) != 25:
-            move = random.randint(0, 3)
+            move = random.randint(0, self.OUTPUT_VARS_NUM - 1)
             final_move[move] = 1
         else:
             state0 = torch.tensor(state, dtype=torch.float)

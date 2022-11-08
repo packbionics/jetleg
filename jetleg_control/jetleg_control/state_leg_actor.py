@@ -1,11 +1,16 @@
+import rclpy
+
 from rclpy.node import Node
 from rclpy.action import ActionClient
+
+from std_srvs.srv import Empty
 
 from jetleg_control.leg_agent import LegAgent
 
 from jetleg_interfaces.action import LegAction
 
 import numpy as np
+import time
 
 class StateLegActor(Node):
     """
@@ -24,6 +29,9 @@ class StateLegActor(Node):
 
         # Initialize an action client to communicate with action server
         self.action_client = ActionClient(self, LegAction, 'leg_control')
+
+        # Initialize service client to reset simulation after the leg falls down
+        self.reset_sim_client = self.create_client(Empty, 'reset_simulation')
 
         # Store state/action pair
         self.old_state = []
@@ -60,8 +68,6 @@ class StateLegActor(Node):
             self.get_logger().info('Goal rejected :(')
             return
 
-        # self.get_logger().info('Goal accepted :)')
-
         self.get_result_future = goal_handle.get_result_async()
         self.get_result_future.add_done_callback(self.get_result_callback)
 
@@ -84,7 +90,8 @@ class StateLegActor(Node):
 
         if result.done:
             self.done = result.done
-            self.get_logger().info('Leg has fallen down!')
+            # self.get_logger().info('Leg has fallen down!')
+            
 
     def feedback_callback(self, feedback_msg):
         """
@@ -93,3 +100,9 @@ class StateLegActor(Node):
 
         feedback = feedback_msg.feedback
         self.get_logger().info('Received feedback: {0}'.format(feedback.state))
+
+    def reset_sim(self):
+        req = Empty.Request()
+        
+        future = self.reset_sim_client.call_async(req)
+        return future
