@@ -39,6 +39,9 @@ class StateLegActor(Node):
         # Indicates the end of a training epoch
         self.done = False
 
+        # Indicates if the agent is training
+        self.training = True
+
         # Reward at end of epoch
         self.highest_reward = 0
     
@@ -83,7 +86,7 @@ class StateLegActor(Node):
 
         # self.get_logger().info('Result: state={0} reward={1} done={2}'.format(result.state, result.reward, result.done))
 
-        if len(self.old_state) == 25 and len(result.state) == 25:
+        if len(self.old_state) == 25 and len(result.state) == 25 and self.training:
             # Perform train step after each action
             self.leg_agent.train_short_memory(self.old_state, self.action, result.reward, result.state, result.done)
             self.leg_agent.remember(self.old_state, self.action, result.reward, result.state, result.done)
@@ -127,8 +130,10 @@ class StateLegActor(Node):
 
 
     def process_end_epoch(self):
-        # Train leg agent after finishing one training epoch
-        cost = self.leg_agent.train_long_memory()
+        cost = 0
+        if self.training:
+            # Train leg agent after finishing one training epoch
+            cost = self.leg_agent.train_long_memory()
 
         # Reset simulation and prepare for another epoch
         self.get_logger().info('Sending reset request...')

@@ -10,36 +10,22 @@ def main():
 
     # Construct a client node for executing the actions of the agent
     action_node = StateLegActor()
+    action_node.leg_agent.model.load('low_cost_tmp.pth')
 
     scores = []
-    costs = []
 
-    high_score = 0
-    low_cost = []
-
-    fig, ax = init_subplots(2, [['Score', 'Epoch'], ['Cost', 'Epoch']])
+    fig, ax = init_subplots(1, ['Score', 'Epoch'])
 
     # Number of training epochs to perform
     num_epochs = 300
     current_epoch = 1
     while current_epoch <= num_epochs:
         # Run the current epoch
-        current_epoch, score, cost = action_node.run_epoch(current_epoch)
+        current_epoch, score, _ = action_node.run_epoch(current_epoch)
         action_node.get_logger().info('Epoch: ' + str(current_epoch))
 
-        if score > high_score:
-            action_node.leg_agent.model.save('high_score_tmp.pth')
-            high_score = score
-        if len(low_cost) == 0:
-            low_cost.append(cost)
-            action_node.leg_agent.model.save('low_cost_tmp.pth')
-        elif cost < low_cost[0]:
-            low_cost[0] = cost
-            action_node.leg_agent.model.save('low_cost_tmp.pth')
-
         scores.append(score)
-        costs.append(cost)
-        plot([scores, costs], fig, ax)
+        plot([scores], fig, ax)
     
     # Clean up resources
     action_node.destroy_node()
