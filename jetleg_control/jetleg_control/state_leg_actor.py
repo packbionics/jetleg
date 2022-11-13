@@ -81,12 +81,22 @@ class StateLegActor(Node):
         Trains the leg agent based on the results of the associated action
         """
 
+        joint_indices = (0, self.leg_agent.NUM_STATE_VAR_PER_JOINT * self.leg_agent.NUM_JOINTS)
+        link_indices = (joint_indices[1], joint_indices[1] + self.leg_agent.NUM_STATE_VAR_PER_LINK * self.leg_agent.NUM_LINKS)
+
+        num_state_vars = self.leg_agent.NUM_JOINTS * self.leg_agent.NUM_STATE_VAR_PER_JOINT + self.leg_agent.NUM_LINKS * self.leg_agent.NUM_STATE_VAR_PER_LINK
+
         # Retrieves the result of the associated action
         result = future.result().result
+        
+        processed_state = result.state[joint_indices[0]:joint_indices[1]]
+        processed_state = processed_state + result.state[link_indices[0]:link_indices[1]]
+
+        result.state = processed_state
 
         # self.get_logger().info('Result: state={0} reward={1} done={2}'.format(result.state, result.reward, result.done))
 
-        if len(self.old_state) == 25 and len(result.state) == 25 and self.training:
+        if len(self.old_state) == num_state_vars and len(result.state) == num_state_vars and self.training:
             # Perform train step after each action
             self.leg_agent.train_short_memory(self.old_state, self.action, result.reward, result.state, result.done)
             self.leg_agent.remember(self.old_state, self.action, result.reward, result.state, result.done)

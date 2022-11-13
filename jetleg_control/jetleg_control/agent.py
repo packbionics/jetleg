@@ -18,6 +18,11 @@ class Agent:
         self.memory = deque(maxlen=MAX_MEMORY)
         self.model = Linear_QNet([11, 1024, 3])
         self.trainer = QTrainer(self.model, lr=LR, gamma=self.gamma)
+
+        # Making the code device-agnostic
+        device = 'cuda' if torch.cuda.is_available() else 'cpu'
+
+        self.model.to(device)
     
     def get_state(self, environment):
         return 0

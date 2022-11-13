@@ -22,7 +22,7 @@ class LegAgent(Agent):
 
         # Used to calculate number of state variables
         self.NUM_STATE_VAR_PER_LINK = 7
-        self.NUM_LINKS = 3
+        self.NUM_LINKS = 1
 
         self.NUM_STATE_VAR_PER_JOINT = 2
         self.NUM_JOINTS = 2
@@ -32,7 +32,7 @@ class LegAgent(Agent):
         # Number of input variables for learning model
         self.total_num_state_var = (self.NUM_STATE_VAR_PER_JOINT*self.NUM_JOINTS) + (self.NUM_STATE_VAR_PER_LINK*self.NUM_LINKS)
 
-        self.model = Linear_QNet([self.total_num_state_var, 1024, self.OUTPUT_VARS_NUM])
+        self.model = Linear_QNet([self.total_num_state_var, 1024, 512, self.OUTPUT_VARS_NUM])
         self.trainer = QTrainer(self.model, lr=agent.LR, gamma=self.gamma)
 
     def get_state(self, state_reader_node):

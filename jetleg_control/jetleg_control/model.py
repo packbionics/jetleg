@@ -1,6 +1,3 @@
-import nntplib
-
-from numpy import dtype
 import torch
 import torch.nn as nn
 import torch.optim as optim
