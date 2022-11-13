@@ -26,17 +26,21 @@ class Agent:
         self.memory.append((state, action, reward, next_state, done)) # popleft if MAX_MEMORY is reached
 
     def train_long_memory(self):
-        if len(self.memory) > BATCH_SIZE:
-            mini_sample = random.sample(self.memory, BATCH_SIZE) # list of tuples
-        else:
-            mini_sample = self.memory
+        try:
+            if len(self.memory) > BATCH_SIZE:
+                mini_sample = random.sample(self.memory, BATCH_SIZE) # list of tuples
+            else:
+                mini_sample = self.memory
 
-        cost = 0
+            cost = 0
 
-        states, actions, rewards, next_states, dones = zip(*mini_sample)
-        cost += self.trainer.train_step(np.array(states), np.array(actions), np.array(rewards), np.array(next_states), np.array(dones))
+            states, actions, rewards, next_states, dones = zip(*mini_sample)
+            cost += self.trainer.train_step(np.array(states), np.array(actions), np.array(rewards), np.array(next_states), np.array(dones))
         
-        return cost
+            return cost
+        except Exception as ex:
+            print(ex)
+            return 0
 
     def train_short_memory(self, state, action, reward, next_state, done):
         self.trainer.train_step(state, action, reward, next_state, done)
