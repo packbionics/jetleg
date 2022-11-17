@@ -27,7 +27,7 @@ class LegAgent(Agent):
         self.NUM_STATE_VAR_PER_JOINT = 2
         self.NUM_JOINTS = 2
 
-        self.OUTPUT_VARS_NUM = 9
+        self.OUTPUT_VARS_NUM = 5
 
         # Number of input variables for learning model
         self.total_num_state_var = (self.NUM_STATE_VAR_PER_JOINT*self.NUM_JOINTS) + (self.NUM_STATE_VAR_PER_LINK*self.NUM_LINKS)
