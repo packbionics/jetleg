@@ -26,12 +26,6 @@ def generate_launch_description():
         'Z_MAX':  3.0,
     }
 
-    jetleg_pointcloud_proc = Node(
-        package='jetleg_vision',
-        executable='pointcloud_proc',
-        remappings=[('/zed2i/zed_node/point_cloud/cloud_registered', '/points')]
-    )
-
     jetleg_pointcloud_proc_cpp = Node(
         package='jetleg_vision_cpp',
         executable='jetleg_pointcloud_proc',
@@ -40,4 +34,10 @@ def generate_launch_description():
                     ('camera_state', 'camera/state')]
     )
 
-    return LaunchDescription([jetleg_pointcloud_launch, jetleg_pointcloud_proc_cpp])
+    image_to_map_node = Node(
+        package='map_to_jpeg',
+        executable='image_to_map_node',
+        remappings=[('image', 'traversibility')]
+    )
+
+    return LaunchDescription([jetleg_pointcloud_launch, jetleg_pointcloud_proc_cpp, image_to_map_node])

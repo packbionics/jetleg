@@ -12,8 +12,8 @@ JetLegPointCloudProc::JetLegPointCloudProc() : rclcpp::Node("jetleg_pointcloud_p
   subPointCloud = this->create_subscription<sensor_msgs::msg::PointCloud2>("pointcloud", rclcpp::SensorDataQoS(), cloudWrap);
   subPoseStamped = this->create_subscription<geometry_msgs::msg::PoseStamped>("camera_state", QOS, poseWrap);
 
-  heightmapPub = this->create_publisher<sensor_msgs::msg::Image>("heightmap", QOS);
-  traversePub = this->create_publisher<sensor_msgs::msg::Image>("traversibility", QOS);
+  heightmapPub = this->create_publisher<sensor_msgs::msg::Image>("heightmap", rclcpp::SensorDataQoS());
+  traversePub = this->create_publisher<sensor_msgs::msg::Image>("traversibility", rclcpp::SensorDataQoS());
 
   // Stores output as floats
   heightmap = cv::Mat(MAP_ROWS, MAP_COLS, CV_32FC1);
