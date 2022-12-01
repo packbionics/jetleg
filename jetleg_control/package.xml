@@ -2,7 +2,7 @@
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
   <name>jetleg_control</name>
-  <version>0.0.0</version>
+  <version>0.1.0</version>
   <description>Contains necessary software for controlling Jetleg robotic leg system</description>
   <maintainer email="59701038+JChunX@users.noreply.github.com">jasonx</maintainer>
   <license>Apache License 2.0</license>
@@ -13,6 +13,7 @@
   <test_depend>python3-pytest</test_depend>
 
   <depend>jetleg_interfaces</depend>
+  <depend>torch</depend>
 
   <export>
     <build_type>ament_python</build_type>

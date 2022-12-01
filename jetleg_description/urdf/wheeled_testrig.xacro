@@ -1,8 +1,6 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="jetleg_wheeled_testrig">
 
-    <xacro:include filename="colors.xacro"/>
-
     <xacro:property name="gantry_height" value="1" />
     <xacro:property name="gantry_width" value="1.6" />
 
@@ -14,11 +12,6 @@
     <xacro:property name="wheel_offset" value="0.4" />
 
     <link name="base_link">
-        <inertial>
-                <mass value="1"/>
-                <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
-                <origin rpy="0 0 0" xyz="0 0 0"/>
-        </inertial>
     </link>
 
     <link name="vertical_rail">
