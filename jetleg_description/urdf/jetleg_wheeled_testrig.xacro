@@ -1,78 +1,17 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="jetleg_wheeled_testrig">
 
-    <xacro:property name="gantry_height" value="1" />
-    <xacro:property name="gantry_width" value="1.6" />
+    <!-- Include the basic testrig -->
+    <xacro:include filename="$(find jetleg_description)/urdf/testrig.xacro"/>
+    <!-- Include the JetLeg -->
+    <xacro:include filename="$(find jetleg_description)/urdf/jetleg.xacro"/> 
 
-    <xacro:property name="mount_angle_lim" value="${40*pi/180}" />
-    <xacro:property name="mount_length" value="0.24" />
-
+    <!-- Define reusable variables -->
     <xacro:property name="wheel_length" value="0.04" />
     <xacro:property name="wheel_radius" value="0.15" />
     <xacro:property name="wheel_offset" value="0.4" />
 
-    <link name="base_link">
-    </link>
-
-    <link name="vertical_rail">
-        <visual>
-            <geometry>
-                <box size="0.1 0.1 0.1"/>
-            </geometry>
-            <material name="white"/>
-        </visual>
-        <inertial>
-            <mass value="30"/>
-            <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
-        </inertial>
-    </link>
-
-    <link name="gantry">
-        <visual>
-            <geometry>
-                <box size="0.05 ${gantry_width} 0.05"/>
-            </geometry>
-            <material name="white_transluscent"/> 
-        </visual>
-        <inertial>
-            <mass value="1"/>
-            <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
-            <origin rpy="0 0 0" xyz="0 0 0"/>
-        </inertial>
-    </link>
-
-    <joint name="base_to_gantry" type="fixed">
-        <origin rpy="0 0 0" xyz="0 0 ${gantry_height}"/>
-        <parent link="base_link"/>
-        <child link="gantry"/>
-    </joint>
-
-    <xacro:macro name="support" params="postfix reflect">
-        <link name="support_${postfix}">
-            <visual>
-                <geometry>
-                    <box size="0.5 0.25 ${gantry_height}"/>
-                </geometry>
-                <material name="red_transluscent"/> 
-            </visual>
-            <collision>
-                <geometry>
-                    <box size="0.5 0.25 ${gantry_height}"/>
-                </geometry>
-            </collision>
-            <inertial>
-                <mass value="50"/>
-                <inertia ixx="10" ixy="0" ixz="0" iyy="10" iyz="0" izz="10"/>
-            </inertial>
-        </link>
-
-        <joint name="gantry_to_support_${postfix}" type="fixed">
-            <parent link="gantry"/>
-            <child link="support_${postfix}"/>
-            <origin xyz="0 ${reflect * gantry_width/2} ${-gantry_height/2}" />
-        </joint>
-    </xacro:macro>
-
+    <!-- Define the wheel macro -->
     <xacro:macro name="wheel" params="wheelpos parentsupport reflect offset">
         <link name="wheel_${wheelpos}">
             <contact>
@@ -107,39 +46,21 @@
         </joint>
     </xacro:macro>
 
-    <xacro:support postfix="left" reflect="1" />
-    <xacro:support postfix="right" reflect="-1" />
-
+    <!-- Create four wheels for the testrig -->
     <xacro:wheel wheelpos="fore_left" parentsupport="left" reflect="1" offset="${wheel_offset}" />
     <xacro:wheel wheelpos="fore_right" parentsupport="right" reflect="-1" offset="${wheel_offset}" />
 
     <xacro:wheel wheelpos="hind_left" parentsupport="left" reflect="1" offset="${-wheel_offset}" />
     <xacro:wheel wheelpos="hind_right" parentsupport="right" reflect="-1" offset="${-wheel_offset}" />
 
-    <joint name="gantry_to_vertical_rail" type="prismatic">
-        <origin rpy="0 0 0" xyz="0 0 0"/>
-        <parent link="gantry"/>
-        <child link="vertical_rail"/>
-        <limit effort="100" lower="-1" upper="3" velocity="10"/>
-        <axis xyz="0 0 1"/>
-    </joint>
+    <!-- Create two JetLegs -->
+    <xacro:jetleg identifier="">
+    </xacro:jetleg>
 
-    <joint name="vertical_rail_to_mount" type="revolute">
-        <origin rpy="0 0 0" xyz="0 -0.1 0"/>
-        <parent link="vertical_rail"/>
-        <child link="mount"/>
-        <limit effort="100" lower="${-mount_angle_lim}" upper="${mount_angle_lim}" velocity="10"/>
-        <axis xyz="0 1 0"/>
-    </joint>
+    <xacro:jetleg identifier="_intact">
+    </xacro:jetleg>
 
-    <joint name="vertical_rail_to_mount_intact" type="revolute">
-        <origin rpy="0 0 0" xyz="0 0.1 0"/>
-        <parent link="vertical_rail"/>
-        <child link="mount_intact"/>
-        <limit effort="100" lower="${-mount_angle_lim}" upper="${mount_angle_lim}" velocity="10"/>
-        <axis xyz="0 1 0"/>
-    </joint>
-
+    <!-- Use mounts to attach legs to the testrig -->
     <link name="mount">
         <visual>
             <geometry>
@@ -168,13 +89,23 @@
         </inertial>
     </link>
 
-    <xacro:include filename="jetleg.xacro"/> 
+    <!-- Define the additional joints of the robot -->
 
-    <xacro:jetleg identifier="">
-    </xacro:jetleg>
+    <joint name="vertical_rail_to_mount" type="revolute">
+        <origin rpy="0 0 0" xyz="0 -0.1 0"/>
+        <parent link="vertical_rail"/>
+        <child link="mount"/>
+        <limit effort="100" lower="${-mount_angle_lim}" upper="${mount_angle_lim}" velocity="10"/>
+        <axis xyz="0 1 0"/>
+    </joint>
 
-    <xacro:jetleg identifier="_intact">
-    </xacro:jetleg>
+    <joint name="vertical_rail_to_mount_intact" type="revolute">
+        <origin rpy="0 0 0" xyz="0 0.1 0"/>
+        <parent link="vertical_rail"/>
+        <child link="mount_intact"/>
+        <limit effort="100" lower="${-mount_angle_lim}" upper="${mount_angle_lim}" velocity="10"/>
+        <axis xyz="0 1 0"/>
+    </joint>
 
     <joint name="mount_to_jetleg" type="fixed">
         <parent link="mount"/>

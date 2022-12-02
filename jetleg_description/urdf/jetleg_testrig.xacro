@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="jetleg_testrig">
+
+    <xacro:include filename="$(find jetleg_description)/urdf/testrig.xacro"/>
+
+    <xacro:include filename="jetleg.xacro"/> 
+    
+    <xacro:jetleg identifier="">
+    </xacro:jetleg>
+
+    <link name="mount">
+        <visual>
+            <geometry>
+                <cylinder length="${mount_length}" radius="0.08"/>
+            </geometry>
+            <material name="white_transluscent"/> 
+        </visual>
+    </link>
+
+    <joint name="vertical_rail_to_mount" type="revolute">
+        <origin rpy="0 0 0" xyz="0 0 0"/>
+        <parent link="vertical_rail"/>
+        <child link="mount"/>
+        <limit effort="100" lower="${-mount_angle_lim}" upper="${mount_angle_lim}" velocity="10"/>
+        <axis xyz="0 1 0"/>
+    </joint>
+
+    <joint name="mount_to_jetleg" type="fixed">
+        <parent link="mount"/>
+        <child link="thigh"/>
+        <origin xyz="0 0 ${-thigh_length/2}" rpy="0 0 0"/>
+        <axis xyz="0 0 -1" />
+        <limit effort="1000" velocity="10" lower="0" upper="0.6" />
+    </joint>
+
+</robot>
