@@ -9,15 +9,15 @@ from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.actions import IncludeLaunchDescription
 
 def generate_launch_description():
-    pybullet_ros_dir = get_package_share_directory('pybullet_ros')
+    jetleg_bringup_dir = get_package_share_directory('jetleg_bringup')
     jetleg_vision_cpp_dir = get_package_share_directory('jetleg_vision_cpp')
 
     rviz_config_file = os.path.join(jetleg_vision_cpp_dir, 'config/pybullet_pointcloud_vision_config.rviz')
-    pybullet_launch_dir = os.path.join(pybullet_ros_dir, 'launch')
+    jetleg_bringup_launch_dir = os.path.join(jetleg_bringup_dir, 'launch')
 
     pybullet_sim_launch = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource([pybullet_launch_dir,
-            '/vision_example.launch.py'])
+        PythonLaunchDescriptionSource([jetleg_bringup_launch_dir,
+            '/jetleg_vision_example.launch.py'])
     )
 
     # create a static tf2 transform publisher
