@@ -19,8 +19,8 @@ def generate_launch_description():
 
     pybullet_sim = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([os.path.join(
-            get_package_share_directory('pybullet_ros'), 'launch'),
-            '/vision_example.launch.py'])
+            get_package_share_directory('jetleg_bringup'), 'launch'),
+            '/jetleg_vision_example.launch.py'])
     )
     rviz_node = Node(
         package='rviz2',

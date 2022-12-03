@@ -16,7 +16,7 @@ def generate_launch_description():
     rviz_arg = DeclareLaunchArgument(name='rvizconfig', default_value=str(default_rviz_config_path),
                                     description='Absolute path to rviz config file')
 
-    model_path = os.path.join(description_path, 'urdf/wheeled_testrig.xacro')
+    model_path = os.path.join(description_path, 'urdf/jetleg_wheeled_testrig.xacro')
 
     launch_arguments = {
         'model': model_path
