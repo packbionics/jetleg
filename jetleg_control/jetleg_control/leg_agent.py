@@ -1,6 +1,6 @@
-import jetleg_control.agent as agent
-from jetleg_control.agent import Agent
-from jetleg_control.model import Linear_QNet, QTrainer
+from jetleg_control.machine_learning.agent import Agent
+from jetleg_control.machine_learning.model import Linear_QNet
+from jetleg_control.machine_learning.dqn import DQN
 
 import numpy as np
 import torch
@@ -33,36 +33,7 @@ class LegAgent(Agent):
         self.total_num_state_var = (self.NUM_STATE_VAR_PER_JOINT*self.NUM_JOINTS) + (self.NUM_STATE_VAR_PER_LINK*self.NUM_LINKS)
 
         self.model = Linear_QNet([self.total_num_state_var, 1024, 512, self.OUTPUT_VARS_NUM])
-        self.trainer = QTrainer(self.model, lr=agent.LR, gamma=self.gamma)
-
-    def get_state(self, state_reader_node):
-        """
-        Reads the current state of the leg from the node which subscribes to /joint_states and /link_states.
-        Converts from ROS Msg types to a single numpy array of length n where n is the number of state variables.
-        """
-
-        state = np.zeros(self.total_num_state_var)
-
-        # Reads joint position and joint velocity
-        for i in range(self.NUM_JOINTS):
-            state[i * self.NUM_STATE_VAR_PER_JOINT] = state_reader_node.last_joint_state.message.position[i]
-            state[i * self.NUM_STATE_VAR_PER_JOINT + 1] = state_reader_node.last_joint_state.message.velocity[i]
-
-        # Reads the center of mass of each link in the leg
-        for i in range(self.NUM_LINKS):
-
-            # Reads the XYZ position of each link
-            state[self.NUM_JOINTS * self.NUM_STATE_VAR_PER_JOINT + i * self.NUM_STATE_VAR_PER_LINK] = state_reader_node.last_link_state.pose.point.x
-            state[self.NUM_JOINTS * self.NUM_STATE_VAR_PER_JOINT + i * self.NUM_STATE_VAR_PER_LINK + 1] = state_reader_node.last_link_state.pose.point.y
-            state[self.NUM_JOINTS * self.NUM_STATE_VAR_PER_JOINT + i * self.NUM_STATE_VAR_PER_LINK + 2] = state_reader_node.last_link_state.pose.point.z
-
-            # Reads the orientation of each link as a quaternion
-            state[self.NUM_JOINTS * self.NUM_STATE_VAR_PER_JOINT + i * self.NUM_STATE_VAR_PER_LINK + 3] = state_reader_node.last_link_state.pose.orientation.x
-            state[self.NUM_JOINTS * self.NUM_STATE_VAR_PER_JOINT + i * self.NUM_STATE_VAR_PER_LINK + 4] = state_reader_node.last_link_state.pose.orientation.y
-            state[self.NUM_JOINTS * self.NUM_STATE_VAR_PER_JOINT + i * self.NUM_STATE_VAR_PER_LINK + 5] = state_reader_node.last_link_state.pose.orientation.z
-            state[self.NUM_JOINTS * self.NUM_STATE_VAR_PER_JOINT + i * self.NUM_STATE_VAR_PER_LINK + 6] = state_reader_node.last_link_state.pose.orientation.w
-
-        return state
+        self.trainer = DQN(self.model, lr=self.DEFAULT_LR, gamma=self.gamma)
 
     def get_action(self,state):
         # random moves: tradeoff between exploration / exploitation

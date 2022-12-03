@@ -4,6 +4,7 @@ from glob import glob
 from setuptools import setup
 
 package_name = 'jetleg_control'
+submodules = [os.path.join(package_name, sub) for sub in ['machine_learning']]
 
 data_files = [
         ('share/ament_index/resource_index/packages',
@@ -29,7 +30,7 @@ for directory in data_directories:
 setup(
     name=package_name,
     version='0.0.1',
-    packages=[package_name],
+    packages=[package_name] + submodules,
     data_files=data_files,
     install_requires=['setuptools'],
     zip_safe=True,

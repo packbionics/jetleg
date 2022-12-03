@@ -94,8 +94,6 @@ class StateLegActor(Node):
 
         result.state = processed_state
 
-        # self.get_logger().info('Result: state={0} reward={1} done={2}'.format(result.state, result.reward, result.done))
-
         if len(self.old_state) == num_state_vars and len(result.state) == num_state_vars and self.training:
             # Perform train step after each action
             self.leg_agent.train_short_memory(self.old_state, self.action, result.reward, result.state, result.done)

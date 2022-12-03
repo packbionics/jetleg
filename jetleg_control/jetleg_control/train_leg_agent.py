@@ -17,6 +17,7 @@ def main():
         print(f"Name of current CUDA device: {torch.cuda.get_device_name(cuda_id)}")
     except RuntimeError as ex:
         print(ex)
+        print('Training will utilize the CPU of the system if available')
 
     # Initialize ROS 2
     rclpy.init()
@@ -24,6 +25,7 @@ def main():
     # Construct a client node for executing the actions of the agent
     action_node = StateLegActor()
 
+    # Track the performance of the model
     scores = []
     costs = []
 
@@ -52,7 +54,7 @@ def main():
 
         scores.append(score)
         costs.append(cost)
-        plot([scores, costs], fig, ax)
+        # plot([scores, costs], fig, ax)
     
     # Clean up resources
     action_node.destroy_node()

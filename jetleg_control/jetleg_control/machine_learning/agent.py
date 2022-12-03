@@ -1,51 +1,48 @@
-import sys
-import torch
 import random
-import numpy as np
-from collections import deque
-from jetleg_control.model import Linear_QNet, QTrainer
 
-BATCH_SIZE = 5000
-MAX_MEMORY = 100 * BATCH_SIZE
-LR = 0.001
+import torch
+import numpy as np
+
+from jetleg_control.machine_learning.model import Linear_QNet
+from jetleg_control.machine_learning.dqn import DQN
+from jetleg_control.machine_learning.replay_buffer import ReplayBuffer
 
 class Agent:
     
     def __init__(self):
+        self.DEFAULT_BATCH_SIZE = 5000
+        self.DEFAULT_MAX_MEMORY = 500000
+        self.DEFAULT_LR = 0.001
+
         self.n_games = 0
         self.epsilon = 200 # randomness
         self.gamma = 0.90 # discount rate
-        self.memory = deque(maxlen=MAX_MEMORY)
+        self.batch_size = self.DEFAULT_BATCH_SIZE
+        self.memory = ReplayBuffer(maxlen=self.DEFAULT_MAX_MEMORY)
         self.model = Linear_QNet([11, 1024, 3])
-        self.trainer = QTrainer(self.model, lr=LR, gamma=self.gamma)
+        self.trainer = DQN(self.model, lr=self.DEFAULT_LR, gamma=self.gamma)
 
         # Making the code device-agnostic
         device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
         self.model.to(device)
-    
-    def get_state(self, environment):
-        return 0
 
     def remember(self, state, action, reward, next_state, done):
-        self.memory.append((state, action, reward, next_state, done)) # popleft if MAX_MEMORY is reached
+        self.memory.add((state, action, reward, next_state, done)) # popleft if MAX_MEMORY is reached
 
     def train_long_memory(self):
-        try:
-            if len(self.memory) > BATCH_SIZE:
-                mini_sample = random.sample(self.memory, BATCH_SIZE) # list of tuples
-            else:
-                mini_sample = self.memory
+        mini_sample = self.memory.get_training_samples(size=self.batch_size)
 
-            cost = 0
-
-            states, actions, rewards, next_states, dones = zip(*mini_sample)
-            cost += self.trainer.train_step(np.array(states), np.array(actions), np.array(rewards), np.array(next_states), np.array(dones))
-        
-            return cost
-        except Exception as ex:
-            print(ex)
+        # end training prematurely if there are no memory samples
+        if len(mini_sample) == 0:
             return 0
+
+        # extract data for training
+        states, actions, rewards, next_states, dones = zip(*mini_sample)
+        # train the model and retrieve the sum of the loss function
+        cost = self.trainer.train_step(np.array(states), np.array(actions), np.array(rewards), np.array(next_states), np.array(dones))
+    
+        return cost
 
     def train_short_memory(self, state, action, reward, next_state, done):
         self.trainer.train_step(state, action, reward, next_state, done)
