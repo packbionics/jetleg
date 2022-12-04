@@ -1,7 +1,8 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="jetleg_testrig_odrive">
 
-    <xacro:include filename="$(find jetleg_description)/urdf/testrig.xacro"/>
+    <xacro:include filename="$(find jetleg_description)/urdf/jetleg_testrig.xacro"/>
     <xacro:include filename="$(find jetleg_description)/ros2_control/jetleg.ros2_control.xacro"/>
+    
     <xacro:jetleg_ros2_control name="jetleg_ros2_control"/>
 </robot>

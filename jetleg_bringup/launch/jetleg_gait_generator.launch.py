@@ -1,7 +1,6 @@
 import os
 
-from ament_index_python.packages import (get_package_share_directory,
-                                         get_package_share_path)
+from ament_index_python.packages import get_package_share_path
 from launch_ros.actions import Node
 
 from launch import LaunchDescription
@@ -12,19 +11,14 @@ from launch.substitutions import LaunchConfiguration
 
 def generate_launch_description():
     description_path = get_package_share_path('jetleg_description')
-    description_directory_path = get_package_share_directory('jetleg_description')
 
     default_rviz_config_path = description_path / 'rviz/urdf.rviz'
     rviz_arg = DeclareLaunchArgument(name='rvizconfig', default_value=str(default_rviz_config_path),
                                     description='Absolute path to rviz config file')
 
-    bringup_path = get_package_share_path('jetleg_bringup')
-    models_to_load = bringup_path / 'resource/model_descriptions.yaml'
+    model_path = os.path.join(description_path, 'urdf/jetleg_wheeled_testrig.xacro')
 
-    model_path = os.path.join(description_directory_path, 'urdf/wheeled_testrig.xacro')
-
-    redefined_launch_arguments = {
-        'models_to_load': str(models_to_load),
+    launch_arguments = {
         'model': model_path
     }
     
@@ -35,10 +29,10 @@ def generate_launch_description():
     )
     pybullet_sim = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([os.path.join(
-            get_package_share_directory('pybullet_ros'), 'launch'),
+            get_package_share_path('jetleg_bringup'), 'launch'),
             '/jetleg_pybullet_ros.launch.py']
             ),
-        launch_arguments=redefined_launch_arguments.items()
+        launch_arguments=launch_arguments.items()
     )
     rviz_node = Node(
         package='rviz2',

@@ -12,8 +12,8 @@ JetLegPointCloudProc::JetLegPointCloudProc() : rclcpp::Node("jetleg_pointcloud_p
   subPointCloud = this->create_subscription<sensor_msgs::msg::PointCloud2>("pointcloud", rclcpp::SensorDataQoS(), cloudWrap);
   subPoseStamped = this->create_subscription<geometry_msgs::msg::PoseStamped>("camera_state", QOS, poseWrap);
 
-  heightmapPub = this->create_publisher<sensor_msgs::msg::Image>("heightmap", QOS);
-  traversePub = this->create_publisher<sensor_msgs::msg::Image>("traversibility", QOS);
+  heightmapPub = this->create_publisher<sensor_msgs::msg::Image>("heightmap", rclcpp::SensorDataQoS());
+  traversePub = this->create_publisher<sensor_msgs::msg::Image>("traversibility", rclcpp::SensorDataQoS());
 
   // Stores output as floats
   heightmap = cv::Mat(MAP_ROWS, MAP_COLS, CV_32FC1);
@@ -31,7 +31,7 @@ JetLegPointCloudProc::~JetLegPointCloudProc() {
 }
 
 void JetLegPointCloudProc::pointcloudSubCallback(const sensor_msgs::msg::PointCloud2::SharedPtr msg) {
-  auto timeStart = std::chrono::steady_clock::now();
+  // auto timeStart = std::chrono::steady_clock::now();
 
   std::vector<glm::vec4> cloudArray(msg->data.size() / STEP_SIZE);
     
@@ -48,7 +48,7 @@ void JetLegPointCloudProc::pointcloudSubCallback(const sensor_msgs::msg::PointCl
   // Publishes traversibility map to visualize with RVIZ
   publishImage(traversePub, traversibilityMap, traversibilityInBytes, 0.0f, 4.0f, 63.9);
 
-  auto timeEnd = std::chrono::steady_clock::now();
+  // auto timeEnd = std::chrono::steady_clock::now();
   // RCLCPP_INFO(this->get_logger(), "Time (s) per Tick: " + std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(timeEnd - timeStart).count() / 1000.0f));
 }
 
