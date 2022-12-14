@@ -1,7 +1,7 @@
 import rclpy
 
 from jetleg_control.helper import init_subplots, plot
-from jetleg_control.state_leg_actor import StateLegActor
+from jetleg_control.leg_actor import LegActor
 
 def main():
 
@@ -9,8 +9,8 @@ def main():
     rclpy.init()
 
     # Construct a client node for executing the actions of the agent
-    action_node = StateLegActor()
-    action_node.leg_agent.model.load('low_cost_tmp.pth')
+    action_node = LegActor()
+    action_node.leg_agent.network.load('low_cost_tmp.pth')
 
     scores = []
 

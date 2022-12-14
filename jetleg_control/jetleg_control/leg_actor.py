@@ -5,16 +5,28 @@ from rclpy.action import ActionClient
 
 from std_srvs.srv import Empty
 
-from jetleg_control.leg_agent import LegAgent
-
-from jetleg_interfaces.action import LegAction
-
 import numpy as np
 
-class StateLegActor(Node):
+from jetleg_interfaces.action import LegAction
+from jetleg_control.machine_learning.agent import Agent
+
+
+class LegActor(Node):
     """
     Contains state and behavior necessary to control the Jetleg system in Pybullet simulation
     """
+
+    # Used to calculate number of state variables
+    NUM_STATE_VAR_PER_LINK = 7
+    NUM_LINKS = 1
+
+    NUM_STATE_VAR_PER_JOINT = 2
+    NUM_JOINTS = 2
+
+    OUTPUT_VARS_NUM = 5
+
+    # Number of input variables for learning model
+    INPUT_VARS_NUM = (NUM_STATE_VAR_PER_JOINT*NUM_JOINTS) + (NUM_STATE_VAR_PER_LINK*NUM_LINKS)
 
     def __init__(self):
         """
@@ -24,7 +36,8 @@ class StateLegActor(Node):
         super().__init__('state_leg_actor')
 
         # Construct a learning agent to train for leg stability
-        self.leg_agent = LegAgent()
+        layers = [LegActor.INPUT_VARS_NUM, 1024, 512, LegActor.OUTPUT_VARS_NUM]
+        self.leg_agent = Agent(layers=layers)
 
         # Initialize an action client to communicate with action server
         self.action_client = ActionClient(self, LegAction, 'leg_control')
@@ -81,10 +94,10 @@ class StateLegActor(Node):
         Trains the leg agent based on the results of the associated action
         """
 
-        joint_indices = (0, self.leg_agent.NUM_STATE_VAR_PER_JOINT * self.leg_agent.NUM_JOINTS)
-        link_indices = (joint_indices[1], joint_indices[1] + self.leg_agent.NUM_STATE_VAR_PER_LINK * self.leg_agent.NUM_LINKS)
+        joint_indices = (0, LegActor.NUM_STATE_VAR_PER_JOINT * LegActor.NUM_JOINTS)
+        link_indices = (joint_indices[1], joint_indices[1] + LegActor.NUM_STATE_VAR_PER_LINK * LegActor.NUM_LINKS)
 
-        num_state_vars = self.leg_agent.NUM_JOINTS * self.leg_agent.NUM_STATE_VAR_PER_JOINT + self.leg_agent.NUM_LINKS * self.leg_agent.NUM_STATE_VAR_PER_LINK
+        num_state_vars = LegActor.NUM_JOINTS * LegActor.NUM_STATE_VAR_PER_JOINT + LegActor.NUM_LINKS * LegActor.NUM_STATE_VAR_PER_LINK
 
         # Retrieves the result of the associated action
         result = future.result().result

@@ -5,10 +5,16 @@ import random
 class ReplayBuffer:
     
     def __init__(self, maxlen):
-        self.buffer = deque(maxlen=maxlen)
+        self.maxlen = maxlen
+        self.buffer = []
+        self.insert_pos = 0
 
     def add(self, element):
-        self.buffer.append(element) # popleft if maxlen is reached
+        if len(self.buffer) < self.maxlen:
+            self.buffer.append(element) # popleft if maxlen is reached
+        else:
+            self.buffer[self.insert_pos] = element
+            self.insert_pos = (self.insert_pos + 1) % len(self.buffer)
 
     def get_training_samples(self, size):
         mini_sample = []
