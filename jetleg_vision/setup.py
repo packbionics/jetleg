@@ -40,7 +40,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'pointcloud_proc = jetleg_vision.jetleg_pointcloud_proc:main'
+            'pointcloud_proc = jetleg_vision.jetleg_pointcloud_proc:main',
+            'naive_slam = jetleg_vision.jetleg_naive_slam:main'
         ],
     },
 )
