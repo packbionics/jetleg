@@ -10,9 +10,9 @@ from launch.actions import IncludeLaunchDescription
 
 def generate_launch_description():
     jetleg_bringup_dir = get_package_share_directory('jetleg_bringup')
-    jetleg_vision_cpp_dir = get_package_share_directory('jetleg_vision_cpp')
+    jetleg_vision_dir = get_package_share_directory('jetleg_vision')
 
-    rviz_config_file = os.path.join(jetleg_vision_cpp_dir, 'config/pybullet_pointcloud_vision_config.rviz')
+    rviz_config_file = os.path.join(jetleg_vision_dir, 'config/pybullet_pointcloud_vision_config.rviz')
     jetleg_bringup_launch_dir = os.path.join(jetleg_bringup_dir, 'launch')
 
     pybullet_sim_launch = IncludeLaunchDescription(

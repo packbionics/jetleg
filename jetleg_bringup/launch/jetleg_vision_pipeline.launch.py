@@ -27,7 +27,7 @@ def generate_launch_description():
     }
 
     jetleg_pointcloud_proc_cpp = Node(
-        package='jetleg_vision_cpp',
+        package='jetleg_vision',
         executable='jetleg_pointcloud_proc',
         parameters=[node_parameters],
         remappings=[('/pointcloud', '/points'),
