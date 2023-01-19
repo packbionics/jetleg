@@ -37,6 +37,7 @@ def generate_launch_description():
     image_to_map_node = Node(
         package='map_to_jpeg',
         executable='image_to_map_node',
+        parameters=[{'frame_id': 'transformed_map'}],
         remappings=[('image', 'traversibility')]
     )
 
