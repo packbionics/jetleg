@@ -1,0 +1,13 @@
+/jetleg_pointcloud_proc:
+  ros__parameters:
+
+    X_MIN:                  -1.0
+    X_MAX:                  1.0
+
+    Y_MIN:                  -1.0
+    Y_MAX:                  1.5
+
+    Z_MIN:                  1.0
+    Z_MAX:                  1.5
+
+    resolution:             80

@@ -91,9 +91,11 @@ class JetLegPointCloudProc : public rclcpp::Node {
         const float Z_MIN = this->declare_parameter("Z_MIN", 1.0);
         const float Z_MAX = this->declare_parameter("Z_MAX", 1.5);
 
+        const int RESOLUTION = this->declare_parameter("resolution", 42);
+
         // Dimensions of heightmap
-        const unsigned int MAP_ROWS = (Z_MAX - Z_MIN) * 42;
-        const unsigned int MAP_COLS = (X_MAX - X_MIN) * 42;
+        const unsigned int MAP_ROWS = (Z_MAX - Z_MIN) * RESOLUTION;
+        const unsigned int MAP_COLS = (X_MAX - X_MIN) * RESOLUTION;
 
         //QOS of topics
         const unsigned int QOS = 10;

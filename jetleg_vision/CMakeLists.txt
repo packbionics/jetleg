@@ -24,13 +24,12 @@ find_package(cv_bridge REQUIRED)
 # Install Python modules
 ament_python_install_package(${PROJECT_NAME})
 
-add_executable(jetleg_pointcloud_proc cpp/src/jetleg_pointcloud_proc.hpp cpp/src/jetleg_pointcloud_proc.cpp cpp/src/main.cpp)
+add_executable(jetleg_pointcloud_proc src/jetleg_pointcloud_proc.hpp src/jetleg_pointcloud_proc.cpp src/main.cpp)
 target_include_directories(jetleg_pointcloud_proc PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/cpp/include>
-  $<INSTALL_INTERFACE:cpp/include>)
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>)
 
-ament_target_dependencies(
-  jetleg_pointcloud_proc
+ament_target_dependencies(jetleg_pointcloud_proc
   "sensor_msgs"
   "std_msgs"
   "OpenCV"
@@ -51,8 +50,9 @@ install(DIRECTORY config
 
 # Install Python executables
 install(PROGRAMS
-  jetleg_vision/scripts/jetleg_naive_slam.py
-  jetleg_vision/scripts/jetleg_pointcloud_proc.py
+  scripts/jetleg_naive_slam.py
+  scripts/jetleg_pointcloud_proc.py
+
   DESTINATION lib/${PROJECT_NAME}
 )
 

@@ -8,6 +8,8 @@ from launch.actions import IncludeLaunchDescription
 
 def generate_launch_description():
     jetleg_bringup_dir = get_package_share_directory('jetleg_bringup')
+    jetleg_vision_dir = get_package_share_directory('jetleg_vision')
+
     jetleg_pointcloud_launch_dir = os.path.join(jetleg_bringup_dir, 'launch')
 
     jetleg_pointcloud_launch = IncludeLaunchDescription(
@@ -15,21 +17,13 @@ def generate_launch_description():
             '/jetleg_pointcloud_vision.launch.py'])
     )
 
-    node_parameters = {
-        'X_MIN': -1.0,
-        'X_MAX':  1.0,
-
-        'Y_MIN':  -1.5,
-        'Y_MAX':  1.5,
-
-        'Z_MIN':  0.6,
-        'Z_MAX':  3.0,
-    }
+    pointcloud_proc_params_file = os.path.join('config/params.yaml')
+    pointcloud_proc_params = os.path.join(jetleg_vision_dir, pointcloud_proc_params_file)
 
     jetleg_pointcloud_proc_cpp = Node(
         package='jetleg_vision',
         executable='jetleg_pointcloud_proc',
-        parameters=[node_parameters],
+        parameters=pointcloud_proc_params,
         remappings=[('/pointcloud', '/points'),
                     ('camera_state', 'camera/state')]
     )
