@@ -7,7 +7,7 @@ controller_manager:
       type: joint_trajectory_controller/JointTrajectoryController
 
 
-    foot_controller:
+    leg_intact_controller:
       type: joint_trajectory_controller/JointTrajectoryController
 
 
@@ -16,15 +16,21 @@ controller_manager:
 
 leg_controller:
   ros__parameters:
-    joint: knee_joint
+    joints:
+      - vertical_rail_to_mount
+      - knee_joint
+      - ankle_joint
     command_interfaces:
       - position
     state_interfaces:
       - position
       - velocity
-foot_controller:
+leg_intact_controller:
   ros__parameters:
-    joint: ankle_joint
+    joints:
+      - vertical_rail_to_mount_intact
+      - knee_joint_intact
+      - ankle_joint_intact
     command_interfaces:
       - position
     state_interfaces:

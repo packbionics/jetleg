@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-  <name>jetleg_moveit_config</name>
+  <name>wheeled_testrig_config</name>
   <version>0.3.0</version>
   <description>
-     An automatically generated package with all the configuration and launch files for using the jetleg_single with the MoveIt Motion Planning Framework
+     An automatically generated package with all the configuration and launch files for using the jetleg_wheeled_testrig with the MoveIt Motion Planning Framework
   </description>
   <maintainer email="anthonybrown0528@protonmail.com">Anthony Brown</maintainer>
 

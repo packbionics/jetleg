@@ -1,5 +1,0 @@
-# Default initial positions for jetleg_single's ros2_control fake system
-
-initial_positions:
-  ankle_joint: 0
-  knee_joint: 0

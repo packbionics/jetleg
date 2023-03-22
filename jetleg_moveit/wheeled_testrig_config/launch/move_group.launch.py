@@ -3,5 +3,5 @@ from moveit_configs_utils.launches import generate_move_group_launch
 
 
 def generate_launch_description():
-    moveit_config = MoveItConfigsBuilder("jetleg_single", package_name="jetleg_moveit_config").to_moveit_configs()
+    moveit_config = MoveItConfigsBuilder("jetleg_wheeled_testrig", package_name="wheeled_testrig_config").to_moveit_configs()
     return generate_move_group_launch(moveit_config)
