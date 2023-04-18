@@ -5,6 +5,7 @@
 
         <ros2_control name="${name}" type="system">
             <hardware>
+                <!-- By default, set up controllers for simulation. This won't work on real hardware -->
                 <plugin>gazebo_ros2_control/GazeboSystem</plugin>
             </hardware>
             <joint name="vertical_rail_to_mount">
@@ -12,42 +13,54 @@
                 <state_interface name="position">
                   <param name="initial_value">${initial_positions['vertical_rail_to_mount']}</param>
                 </state_interface>
-                <state_interface name="velocity"/>
+                <state_interface name="velocity">
+                  <param name="initial_value">0.0</param>
+                </state_interface>
             </joint>
             <joint name="knee_joint">
                 <command_interface name="position"/>
                 <state_interface name="position">
                   <param name="initial_value">${initial_positions['knee_joint']}</param>
                 </state_interface>
-                <state_interface name="velocity"/>
+                <state_interface name="velocity">
+                  <param name="initial_value">0.0</param>
+                </state_interface>
             </joint>
             <joint name="ankle_joint">
                 <command_interface name="position"/>
                 <state_interface name="position">
                   <param name="initial_value">${initial_positions['ankle_joint']}</param>
                 </state_interface>
-                <state_interface name="velocity"/>
+                <state_interface name="velocity">
+                  <param name="initial_value">0.0</param>
+                </state_interface>
             </joint>
             <joint name="vertical_rail_to_mount_intact">
                 <command_interface name="position"/>
                 <state_interface name="position">
                   <param name="initial_value">${initial_positions['vertical_rail_to_mount_intact']}</param>
                 </state_interface>
-                <state_interface name="velocity"/>
+                <state_interface name="velocity">
+                  <param name="initial_value">0.0</param>
+                </state_interface>
             </joint>
             <joint name="knee_joint_intact">
                 <command_interface name="position"/>
                 <state_interface name="position">
                   <param name="initial_value">${initial_positions['knee_joint_intact']}</param>
                 </state_interface>
-                <state_interface name="velocity"/>
+                <state_interface name="velocity">
+                  <param name="initial_value">0.0</param>
+                </state_interface>
             </joint>
             <joint name="ankle_joint_intact">
                 <command_interface name="position"/>
                 <state_interface name="position">
                   <param name="initial_value">${initial_positions['ankle_joint_intact']}</param>
                 </state_interface>
-                <state_interface name="velocity"/>
+                <state_interface name="velocity">
+                  <param name="initial_value">0.0</param>
+                </state_interface>
             </joint>
 
         </ros2_control>

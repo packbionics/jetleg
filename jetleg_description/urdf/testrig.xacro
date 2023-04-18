@@ -18,6 +18,11 @@
             </geometry>
             <material name="white"/>
         </visual>
+        <collision>
+            <geometry>
+                <box size="0.1 0.1 0.1"/>
+            </geometry>
+        </collision>
         <inertial>
             <mass value="30"/>
             <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
@@ -31,6 +36,11 @@
             </geometry>
             <material name="white_transluscent"/> 
         </visual>
+        <collision>
+            <geometry>
+                <box size="0.05 ${gantry_width} 0.05"/>
+            </geometry>
+        </collision>
     </link>
 
     <xacro:macro name="support" params="postfix reflect">

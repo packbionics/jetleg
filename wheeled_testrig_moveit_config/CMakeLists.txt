@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.22)
-project(wheeled_testrig_config)
+project(wheeled_testrig_moveit_config)
 
 find_package(ament_cmake REQUIRED)
 

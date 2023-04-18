@@ -16,7 +16,7 @@ from launch_ros.substitutions import FindPackageShare
 def generate_launch_description():
 
   # Constants for paths to different files and folders
-  package_name = 'wheeled_testrig_config'
+  package_name = 'wheeled_testrig_moveit_config'
   robot_name_in_model = 'jetleg_wheeled_testrig'
   rviz_config_file_path = 'rviz/urdf_gazebo_config.rviz'
   urdf_file_path = 'config/jetleg_wheeled_testrig.urdf.xacro'

@@ -8,6 +8,7 @@
     <!-- Import control_xacro -->
     <xacro:include filename="jetleg_wheeled_testrig.ros2_control.xacro" />
 
+
     <xacro:jetleg_wheeled_testrig_ros2_control name="GazeboSystem" initial_positions_file="$(arg initial_positions_file)"/>
 
     <gazebo>

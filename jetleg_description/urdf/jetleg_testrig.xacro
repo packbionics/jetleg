@@ -13,6 +13,9 @@
             <geometry>
                 <cylinder length="${mount_length}" radius="0.08"/>
             </geometry>
+            <collision>
+                <cylinder length="${mount_length}" radius="0.08"/>
+            </collision>
             <material name="white_transluscent"/> 
         </visual>
     </link>
