@@ -35,12 +35,19 @@ class JetLegGait(Node):
 
         self.declare_parameter('leg_trajectory_topic', value='/leg_controller/joint_trajectory')
         self.leg_trajectory_topic = self.get_parameter('leg_trajectory_topic').get_parameter_value().string_value
+
+        self.declare_parameter('leg_intact_trajectory_topic', value='/leg_intact_controller/joint_trajectory')
+        self.leg_intact_trajectory_topic = self.get_parameter('leg_intact_trajectory_topic').get_parameter_value().string_value
         
-        self.get_logger().info(f"{self.leg_trajectory_topic}")
         self.leg_trajectory_publisher = self.create_publisher(JointTrajectory,
                                                self.leg_trajectory_topic,
                                                10)        
-        
+
+        self.leg_intact_trajectory_publisher = self.create_publisher(JointTrajectory,
+                                        self.leg_intact_trajectory_topic,
+                                        10)        
+
+
         self.x_points = np.linspace(-0.5,1.5,21)
         self.knee_setpoints_quick = [8,18,20,12,10,16,38,60,55,18] #[12,25,30,28,20,22,50,70,50,20]
         self.knee_setpoints_quick = np.array(self.knee_setpoints_quick[5:] + self.knee_setpoints_quick + self.knee_setpoints_quick[:6])
@@ -66,7 +73,7 @@ class JetLegGait(Node):
         
         self.T = 4.0
 
-    def publish_position(self):
+    def create_leg_trajectory(self) -> JointTrajectory:
         leg_trajectory_msg = JointTrajectory()
 
         trajectory_point = JointTrajectoryPoint()
@@ -84,7 +91,35 @@ class JetLegGait(Node):
         leg_trajectory_msg.joint_names.append('knee_joint')
         leg_trajectory_msg.joint_names.append('ankle_joint')
 
+        return leg_trajectory_msg
+    
+    def create_leg_intact_trajectory(self) -> JointTrajectory:
+        leg_trajectory_msg = JointTrajectory()
+
+        trajectory_point = JointTrajectoryPoint()
+
+        trajectory_point.positions.append(self.positions_intact[0])
+        trajectory_point.positions.append(self.positions_intact[1])
+        trajectory_point.positions.append(self.positions_intact[2])
+
+        leg_trajectory_msg.points.append(trajectory_point)
+
+        leg_trajectory_msg.header.frame_id = "virtual_joint"
+        leg_trajectory_msg.header.stamp = self.get_clock().now().to_msg()
+
+        leg_trajectory_msg.joint_names.append('vertical_rail_to_mount_intact')
+        leg_trajectory_msg.joint_names.append('knee_joint_intact')
+        leg_trajectory_msg.joint_names.append('ankle_joint_intact')
+
+        return leg_trajectory_msg
+
+    def publish_position(self):
+        leg_trajectory_msg = self.create_leg_trajectory()
+        leg_intact_trajectory_msg = self.create_leg_intact_trajectory()
+
         self.leg_trajectory_publisher.publish(leg_trajectory_msg)
+        self.leg_intact_trajectory_publisher.publish(leg_intact_trajectory_msg)
+        
         
     #process input keys, and updates positions array of node. Then, calls node's publish method.
     def pub_cmd(self):
