@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import math
 from re import S
 import sys
@@ -10,6 +12,7 @@ from queue import Queue
 
 import numpy as np
 import rclpy
+
 from rclpy.node import Node
 from scipy import interpolate
 from std_msgs.msg import Float64

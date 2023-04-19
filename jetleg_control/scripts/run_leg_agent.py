@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import rclpy
 
 from jetleg_control.helper import init_subplots, plot

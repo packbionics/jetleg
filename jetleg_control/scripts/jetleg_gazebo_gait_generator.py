@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import math
 from datetime import datetime
 
@@ -94,8 +96,6 @@ class JetLegGait(Node):
         #TO DO: add a speed variable
         current_time = datetime.now() - self.time_start
         current_time = current_time.seconds + current_time.microseconds / 1000000.0
-
-        TO_RADIANS = math.pi / 180.0
         
         percent = math.fmod(current_time,self.T) /self.T
         percent_shifted = math.fmod(current_time +self.T / 2,self.T) /self.T
