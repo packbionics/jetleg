@@ -1,18 +1,11 @@
 import math
 from re import S
-import sys
-import termios
-import threading
-import time
-import tty
 from datetime import datetime
-from queue import Queue
 
 import numpy as np
 import rclpy
 from rclpy.node import Node
 from scipy import interpolate
-from std_msgs.msg import Float64
 
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
         
