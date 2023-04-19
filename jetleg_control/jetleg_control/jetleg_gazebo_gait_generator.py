@@ -58,13 +58,6 @@ class JetLegGait(Node):
         self.ankle_setpoints_quick = [75,81,75,70,72,80,102,90,80,75]
         self.ankle_setpoints_quick = np.array(self.ankle_setpoints_quick[5:] + self.ankle_setpoints_quick + self.ankle_setpoints_quick[:6]) - 90
         self.ankle_tck_quick = interpolate.splrep(self.x_points, self.ankle_setpoints_quick)
-        """
-        self.knee_setpoints_comfort = [8,18,20,12,10,16,38,60,55,18]
-        self.knee_setpoints_comfort = np.array(self.knee_setpoints_comfort[5:] + self.knee_setpoints_comfort + self.knee_setpoints_comfort[:6])
-        self.knee_tck_comfort = interpolate.splrep(self.x_points, self.knee_setpoints_comfort)
-        self.hip_setpoints_comfort = [8,18,20,12,10,16,38,60,55,18]
-        self.hip_setpoints_comfort = np.array(self.hip_setpoints_comfort[5:] + self.hip_setpoints_comfort + self.hip_setpoints_comfort[:6]) - 20
-        self.hip_tck_comfort = interpolate.splrep(self.x_points, self.hip_setpoints_comfort)"""
         
         self.time_start = datetime.now()
 
@@ -73,49 +66,32 @@ class JetLegGait(Node):
         
         self.T = 4.0
 
-    def create_leg_trajectory(self) -> JointTrajectory:
+    def create_leg_trajectory(self, positions, names) -> JointTrajectory:
         leg_trajectory_msg = JointTrajectory()
 
         trajectory_point = JointTrajectoryPoint()
 
-        trajectory_point.positions.append(self.positions[0])
-        trajectory_point.positions.append(self.positions[1])
-        trajectory_point.positions.append(self.positions[2])
+        trajectory_point.positions.append(positions[0])
+        trajectory_point.positions.append(positions[1])
+        trajectory_point.positions.append(positions[2])
 
         leg_trajectory_msg.points.append(trajectory_point)
 
         leg_trajectory_msg.header.frame_id = "virtual_joint"
         leg_trajectory_msg.header.stamp = self.get_clock().now().to_msg()
 
-        leg_trajectory_msg.joint_names.append('vertical_rail_to_mount')
-        leg_trajectory_msg.joint_names.append('knee_joint')
-        leg_trajectory_msg.joint_names.append('ankle_joint')
-
-        return leg_trajectory_msg
-    
-    def create_leg_intact_trajectory(self) -> JointTrajectory:
-        leg_trajectory_msg = JointTrajectory()
-
-        trajectory_point = JointTrajectoryPoint()
-
-        trajectory_point.positions.append(self.positions_intact[0])
-        trajectory_point.positions.append(self.positions_intact[1])
-        trajectory_point.positions.append(self.positions_intact[2])
-
-        leg_trajectory_msg.points.append(trajectory_point)
-
-        leg_trajectory_msg.header.frame_id = "virtual_joint"
-        leg_trajectory_msg.header.stamp = self.get_clock().now().to_msg()
-
-        leg_trajectory_msg.joint_names.append('vertical_rail_to_mount_intact')
-        leg_trajectory_msg.joint_names.append('knee_joint_intact')
-        leg_trajectory_msg.joint_names.append('ankle_joint_intact')
+        leg_trajectory_msg.joint_names.append(names[0])
+        leg_trajectory_msg.joint_names.append(names[1])
+        leg_trajectory_msg.joint_names.append(names[2])
 
         return leg_trajectory_msg
 
     def publish_position(self):
-        leg_trajectory_msg = self.create_leg_trajectory()
-        leg_intact_trajectory_msg = self.create_leg_intact_trajectory()
+        names = ('vertical_rail_to_mount', 'knee_joint', 'ankle_joint')
+        leg_trajectory_msg = self.create_leg_trajectory(self.positions, names)
+
+        names = ('vertical_rail_to_mount_intact', 'knee_joint_intact', 'ankle_joint_intact')
+        leg_intact_trajectory_msg = self.create_leg_trajectory(self.positions_intact, names)
 
         self.leg_trajectory_publisher.publish(leg_trajectory_msg)
         self.leg_intact_trajectory_publisher.publish(leg_intact_trajectory_msg)
