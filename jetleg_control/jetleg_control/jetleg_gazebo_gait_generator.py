@@ -1,5 +1,4 @@
 import math
-from re import S
 from datetime import datetime
 
 import numpy as np
@@ -102,16 +101,25 @@ class JetLegGait(Node):
         percent_shifted = math.fmod(current_time +self.T / 2,self.T) /self.T
         
         # hip angle
-        self.positions[0] = - interpolate.splev(percent, self.hip_tck_quick) * TO_RADIANS
-        self.positions_intact[0] = - interpolate.splev(percent_shifted, self.hip_tck_quick) * TO_RADIANS
+        self.positions[0] = - interpolate.splev(percent, self.hip_tck_quick)
+        self.positions[0] = math.radians(self.positions[0])
+
+        self.positions_intact[0] = - interpolate.splev(percent_shifted, self.hip_tck_quick)
+        self.positions_intact[0] = math.radians(self.positions_intact[0])
         
         # knee angle
-        self.positions[1] = interpolate.splev(percent, self.knee_tck_quick) * TO_RADIANS
-        self.positions_intact[1] = interpolate.splev(percent_shifted, self.knee_tck_quick) * TO_RADIANS
+        self.positions[1] = interpolate.splev(percent, self.knee_tck_quick)
+        self.positions[1] = math.radians(self.positions[1])
+
+        self.positions_intact[1] = interpolate.splev(percent_shifted, self.knee_tck_quick)
+        self.positions_intact[1] = math.radians(self.positions_intact[1])
 
         #ankle angle
-        self.positions[2] = interpolate.splev(percent, self.ankle_tck_quick) * TO_RADIANS
-        self.positions_intact[2] = interpolate.splev(percent_shifted, self.ankle_tck_quick) * TO_RADIANS
+        self.positions[2] = interpolate.splev(percent, self.ankle_tck_quick)
+        self.positions[2] = math.radians(self.positions[2])
+
+        self.positions_intact[2] = interpolate.splev(percent_shifted, self.ankle_tck_quick)
+        self.positions_intact[2] = math.radians(self.positions_intact[2])
         
         self.publish_position()
 
