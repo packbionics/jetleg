@@ -12,6 +12,7 @@
 
   <depend>rclcpp</depend>
   <depend>rclpy</depend>
+  <depend>glm</depend>
 
   <exec_depend>ros2launch</exec_depend>
   <exec_depend>tf2_ros</exec_depend>
