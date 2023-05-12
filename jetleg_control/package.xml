@@ -13,7 +13,7 @@
   <test_depend>python3-pytest</test_depend>
 
   <depend>jetleg_interfaces</depend>
-  <depend>torch</depend>
+  <depend>python3-pytorch-pip</depend>
 
   <export>
     <build_type>ament_python</build_type>
