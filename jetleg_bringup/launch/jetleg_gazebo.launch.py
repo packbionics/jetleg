@@ -37,6 +37,11 @@ def generate_launch_description():
     urdf_model = xacro.parse(open(xacro_path))
     xacro.process_doc(urdf_model)
 
+    spawn_controllers = list()
+    controller_list = ['leg_controller', 'leg_intact_controller', 'joint_state_broadcaster']
+    
+
+
     ld = LaunchDescription()
     
     gazebo = IncludeLaunchDescription(
@@ -59,9 +64,16 @@ def generate_launch_description():
         executable='robot_state_publisher',
         parameters=[{'robot_description': urdf_model.toxml()}]
     )
-    
+
     ld.add_action(gazebo)
     ld.add_action(rsp)
     ld.add_action(spawn_entity)
+
+    for controller in controller_list:
+        ld.add_action(Node(
+            package='controller_manager',
+            executable='spawner.py',
+            arguments=[controller]
+        ))
 
     return ld
