@@ -38,7 +38,7 @@
             </inertial>
         </link>
 
-        <joint name="wheel_${wheelpos}" type="continuous">
+        <joint name="wheel_${wheelpos}_joint" type="continuous">
             <parent link="support_${parentsupport}" />
             <child link="wheel_${wheelpos}" />
             <origin xyz="${offset} ${0.2 * reflect} -${gantry_height / 2}" rpy="1.57 0 0" />
