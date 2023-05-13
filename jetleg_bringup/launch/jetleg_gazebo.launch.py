@@ -32,10 +32,10 @@ def generate_launch_description():
     gazebo_ros_path = get_package_share_directory("gazebo_ros")
     jetleg_description_path = get_package_share_directory("jetleg_description")
 
-    xacro_path = os.path.join(jetleg_description_path, 'urdf/jetleg_wheeled_testrig.xacro')
+    xacro_path = os.path.join(jetleg_description_path, 'urdf/jetleg_wheeled_testrig.urdf.xacro')
 
-    urdf_model = xacro.process_file(xacro_path)
-    urdf_model = urdf_model.toxml()
+    urdf_model = xacro.parse(open(xacro_path))
+    xacro.process_doc(urdf_model)
 
     ld = LaunchDescription()
     
@@ -57,7 +57,7 @@ def generate_launch_description():
     rsp = Node(
         package='robot_state_publisher',
         executable='robot_state_publisher',
-        parameters=[{'robot_description': urdf_model}]
+        parameters=[{'robot_description': urdf_model.toxml()}]
     )
     
     ld.add_action(gazebo)
