@@ -24,7 +24,7 @@ def generate_launch_description():
     
     teleop_node = Node(
         package='jetleg_control',
-        executable='jetleg_gait_generator',
+        executable='jetleg_gait_generator.py',
         output='screen'
     )
     pybullet_sim = IncludeLaunchDescription(

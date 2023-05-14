@@ -12,7 +12,7 @@ from launch.substitutions import LaunchConfiguration
 def generate_launch_description():    
     teleop_node = Node(
         package='jetleg_control',
-        executable='jetleg_gazebo_gait_generator',
+        executable='jetleg_gazebo_gait_generator.py',
         parameters=[{'use_sim_time': True}],
         output='screen'
     )
