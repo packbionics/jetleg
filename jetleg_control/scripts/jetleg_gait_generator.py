@@ -18,7 +18,6 @@ class JetLegGait(Node):
     #defines positions data
     #postions: [hip, knee, ankle]
     def __init__(self):
-        rclpy.init()
         super().__init__('jetleg_gait_generator')
 
         self.positions = np.array([0.0,0.0,0.0])
@@ -90,11 +89,17 @@ class JetLegGait(Node):
         self.publish_position()
 
 def main():
+    rclpy.init()
     node = JetLegGait()
-    rclpy.spin(node)
-    node.destroy()
+
+    try:
+        while True:
+            rclpy.spin_once(node)
+    except KeyboardInterrupt:
+        node.get_logger().info("Exiting spin loop...")
+
+    # clean up ROS 2 resources
     rclpy.shutdown()
 
 if __name__ == '__main__':
     main()
-    
