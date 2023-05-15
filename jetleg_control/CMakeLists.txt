@@ -20,7 +20,6 @@ install(DIRECTORY launch config
 
 install(PROGRAMS
     scripts/jetleg_gait_generator.py
-    scripts/jetleg_gazebo_gait_generator.py
     scripts/jetleg_teleop_key.py
     scripts/forwarder.py
 

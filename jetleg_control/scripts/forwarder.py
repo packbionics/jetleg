@@ -14,10 +14,6 @@ from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 from rcl_interfaces.msg import ParameterDescriptor
 
 
-# TODO: ensure joint state is valid
-def is_valid_joint_state(msg: JointState):
-    return True
-
 def create_leg_trajectory(positions: Iterable, names: Iterable) -> JointTrajectory:
 
     n_positions = len(positions)
@@ -45,16 +41,11 @@ def create_leg_trajectory(positions: Iterable, names: Iterable) -> JointTrajecto
 
     return leg_trajectory_msg
 
-def respond_to_control(msg: JointState, node: Node, joint_cmds: dict, pub1: Publisher, pub2: Publisher):
-    node.get_logger().info("MSG received")
+def respond_to_control(msg: JointState, joint_cmds: dict, pub1: Publisher, pub2: Publisher):
 
     n = len(msg.name)
     if n == 0:
         return
-
-    # validate ROS 2 msg
-    if not is_valid_joint_state(msg):
-        raise ValueError("Received JointState must be valid")
 
     # update latest joint commands
     for i in range(n):
@@ -95,16 +86,22 @@ def main(argv=None):
     signal_pub2 = node.create_publisher(JointTrajectory, 'leg_intact_controller/joint_trajectory', qos_profile_system_default)
 
     # define subscription callback
-    joint_control_cb = lambda msg: respond_to_control(msg, node, joint_commands, signal_pub1, signal_pub2)
+    joint_control_cb = lambda msg: respond_to_control(msg, joint_commands, signal_pub1, signal_pub2)
 
     # subscriber which reads from topic for control signals for any specified joint
     node.create_subscription(JointState, 'joint_control', joint_control_cb, qos_profile_system_default)
 
     # execute defined callbacks
     node.get_logger().info("Spinning node...")
-    rclpy.spin(node)
+
+    try:
+        while True:
+            rclpy.spin_once(node)
+    except KeyboardInterrupt:
+        node.get_logger().info("Exiting spin loop...")
 
     # clean up ros2 resources
+    node.destroy_node()
     rclpy.shutdown()
 
 if __name__ == '__main__':

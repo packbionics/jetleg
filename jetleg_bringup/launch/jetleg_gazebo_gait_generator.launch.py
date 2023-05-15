@@ -4,30 +4,29 @@ from ament_index_python.packages import get_package_share_path
 from launch_ros.actions import Node
 
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
+from launch.actions import IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import LaunchConfiguration
 
 
 def generate_launch_description():
-    gait_generator_node = Node(
-        package='jetleg_control',
-        executable='jetleg_gazebo_gait_generator.py',
-        parameters=[{'use_sim_time': True}],
-        output='screen'
-    )
 
-    teleop_node = Node(
-        package='jetleg_control',
-        executable='forwarder.py',
-        parameters=[{'use_sim_time': True}],
-        output='screen'
-    )
     gazebo_sim = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([os.path.join(
             get_package_share_path('jetleg_bringup'), 'launch'),
             '/jetleg_gazebo.launch.py']
             ),
     )
+
+    gait_generator = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource([
+            os.path.join(get_package_share_path('jetleg_control'), 'launch'),
+            '/jetleg_gait_generator.launch.py'
+        ])
+    )
+
+    ld = LaunchDescription()
+
+    ld.add_action(gazebo_sim)
+    ld.add_action(gait_generator)
     
-    return LaunchDescription([teleop_node, gait_generator_node, gazebo_sim])
+    return ld
