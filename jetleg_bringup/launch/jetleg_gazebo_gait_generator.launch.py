@@ -9,10 +9,17 @@ from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
 
 
-def generate_launch_description():    
-    teleop_node = Node(
+def generate_launch_description():
+    gait_generator_node = Node(
         package='jetleg_control',
         executable='jetleg_gazebo_gait_generator.py',
+        parameters=[{'use_sim_time': True}],
+        output='screen'
+    )
+
+    teleop_node = Node(
+        package='jetleg_control',
+        executable='forwarder.py',
         parameters=[{'use_sim_time': True}],
         output='screen'
     )
@@ -23,4 +30,4 @@ def generate_launch_description():
             ),
     )
     
-    return LaunchDescription([teleop_node, gazebo_sim])
+    return LaunchDescription([teleop_node, gait_generator_node, gazebo_sim])
