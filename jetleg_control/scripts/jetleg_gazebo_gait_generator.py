@@ -5,11 +5,13 @@ from datetime import datetime
 
 import numpy as np
 import rclpy
-from rclpy.duration import Duration
+
 from rclpy.node import Node
+from rclpy.qos import qos_profile_system_default
+
 from scipy import interpolate
 
-from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
+from sensor_msgs.msg import JointState
         
 class JetLegGait(Node):
     
@@ -19,29 +21,10 @@ class JetLegGait(Node):
         rclpy.init()
         super().__init__('jetleg_gait_generator')
 
-        self.position_multiplier = np.pi / 180.0
-
-        self.max_position = 100.0
-        self.delta_position = 2 * np.pi/180.0
         self.positions = np.array([0.0,0.0,0.0])
         self.positions_intact = np.array([0.0,0.0,0.0])
-        self.joint_limit_max = np.array([np.pi/4.0, np.pi/2.0, np.pi/4.0])
-        self.joint_limit_min = np.array([-np.pi/4.0, 0.0, -np.pi/8.0])
-
-        self.declare_parameter('leg_trajectory_topic', value='/leg_controller/joint_trajectory')
-        self.leg_trajectory_topic = self.get_parameter('leg_trajectory_topic').get_parameter_value().string_value
-
-        self.declare_parameter('leg_intact_trajectory_topic', value='/leg_intact_controller/joint_trajectory')
-        self.leg_intact_trajectory_topic = self.get_parameter('leg_intact_trajectory_topic').get_parameter_value().string_value
         
-        self.leg_trajectory_publisher = self.create_publisher(JointTrajectory,
-                                               self.leg_trajectory_topic,
-                                               10)        
-
-        self.leg_intact_trajectory_publisher = self.create_publisher(JointTrajectory,
-                                        self.leg_intact_trajectory_topic,
-                                        10)        
-
+        self.joint_state_publisher = self.create_publisher(JointState, 'joint_control', qos_profile_system_default)
 
         self.x_points = np.linspace(-0.5,1.5,21)
         self.knee_setpoints_quick = [8,18,20,12,10,16,38,60,55,18] #[12,25,30,28,20,22,50,70,50,20]
@@ -61,38 +44,17 @@ class JetLegGait(Node):
         
         self.T = 4.0
 
-    def create_leg_trajectory(self, positions, names) -> JointTrajectory:
-        leg_trajectory_msg = JointTrajectory()
-
-        trajectory_point = JointTrajectoryPoint()
-
-        trajectory_point.positions.append(positions[0])
-        trajectory_point.positions.append(positions[1])
-        trajectory_point.positions.append(positions[2])
-
-        # duration = Duration(seconds=1)
-        # trajectory_point.time_from_start = duration.to_msg()
-
-        leg_trajectory_msg.points.append(trajectory_point)
-
-        leg_trajectory_msg.header.frame_id = "base_link"
-        # leg_trajectory_msg.header.stamp = self.get_clock().now().to_msg()
-
-        leg_trajectory_msg.joint_names.append(names[0])
-        leg_trajectory_msg.joint_names.append(names[1])
-        leg_trajectory_msg.joint_names.append(names[2])
-
-        return leg_trajectory_msg
-
     def publish_position(self):
-        names = ('vertical_rail_to_mount', 'knee_joint', 'ankle_joint')
-        leg_trajectory_msg = self.create_leg_trajectory(self.positions, names)
+        names = ('vertical_rail_to_mount', 'knee_joint', 'ankle_joint', 'vertical_rail_to_mount_intact', 'knee_joint_intact', 'ankle_joint_intact')
+        positions = (self.positions[0], self.positions[1], self.positions[2], self.positions_intact[0], self.positions_intact[1], self.positions_intact[2])
 
-        names = ('vertical_rail_to_mount_intact', 'knee_joint_intact', 'ankle_joint_intact')
-        leg_intact_trajectory_msg = self.create_leg_trajectory(self.positions_intact, names)
+        joint_state_msg = JointState()
 
-        self.leg_trajectory_publisher.publish(leg_trajectory_msg)
-        self.leg_intact_trajectory_publisher.publish(leg_intact_trajectory_msg)
+        for i in range(len(names)):
+            joint_state_msg.name.append(names[i])
+            joint_state_msg.position.append(positions[i])
+
+        self.joint_state_publisher.publish(joint_state_msg)
         
         
     #process input keys, and updates positions array of node. Then, calls node's publish method.
