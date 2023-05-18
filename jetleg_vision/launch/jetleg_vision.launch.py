@@ -34,6 +34,14 @@ def generate_launch_description():
     )
 
 
+    jetleg_pointcloud_proc = Node(
+        package='jetleg_vision',
+        executable='jetleg_pointcloud_proc.py',
+        # parameters=[pointcloud_proc_params],
+        remappings=[('/zed2i/zed_node/point_cloud/cloud_registered', '/points'),
+                    ('camera_state', 'camera/state')]
+    )
+
     jetleg_pointcloud_proc_cpp = Node(
         package='jetleg_vision',
         executable='jetleg_pointcloud_proc',
@@ -43,4 +51,4 @@ def generate_launch_description():
     )
 
     return LaunchDescription([pointcloud_xyz_node,
-                                jetleg_pointcloud_proc_cpp])
+                                jetleg_pointcloud_proc])

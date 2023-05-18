@@ -3,6 +3,7 @@
 import rclpy
 from rclpy.node import Node
 import rclpy.qos
+from rclpy.qos import qos_profile_sensor_data
 from sensor_msgs.msg import PointCloud2, Image
 from scipy.spatial.transform import Rotation as R
 #from nav_msgs.msg import Odometry
@@ -26,13 +27,13 @@ class PointCloudProcessing(Node):
             PointCloud2,
             '/zed2i/zed_node/point_cloud/cloud_registered',
             self.cloud_callback,
-            rclpy.qos.qos_profile_sensor_data
+            qos_profile_sensor_data
         )
         self.pose_sub = self.create_subscription(
             PoseStamped,
             'camera/state',
             self.pose_callback,
-            10
+            qos_profile_sensor_data
         )
 
         self.heightmap_publisher = self.create_publisher(
@@ -78,15 +79,19 @@ class PointCloudProcessing(Node):
         self.pose = msg
 
     def cloud_callback(self, msg):
+        cloud_array = np.frombuffer(msg.data, dtype=np.float32).reshape((msg.height, msg.width, 8))
+
         num_fields = 4
 
-        cloud_array = np.frombuffer(msg.data, dtype=np.float32).reshape((msg.height, msg.width, num_fields))
+        cloud_array = cloud_array[:,:,:num_fields]
         cloud_array = cloud_array.reshape((cloud_array.shape[0] * cloud_array.shape[1], num_fields))
 
         if cloud_array.shape[0] == 0 or self.pose is None:
             return
 
         cloud_array = cloud_array[:, :3]
+        cloud_array[:, [0, 1]] = cloud_array[:, [1, 0]]
+
         cloud_array = cloud_array[np.isfinite(cloud_array).any(axis=1)]
         cloud_array = cloud_array[~np.isnan(cloud_array).any(axis=1)]
         # cloud_array = self.transform_cloud(cloud_array, self.pose)
@@ -110,9 +115,9 @@ class PointCloudProcessing(Node):
         theta_z_upper = math.radians(55)
 
         # z view restriction
-        cloud_restricted = cloud_array[np.where(cloud_array[:,2] <= cloud_array[:,0]*np.tan(theta_z_upper))]
+        # cloud_restricted = cloud_array[np.where(cloud_array[:,2] <= cloud_array[:,0]*np.tan(theta_z_upper))]
         # y view restriction
-        cloud_restricted = cloud_restricted[np.where(cloud_restricted[:,1] <= y_maximum)]
+        cloud_restricted = cloud_array[np.where(cloud_array[:,1] <= y_maximum)]
         cloud_restricted = cloud_restricted[np.where(cloud_restricted[:,1] >= y_minimum)]
 
         # x view restriction

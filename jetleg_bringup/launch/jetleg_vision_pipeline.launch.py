@@ -35,4 +35,4 @@ def generate_launch_description():
         arguments=['-d', LaunchConfiguration('rvizconfig')],
     )
     
-    return LaunchDescription([rviz_arg, pybullet_sim, jetleg_vision, rviz_node])
+    return LaunchDescription([rviz_arg, pybullet_sim, jetleg_vision])
