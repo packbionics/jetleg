@@ -198,7 +198,7 @@ class PointCloudProcessing(Node):
         traversibility_map[np.where((gradient_map >=35) & (gradient_map < 50))] = 4
         traversibility_map[np.where(heightmap == 0)] = 4
         
-        traversibility_map_in_bytes = (traversibility_map*255).astype(np.uint8)
+        traversibility_map_in_bytes = (traversibility_map*(255/4)).astype(np.uint8)
         
         imgmsg = self.bridge.cv2_to_imgmsg(traversibility_map_in_bytes)
         imgmsg.header.frame_id = 'odom'
