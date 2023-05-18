@@ -99,6 +99,7 @@ def main():
         node.get_logger().info("Exiting spin loop...")
 
     # clean up ROS 2 resources
+    node.destroy_node()
     rclpy.shutdown()
 
 if __name__ == '__main__':
