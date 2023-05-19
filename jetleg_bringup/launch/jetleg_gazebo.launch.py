@@ -37,16 +37,7 @@ def generate_launch_description():
     urdf_model = xacro.parse(open(xacro_path))
     xacro.process_doc(urdf_model)
 
-    spawn_controllers = list()
     controller_list = ['leg_controller', 'leg_intact_controller', 'joint_state_broadcaster']
-    
-
-
-    ld = LaunchDescription()
-    
-    gazebo = IncludeLaunchDescription(
-                PythonLaunchDescriptionSource([gazebo_ros_path, '/launch/gazebo.launch.py']),
-             )
 
     # arguments to pass when spawning model
     model_description = ['-entity', 'jetleg_wheeled_testrig', '-topic', '/robot_description']
@@ -55,15 +46,23 @@ def generate_launch_description():
 
     spawn_params = model_description + model_pos + model_orientation
 
-    spawn_entity = Node(package='gazebo_ros', executable='spawn_entity.py',
+    gazebo = IncludeLaunchDescription(
+                PythonLaunchDescriptionSource([gazebo_ros_path, '/launch/gazebo.launch.py']),
+    )
+
+    spawn_entity = Node(package='gazebo_ros', 
+                        executable='spawn_entity.py',
                         arguments=spawn_params,
-                        output='screen')
+                        output='screen'
+    )
     
     rsp = Node(
         package='robot_state_publisher',
         executable='robot_state_publisher',
         parameters=[{'robot_description': urdf_model.toxml()}]
     )
+
+    ld = LaunchDescription()
 
     ld.add_action(gazebo)
     ld.add_action(rsp)

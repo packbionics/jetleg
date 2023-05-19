@@ -10,10 +10,6 @@ from launch.substitutions import LaunchConfiguration
 
 
 def generate_launch_description():
-    description_path = get_package_share_path('jetleg_description')
-    default_rviz_config_path = description_path / 'rviz/urdf.rviz'
-    rviz_arg = DeclareLaunchArgument(name='rvizconfig', default_value=str(default_rviz_config_path),
-                                    description='Absolute path to rviz config file')
 
     jetleg_vision = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([os.path.join(
@@ -27,12 +23,10 @@ def generate_launch_description():
             get_package_share_path('jetleg_bringup'), 'launch'),
             '/jetleg_vision_example.launch.py'])
     )
-    rviz_node = Node(
-        package='rviz2',
-        executable='rviz2',
-        name='rviz2',
-        output='screen',
-        arguments=['-d', LaunchConfiguration('rvizconfig')],
-    )
+
+    ld = LaunchDescription()
+
+    ld.add_action(pybullet_sim)
+    ld.add_action(jetleg_vision)
     
-    return LaunchDescription([rviz_arg, pybullet_sim, jetleg_vision])
+    return ld

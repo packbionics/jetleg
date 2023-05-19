@@ -8,10 +8,6 @@ from launch import LaunchDescription
 
 
 def generate_launch_description():
-    jetleg_vision_dir = get_package_share_directory('jetleg_vision')
-
-    pointcloud_proc_params_file = os.path.join('config/params.yaml')
-    pointcloud_proc_params = os.path.join(jetleg_vision_dir, pointcloud_proc_params_file)
 
     # launch plugin through rclcpp_components container
     pointcloud_xyz_node = ComposableNodeContainer(
@@ -33,21 +29,13 @@ def generate_launch_description():
             output='screen',
     )
 
-
+    # pointcloud processing node
     jetleg_pointcloud_proc = Node(
         package='jetleg_vision',
         executable='jetleg_pointcloud_proc.py',
-        # parameters=[pointcloud_proc_params],
         remappings=[('/zed2i/zed_node/point_cloud/cloud_registered', '/points'),
-                    ('camera_state', 'camera/state')]
-    )
-
-    jetleg_pointcloud_proc_cpp = Node(
-        package='jetleg_vision',
-        executable='jetleg_pointcloud_proc',
-        parameters=[pointcloud_proc_params],
-        remappings=[('/pointcloud', '/points'),
-                    ('camera_state', 'camera/state')]
+                    ('camera_state', 'camera/state')],
+        output="screen"
     )
 
     return LaunchDescription([pointcloud_xyz_node,

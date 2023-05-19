@@ -32,4 +32,9 @@ def generate_launch_description():
 
     bringup_robot_example = IncludeLaunchDescription(PythonLaunchDescriptionSource(bringup_robot_example_path), launch_arguments=launch_arguments.items())
 
-    return LaunchDescription([model_arg, bringup_robot_example])
+    ld = LaunchDescription()
+
+    ld.add_action(model_arg)
+    ld.add_action(bringup_robot_example)
+
+    return ld

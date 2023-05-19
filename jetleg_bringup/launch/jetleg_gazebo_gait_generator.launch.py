@@ -11,10 +11,10 @@ from launch.launch_description_sources import PythonLaunchDescriptionSource
 def generate_launch_description():
 
     gazebo_sim = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource([os.path.join(
-            get_package_share_path('jetleg_bringup'), 'launch'),
-            '/jetleg_gazebo.launch.py']
-            ),
+        PythonLaunchDescriptionSource([
+            os.path.join(get_package_share_path('jetleg_bringup'), 'launch'),
+            '/jetleg_gazebo.launch.py'
+        ])
     )
 
     gait_generator = IncludeLaunchDescription(

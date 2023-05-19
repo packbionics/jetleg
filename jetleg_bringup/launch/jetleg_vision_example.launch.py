@@ -27,4 +27,8 @@ def generate_launch_description():
 
     jetleg_pybullet_ros = IncludeLaunchDescription(PythonLaunchDescriptionSource(bringup_robot_example_path), launch_arguments=launch_arguments.items())
 
-    return LaunchDescription([jetleg_pybullet_ros])
+    ld = LaunchDescription()
+
+    ld.add_action(jetleg_pybullet_ros)
+
+    return ld

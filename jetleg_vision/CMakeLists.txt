@@ -51,7 +51,6 @@ install(DIRECTORY config
 
 # Install Python executables
 install(PROGRAMS
-  scripts/jetleg_naive_slam.py
   scripts/jetleg_pointcloud_proc.py
 
   DESTINATION lib/${PROJECT_NAME}

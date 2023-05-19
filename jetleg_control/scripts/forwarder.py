@@ -8,6 +8,7 @@ from rclpy.node import Node
 from rclpy.publisher import Publisher
 from rclpy.qos import qos_profile_system_default
 
+from std_msgs.msg import Float64
 from sensor_msgs.msg import JointState
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 
@@ -41,7 +42,34 @@ def create_leg_trajectory(positions: Iterable, names: Iterable) -> JointTrajecto
 
     return leg_trajectory_msg
 
-def respond_to_control(msg: JointState, joint_cmds: dict, pub1: Publisher, pub2: Publisher):
+def publish_trajectory_control(names: tuple, names_intact: tuple, joint_cmds: dict, pub1: Publisher, pub2: Publisher):
+    
+    positions = (joint_cmds.get(names[0], 0.0), joint_cmds.get(names[1], 0.0), joint_cmds.get(names[2], 0.0))
+
+    leg_traj = create_leg_trajectory(positions, names)
+
+    positions = (joint_cmds.get(names_intact[0], 0.0), joint_cmds.get(names_intact[1], 0.0), joint_cmds.get(names_intact[2], 0.0))
+
+    leg_traj_intact = create_leg_trajectory(positions, names_intact)
+
+    pub1.publish(leg_traj)
+    pub2.publish(leg_traj_intact)
+
+def publish_pybullet_control(names: tuple, joint_cmds: dict, leg_pub: list, leg_intact_pub: list):
+    cmds = list()
+
+    for name in names:
+        msg = Float64()
+        msg.data = joint_cmds.get(name, 0.0)
+
+        cmds.append(msg)
+
+    for i in range(0, 3):
+        leg_pub[i].publish(cmds[i])
+    for i in range(3, 6):
+        leg_intact_pub[i - 3].publish(cmds[i])
+
+def respond_to_control(msg: JointState, joint_cmds: dict, pub1: Publisher, pub2: Publisher, leg_pub: Publisher, leg_intact_pub: Publisher):
 
     n = len(msg.name)
     if n == 0:
@@ -56,17 +84,10 @@ def respond_to_control(msg: JointState, joint_cmds: dict, pub1: Publisher, pub2:
 
     # publish current joint commands
     names = ("vertical_rail_to_mount", "knee_joint", "ankle_joint")
-    positions = (joint_cmds.get(names[0], 0.0), joint_cmds.get(names[1], 0.0), joint_cmds.get(names[2], 0.0))
+    names_intact = ("vertical_rail_to_mount_intact", "knee_joint_intact", "ankle_joint_intact")
 
-    leg_traj = create_leg_trajectory(positions, names)
-
-    names = ("vertical_rail_to_mount_intact", "knee_joint_intact", "ankle_joint_intact")
-    positions = (joint_cmds.get(names[0], 0.0), joint_cmds.get(names[1], 0.0), joint_cmds.get(names[2], 0.0))
-
-    leg_traj_intact = create_leg_trajectory(positions, names)
-
-    pub1.publish(leg_traj)
-    pub2.publish(leg_traj_intact)
+    publish_trajectory_control(names, names_intact, joint_cmds, pub1, pub2)
+    publish_pybullet_control(names + names_intact, joint_cmds, leg_pub, leg_intact_pub)
 
 
 def main(argv=None):
@@ -85,8 +106,55 @@ def main(argv=None):
     signal_pub1 = node.create_publisher(JointTrajectory, 'leg_controller/joint_trajectory', qos_profile_system_default)
     signal_pub2 = node.create_publisher(JointTrajectory, 'leg_intact_controller/joint_trajectory', qos_profile_system_default)
 
+    prosthetic_leg_pub = list()
+    intact_leg_pub = list()
+
+    prosthetic_leg_pub.append(
+        node.create_publisher(
+            Float64, 
+            'vertical_rail_to_mount_position_controller/command', 
+            qos_profile_system_default
+        )
+    )
+    prosthetic_leg_pub.append(
+        node.create_publisher(
+            Float64, 
+            'knee_joint_position_controller/command', 
+            qos_profile_system_default
+        )
+    )
+    prosthetic_leg_pub.append(
+        node.create_publisher(
+            Float64, 
+            'ankle_joint_position_controller/command', 
+            qos_profile_system_default
+        )
+    )
+
+    intact_leg_pub.append(
+        node.create_publisher(
+            Float64, 
+            'vertical_rail_to_mount_intact_position_controller/command', 
+            qos_profile_system_default
+        )
+    )
+    intact_leg_pub.append(
+        node.create_publisher(
+            Float64, 
+            'knee_joint_intact_position_controller/command', 
+            qos_profile_system_default
+        )
+    )
+    intact_leg_pub.append(
+        node.create_publisher(
+            Float64, 
+            'ankle_joint_intact_position_controller/command', 
+            qos_profile_system_default
+        )
+    )
+
     # define subscription callback
-    joint_control_cb = lambda msg: respond_to_control(msg, joint_commands, signal_pub1, signal_pub2)
+    joint_control_cb = lambda msg: respond_to_control(msg, joint_commands, signal_pub1, signal_pub2, prosthetic_leg_pub, intact_leg_pub)
 
     # subscriber which reads from topic for control signals for any specified joint
     node.create_subscription(JointState, 'joint_control', joint_control_cb, qos_profile_system_default)

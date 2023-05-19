@@ -4,8 +4,6 @@ from launch_ros.actions import Node
 
 def generate_launch_description():
 
-    ld = LaunchDescription()
-
     gait_generator_node = Node(
         package='jetleg_control',
         executable='jetleg_gait_generator.py',
@@ -19,6 +17,9 @@ def generate_launch_description():
         parameters=[{'use_sim_time': True}],
         output='screen'
     )
+
+
+    ld = LaunchDescription()
 
     ld.add_action(gait_generator_node)
     ld.add_action(control_node)

@@ -14,12 +14,19 @@ def generate_launch_description():
     zed2i_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([os.path.join(
             get_package_share_directory('jetleg_vision'), 'launch'),
-            '/jetleg_zed2i.launch.py'])
+            '/jetleg_zed2i.launch.py'
+        ])
     )
     
     pointcloud_proc = Node(
         package='jetleg_vision',
-        executable='pointcloud_proc'
+        executable='pointcloud_proc',
+        output='screen'
     )
 
-    return LaunchDescription([zed2i_launch, pointcloud_proc])
+    ld = LaunchDescription()
+
+    ld.add_action(zed2i_launch)
+    ld.add_action(pointcloud_proc)
+
+    return ld
