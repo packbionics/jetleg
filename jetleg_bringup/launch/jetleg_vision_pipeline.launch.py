@@ -21,7 +21,7 @@ def generate_launch_description():
     pybullet_sim = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([os.path.join(
             get_package_share_path('jetleg_bringup'), 'launch'),
-            '/jetleg_vision_example.launch.py'])
+            '/jetleg_vision_pybullet_ros.launch.py'])
     )
 
     ld = LaunchDescription()
