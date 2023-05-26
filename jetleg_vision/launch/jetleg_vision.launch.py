@@ -38,5 +38,9 @@ def generate_launch_description():
         output="screen"
     )
 
-    return LaunchDescription([pointcloud_xyz_node,
-                                jetleg_pointcloud_proc])
+    ld = LaunchDescription()
+
+    ld.add_action(pointcloud_xyz_node)
+    ld.add_action(jetleg_pointcloud_proc)
+
+    return ld
