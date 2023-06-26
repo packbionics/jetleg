@@ -1,25 +1,10 @@
 
-import os
-
-from ament_index_python.packages import (get_package_share_directory,
-                                         get_package_share_path)
 from launch_ros.actions import Node
-
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
-from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import LaunchConfiguration
 
+from packbionics_launch_utils.launch_utils import add_launch_file
 
 def generate_launch_description():
-    description_path = get_package_share_path('jetleg_description')
-    default_rviz_config_path = description_path / 'rviz/urdf.rviz'
-
-    rviz_arg = DeclareLaunchArgument(
-        name='rvizconfig', 
-        default_value=str(default_rviz_config_path),
-        description='Absolute path to rviz config file'
-    )
     
     teleop_node = Node(
         package='jetleg_control',
@@ -28,25 +13,12 @@ def generate_launch_description():
         prefix = 'xterm -e', 
         output='screen'
     )
-    pybullet_sim = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource([os.path.join(
-            get_package_share_directory('jetleg_bringup'), 'launch'),
-            '/jetleg_pybullet_ros.launch.py'
-        ])
-    )
-    rviz_node = Node(
-        package='rviz2',
-        executable='rviz2',
-        name='rviz2',
-        output='screen',
-        arguments=['-d', LaunchConfiguration('rvizconfig')],
-    )
-
+    
+    pybullet_sim = add_launch_file('jetleg_bringup', 'jetleg_pybullet_ros.launch.py')
+    
     ld = LaunchDescription()
 
-    ld.add_action(rviz_arg)
     ld.add_action(teleop_node)
     ld.add_action(pybullet_sim)
-    ld.add_action(rviz_node)
     
     return ld

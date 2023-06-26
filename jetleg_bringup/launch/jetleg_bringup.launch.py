@@ -1,34 +1,19 @@
 from launch import LaunchDescription
-from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument
-from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch_ros.substitutions import FindPackageShare
-from launch.conditions import IfCondition
-from launch.substitutions import LaunchConfiguration, PythonExpression
+from launch.substitutions import PythonExpression
+
+from packbionics_launch_utils.launch_utils import add_launch_argument, add_launch_file
 
 
 def generate_launch_description():
 
-    jetleg_bringup_path = FindPackageShare("jetleg_bringup")
-    use_pybullet_env = LaunchConfiguration('use_pybullet_env')
-
-    use_pybullet_env_arg = DeclareLaunchArgument(
-        "use_pybullet_env", 
-        default_value='False',
-        description="Toggles between using Pybullet or Gazebo for physics simulation")
-
-    gazebo = IncludeLaunchDescription(
-                PythonLaunchDescriptionSource([jetleg_bringup_path, '/launch', '/jetleg_gazebo.launch.py']),
-                condition=IfCondition(
-                    PythonExpression(
-                        ['not ', use_pybullet_env]
-                    )
-                )
+    use_pybullet_env, use_pybullet_env_arg = add_launch_argument(
+        'use_pybullet_env', 
+        default='True', 
+        description="Toggles between using Pybullet or Gazebo for physics simulation"
     )
 
-    pybullet = IncludeLaunchDescription(
-                PythonLaunchDescriptionSource([jetleg_bringup_path, '/launch', '/jetleg_pybullet_ros.launch.py']),
-                condition=IfCondition(use_pybullet_env)
-    )
+    gazebo = add_launch_file("jetleg_bringup", 'jetleg_gazebo.launch.py', conditional=PythonExpression(['not ', use_pybullet_env]))
+    pybullet = add_launch_file("jetleg_bringup", 'jetleg_pybullet_ros.launch.py', conditional=use_pybullet_env)
 
     ld = LaunchDescription()
 

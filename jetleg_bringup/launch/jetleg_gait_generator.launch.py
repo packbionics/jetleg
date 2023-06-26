@@ -1,14 +1,10 @@
-import os
-
-from ament_index_python.packages import get_package_share_path
 from launch_ros.actions import Node
 
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
-from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
+from launch.substitutions import PathJoinSubstitution
 from launch_ros.substitutions import FindPackageShare
 
+from packbionics_launch_utils.launch_utils import add_launch_argument, add_launch_file
 
 def generate_launch_description():
     model_path = PathJoinSubstitution([
@@ -17,8 +13,7 @@ def generate_launch_description():
         'jetleg_testrig_vision.xacro'
     ])
 
-    use_pybullet_env = LaunchConfiguration("use_pybullet_env")
-    use_pybullet_env_arg = DeclareLaunchArgument("use_pybullet_env", default_value="False")
+    _, model_arg = add_launch_argument('model', default=model_path, description='Robot model loaded into simulation')
 
     gait_generator_node = Node(
         package='jetleg_control',
@@ -32,22 +27,11 @@ def generate_launch_description():
         output='screen'
     )
     
-    sim_env = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource([
-            FindPackageShare('jetleg_bringup'), 
-            '/launch/',
-            'jetleg_bringup.launch.py'
-        ]),
-        launch_arguments={
-            'model': model_path,
-            'use_pybullet_env': use_pybullet_env
-        }.items()
-    )
+    sim_env = add_launch_file('jetleg_bringup', 'jetleg_bringup.launch.py')
     
     ld = LaunchDescription()
 
-    ld.add_action(use_pybullet_env_arg)
-
+    ld.add_action(model_arg)
     ld.add_action(gait_generator_node)
     ld.add_action(teleop_node)
     ld.add_action(sim_env)

@@ -9,15 +9,14 @@ from ament_index_python.packages import get_package_share_directory
 
 from launch_ros.substitutions import FindPackageShare
 from launch import LaunchDescription
-from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument
-from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch_ros.actions import Node
 from launch.conditions import IfCondition
-from launch.substitutions import LaunchConfiguration, PathJoinSubstitution, PythonExpression
+from launch.substitutions import PathJoinSubstitution, PythonExpression
+
+from packbionics_launch_utils.launch_utils import add_launch_argument, add_launch_file
 
 def generate_launch_description():
 
-    gazebo_ros_path = FindPackageShare("gazebo_ros")
     jetleg_description_path = get_package_share_directory("jetleg_description")
     jetleg_bringup_path = FindPackageShare("jetleg_bringup")
 
@@ -35,37 +34,29 @@ def generate_launch_description():
 
     spawn_params = model_description + model_pos + model_orientation
 
-    rviz_config = LaunchConfiguration("rviz_config")
-    rviz_toggle = LaunchConfiguration("rviz")
-    gui_toggle = LaunchConfiguration("gui")
-
-    rviz_config_arg = DeclareLaunchArgument(
-        "rviz_config", 
-        default_value=PathJoinSubstitution([jetleg_bringup_path, 'config/jetleg_gazebo.rviz']),
-        description="Specifies the absolute path of the RVIZ config used for default RVIZ visualization"
+    rviz_config, rviz_config_arg = add_launch_argument(
+        'rviz_config',
+        default=PathJoinSubstitution([jetleg_bringup_path, 'config/jetleg_gazebo.rviz']),
+        description='Specifies the absolute path of the RVIZ config used for default RVIZ visualization'
     )
-    rviz_toggle_arg = DeclareLaunchArgument(
-        "rviz", 
-        default_value="True",
-        description="Toggles the startup of the RVIZ visualization"
+    rviz_toggle, rviz_toggle_arg = add_launch_argument(
+        'rviz',
+        default='True',
+        description='Toggles the startup of the RVIZ visualization'
     )
-    gui_toggle_arg = DeclareLaunchArgument(
-        "gui", 
-        default_value="false",
-        description="Toggles the Gazebo client"
+    _, gui_toggle_arg = add_launch_argument(
+        'gui',
+        default='false',
+        description='Toggles the Gazebo client'
     )
 
-    gazebo = IncludeLaunchDescription(
-                PythonLaunchDescriptionSource([gazebo_ros_path, '/launch/gazebo.launch.py']),
-                launch_arguments={
-                    'gui': gui_toggle
-                }.items()
-    )
+    gazebo = add_launch_file('gazebo_ros', 'gazebo.launch.py')
 
-    spawn_entity = Node(package='gazebo_ros', 
-                        executable='spawn_entity.py',
-                        arguments=spawn_params,
-                        output='screen'
+    spawn_entity = Node(
+        package='gazebo_ros', 
+        executable='spawn_entity.py',
+        arguments=spawn_params,
+        output='screen'
     )
     
     rsp = Node(

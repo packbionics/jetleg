@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="stereo_camera">
 
+    <!-- Specifies a macro for inserting a single stereovision camera into a xacro model description -->
     <xacro:macro name="stereo_camera" params="baseline *joint">
         <link name="camera_base">
             <visual>
@@ -55,6 +56,66 @@
             <child link="camera_link_right" />
             <origin xyz="0 ${baseline/2} 0" rpy="${90*pi/180} 0 ${90*pi/180}" />
         </joint>
+
+        <!-- Used to align camera between Gazebo / ROS coordinate systems -->
+        <link name="gazebo_camera_link">
+        </link>
+
+        <joint name="gazebo_camera_joint" type="fixed">
+            <parent link="camera_link" />
+            <child link="gazebo_camera_link" />
+            <origin xyz="0 0 0" rpy="${pi/2} ${-pi/2} ${pi}" />
+        </joint>
+
+        <link name="gazebo_camera_optical_link">
+        </link>
+
+        <joint name="gazebo_camera_optical_joint" type="fixed">
+            <parent link="gazebo_camera_link" />
+            <child link="gazebo_camera_optical_link" />
+            <origin xyz="0 0 0" rpy="${-pi/2} 0 ${-pi/2}" />
+        </joint>
+
+        <!-- Specifies configurations for simulating in Gazebo -->
+        <gazebo reference="gazebo_camera_link">
+            <sensor name="camera" type="camera">
+                <visualize>true</visualize>
+                <update_rate>60.0</update_rate>
+                <camera name="head">
+                    <horizontal_fov>${110*pi/180}</horizontal_fov>
+                    <image>
+                        <width>1280</width>
+                        <height>720</height>
+                        <format>R8G8B8</format>
+                    </image>
+                    <clip>
+                        <near>1.0</near>
+                        <far>20</far>
+                    </clip>
+                </camera>
+                <plugin name="depth_camera_controller" filename="libgazebo_ros_camera.so">
+                    <baseline>0.2</baseline>
+                    <alwaysOn>true</alwaysOn>
+                    <updateRate>0.0</updateRate>
+                    <frame_name>gazebo_camera_optical_link</frame_name>
+                    <pointCloudCutoff>0.2</pointCloudCutoff>
+                    <pointCloudCutoffMax>10.0</pointCloudCutoffMax>
+                    <distortionK1>0</distortionK1>
+                    <distortionK2>0</distortionK2>
+                    <distortionK3>0</distortionK3>
+                    <distortionT1>0</distortionT1>
+                    <distortionT2>0</distortionT2>
+                    <CxPrime>0</CxPrime>
+                    <Cx>0</Cx>
+                    <Cy>0</Cy>
+                    <min_depth>0.1</min_depth>
+                    <max_depth>100.0</max_depth>
+                    <focalLength>0</focalLength>
+                    <hackBaseline>0</hackBaseline>
+                </plugin>
+            </sensor>
+        </gazebo>
+
     </xacro:macro>
 
 </robot>
