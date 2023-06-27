@@ -23,13 +23,16 @@
             <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
         </inertial>
     </link>
+    <gazebo reference="vertical_rail">
+        <material>Gazebo/White</material>
+    </gazebo>
 
     <link name="gantry">
         <visual>
             <geometry>
                 <box size="0.05 ${gantry_width} 0.05"/>
             </geometry>
-            <material name="white_transluscent"/> 
+            <material name="white"/> 
         </visual>
 
         <inertial>
@@ -37,6 +40,9 @@
             <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
         </inertial>
     </link>
+    <gazebo reference="gantry">
+        <material>Gazebo/White</material>
+    </gazebo>
 
     <xacro:macro name="support" params="postfix reflect">
         <link name="support_${postfix}">
@@ -44,7 +50,7 @@
                 <geometry>
                     <box size="0.5 0.25 ${gantry_height}"/>
                 </geometry>
-                <material name="red_transluscent"/> 
+                <material name="red"/> 
             </visual>
             <collision>
                 <geometry>
@@ -56,6 +62,9 @@
                 <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
             </inertial>
         </link>
+        <gazebo reference="support_${postfix}">
+            <material>Gazebo/Red</material>
+        </gazebo>
 
         <joint name="gantry_to_support_${postfix}" type="fixed">
             <parent link="gantry"/>

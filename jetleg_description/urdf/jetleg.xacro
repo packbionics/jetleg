@@ -31,6 +31,9 @@
             <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
         </inertial>
         </link>
+        <gazebo reference="thigh${identifier}">
+            <material>Gazebo/White</material>
+        </gazebo>
 
         <link name="shank${identifier}">
             <visual>
@@ -52,6 +55,9 @@
                 <origin rpy="0 0 0" xyz="0 0 ${-shank_length/2-knee_joint_radius}"/>
             </inertial>
         </link>
+        <gazebo reference="shank${identifier}">
+            <material>Gazebo/White</material>
+        </gazebo>
 
         <joint name="knee_joint${identifier}" type="revolute">
             <origin rpy="0 0 0" xyz="0 0 ${-thigh_length/2-knee_joint_radius}"/>
@@ -85,6 +91,9 @@
                 <origin xyz="${(foot_length/2-0.05)} 0 ${-ankle_joint_radius-foot_height/2}"/>
             </inertial>
         </link>
+        <gazebo reference="foot${identifier}">
+            <material>Gazebo/White</material>
+        </gazebo>
 
         <joint name="ankle_joint${identifier}" type="revolute">
             <origin rpy="0 0 0" xyz="0 0 ${-(knee_joint_radius + shank_length + ankle_joint_radius)}"/>

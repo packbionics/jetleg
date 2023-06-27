@@ -13,9 +13,12 @@
             <geometry>
                 <cylinder length="${mount_length}" radius="0.08"/>
             </geometry>
-            <material name="white_transluscent"/> 
+            <material name="black"/> 
         </visual>
     </link>
+    <gazebo reference="mount">
+        <material>Gazebo/Black</material>
+    </gazebo>
 
     <joint name="vertical_rail_to_mount" type="revolute">
         <origin rpy="0 0 0" xyz="0 0 0"/>

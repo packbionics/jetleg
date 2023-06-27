@@ -16,6 +16,9 @@
                 <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1" />
             </inertial>
         </link>
+        <gazebo reference="camera_base">
+            <material>Gazebo/Grey</material>
+        </gazebo>
 
         <!-- Links representing the lenses -->
         <link name="camera_link">
@@ -44,6 +47,13 @@
                 <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1" />
             </inertial>
         </link>
+
+        <gazebo reference="camera_link">
+            <material>Gazebo/Black</material>
+        </gazebo>
+        <gazebo reference="camera_link_right">
+            <material>Gazebo/Black</material>
+        </gazebo>
 
         <xacro:insert_block name="joint" />
         <joint name="camera_base_to_camera_link" type="fixed">

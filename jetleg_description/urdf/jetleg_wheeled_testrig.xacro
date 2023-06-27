@@ -66,7 +66,7 @@
             <geometry>
                 <cylinder length="${mount_length}" radius="0.08"/>
             </geometry>
-            <material name="white_transluscent"/> 
+            <material name="black"/> 
         </visual>
         <inertial>
                 <mass value="1"/>
@@ -74,13 +74,16 @@
                 <origin rpy="0 0 0" xyz="0 0 0"/>
         </inertial>
     </link>
+    <gazebo reference="mount">
+        <material>Gazebo/Black</material>
+    </gazebo>
 
     <link name="mount_intact">
         <visual>
             <geometry>
                 <cylinder length="${mount_length}" radius="0.08"/>
             </geometry>
-            <material name="white_transluscent"/> 
+            <material name="black"/> 
         </visual>
         <inertial>
                 <mass value="1"/>
@@ -88,6 +91,9 @@
                 <origin rpy="0 0 0" xyz="0 0 0"/>
         </inertial>
     </link>
+    <gazebo reference="mount_intact">
+        <material>Gazebo/Black</material>
+    </gazebo>
 
     <!-- Define the additional joints of the robot -->
 
