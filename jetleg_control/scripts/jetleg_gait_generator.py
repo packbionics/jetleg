@@ -20,7 +20,7 @@ class JetLegGait(Node):
         
         self.follow_trajectory_client = ActionClient(self, FollowJointTrajectory, 'leg_controller/follow_joint_trajectory')
 
-        self.hip_setpoints_quick = np.array([-16.0,-12.0,4.0,17.6,20.8,20.0,18.4,12.0,2.4,-9.6,-16.0,-12.0,4.0,17.6,20.8,20.0,18.4,12.0,2.4,-9.6,-16.0], dtype=np.float32)
+        self.hip_setpoints_quick = np.array([16.0,12.0,-4.0,-17.6,-20.8,-20.0,-18.4,-12.0,-2.4,9.6,16.0,12.0,-4.0,-17.6,-20.8,-20.0,-18.4,-12.0,-2.4,9.6,16.0], dtype=np.float32)
         self.knee_setpoints_quick = np.array([16,38,60,55,18,8,18,20,12,10,16,38,60,55,18,8,18,20,12,10,16], dtype=np.float32)
         self.ankle_setpoints_quick = np.array([-10, 12, 0, -10, -15, -15, -9, -15, -20, -18, -10, 12, 0, -10, -15, -15,  -9, -15, -20, -18, -10], dtype=np.float32)
                 
