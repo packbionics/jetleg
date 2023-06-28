@@ -3,15 +3,20 @@
 import math
 from datetime import datetime
 
+from array import array
 import numpy as np
 import rclpy
 
+from rclpy.action import ActionClient
 from rclpy.node import Node
 from rclpy.qos import qos_profile_system_default
 
 from scipy import interpolate
 
 from sensor_msgs.msg import JointState
+from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
+from control_msgs.action import FollowJointTrajectory
+
         
 class JetLegGait(Node):
     
@@ -24,24 +29,24 @@ class JetLegGait(Node):
         self.positions_intact = np.array([0.0,0.0,0.0])
         
         self.joint_state_publisher = self.create_publisher(JointState, 'joint_control', qos_profile_system_default)
+        self.follow_trajectory_client = ActionClient(self, FollowJointTrajectory, 'leg_controller/follow_joint_trajectory')
 
         self.x_points = np.linspace(-0.5,1.5,21)
-        self.knee_setpoints_quick = [8,18,20,12,10,16,38,60,55,18] #[12,25,30,28,20,22,50,70,50,20]
-        self.knee_setpoints_quick = np.array(self.knee_setpoints_quick[5:] + self.knee_setpoints_quick + self.knee_setpoints_quick[:6])
+        self.knee_setpoints_quick = np.array([16,38,60,55,18,8,18,20,12,10,16,38,60,55,18,8,18,20,12,10,16], dtype=np.float32)
         self.knee_tck_quick = interpolate.splrep(self.x_points, self.knee_setpoints_quick)
-        self.hip_setpoints_quick = [40,38,30,18,3,-5,0,20,37,41]
-        self.hip_setpoints_quick = (np.array(self.hip_setpoints_quick[5:] + self.hip_setpoints_quick + self.hip_setpoints_quick[:6]) - 15) * 0.8
+        self.hip_setpoints_quick = np.array([-16.0,-12.0,4.0,17.6,20.8,20.0,18.4,12.0,2.4,-9.6,-16.0,-12.0,4.0,17.6,20.8,20.0,18.4,12.0,2.4,-9.6,-16.0])
         self.hip_tck_quick = interpolate.splrep(self.x_points, self.hip_setpoints_quick)
-        self.ankle_setpoints_quick = [75,81,75,70,72,80,102,90,80,75]
-        self.ankle_setpoints_quick = np.array(self.ankle_setpoints_quick[5:] + self.ankle_setpoints_quick + self.ankle_setpoints_quick[:6]) - 90
+        self.ankle_setpoints_quick = np.array([-10, 12, 0, -10, -15, -15, -9, -15, -20, -18, -10, 12, 0, -10, -15, -15,  -9, -15, -20, -18, -10], dtype=np.float32)
         self.ankle_tck_quick = interpolate.splrep(self.x_points, self.ankle_setpoints_quick)
         
         self.time_start = datetime.now()
 
-        gait_pub_period = 1.0/30.0
-        self.gait_timer = self.create_timer(gait_pub_period, self.pub_cmd)
+        GAIT_PUB_PERIOD = 1.0/30.0
+        self.gait_timer = self.create_timer(GAIT_PUB_PERIOD, self.pub_cmd)
         
         self.T = 4.0
+
+        leg_joint_trajectory = JetLegGait.gen_joint_trajectory_from(self.hip_setpoints_quick, self.knee_setpoints_quick, self.ankle_setpoints_quick, self.T)
 
     def publish_position(self):
         names = ('vertical_rail_to_mount', 'knee_joint', 'ankle_joint', 'vertical_rail_to_mount_intact', 'knee_joint_intact', 'ankle_joint_intact')
@@ -87,6 +92,35 @@ class JetLegGait(Node):
         self.positions_intact[2] = math.radians(self.positions_intact[2])
         
         self.publish_position()
+
+    def gen_joint_trajectory_from(thigh_setpoints: list, knee_setpoints: list, ankle_setpoints: list, gait_period: float):
+        if gait_period <= 0:
+            raise ValueError(f"Gait period must be a stricly positive value. Given: {gait_period}")
+        
+        setpoint_counts = [len(thigh_setpoints), len(knee_setpoints), len(ankle_setpoints)]
+        if setpoint_counts[0] != setpoint_counts[1] or setpoint_counts[0] != setpoint_counts[2]:
+            setpoint_log = f"{setpoint_counts[0]}, {setpoint_counts[1]}, {setpoint_counts[2]}"
+            raise ValueError("Number of setpoints must match across all joints. Given: " + setpoint_log)
+        
+        joint_traj = JointTrajectory()
+
+        joint_traj.joint_names = ['vertical_rail_to_mount', 'knee_joint', 'ankle_joint']
+
+        # number of intervals is the number of setpoints less 1
+        time_per_interval = (len(thigh_setpoints) - 1) / gait_period
+
+        for i in range(setpoint_counts[0]):
+            time_from_start = time_per_interval * i
+            traj_point = JointTrajectoryPoint()
+
+            traj_point.time_from_start.sec = int(time_from_start)
+            traj_point.time_from_start.nanosec = int((time_from_start % 1) * 1e9)
+            traj_point.positions = array('d', np.radians([thigh_setpoints[i], knee_setpoints[i], ankle_setpoints[i]]))
+
+            joint_traj.points.append(traj_point)
+
+        return joint_traj
+
 
 def main():
     rclpy.init()
