@@ -33,7 +33,7 @@ def generate_launch_description():
 
     ld.add_action(model_arg)
     ld.add_action(gait_generator_node)
-    ld.add_action(teleop_node)
+    # ld.add_action(teleop_node)
     ld.add_action(sim_env)
 
     return ld

@@ -64,7 +64,7 @@
             <parent link="thigh${identifier}"/>
             <child link="shank${identifier}"/>
             <axis xyz="0 1 0"/>
-            <limit effort="100" lower="0.0" upper="2.5" velocity="10"/>
+            <limit effort="10000" lower="0.0" upper="2.5" velocity="10"/>
         </joint>
 
         <link name="foot${identifier}">
@@ -100,7 +100,7 @@
             <parent link="shank${identifier}"/>
             <child link="foot${identifier}"/>
             <axis xyz="0 1 0"/>
-            <limit effort="100" lower="-0.1" upper="0.5" velocity="10"/>
+            <limit effort="10000" lower="-0.1" upper="0.5" velocity="10"/>
         </joint>
     </xacro:macro>
 

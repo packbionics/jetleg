@@ -101,7 +101,7 @@
         <origin rpy="0 0 0" xyz="0 -0.1 0"/>
         <parent link="vertical_rail"/>
         <child link="mount"/>
-        <limit effort="100" lower="${-mount_angle_lim}" upper="${mount_angle_lim}" velocity="10"/>
+        <limit effort="10000" lower="${-mount_angle_lim}" upper="${mount_angle_lim}" velocity="10"/>
         <axis xyz="0 1 0"/>
     </joint>
 
@@ -109,7 +109,7 @@
         <origin rpy="0 0 0" xyz="0 0.1 0"/>
         <parent link="vertical_rail"/>
         <child link="mount_intact"/>
-        <limit effort="100" lower="${-mount_angle_lim}" upper="${mount_angle_lim}" velocity="10"/>
+        <limit effort="10000" lower="${-mount_angle_lim}" upper="${mount_angle_lim}" velocity="10"/>
         <axis xyz="0 1 0"/>
     </joint>
 
