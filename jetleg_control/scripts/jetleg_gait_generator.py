@@ -19,12 +19,17 @@ class JetLegGait(Node):
         super().__init__('jetleg_gait_generator')
         
         self.follow_trajectory_client = ActionClient(self, FollowJointTrajectory, 'leg_controller/follow_joint_trajectory')
+        self.follow_trajectory_client_intact = ActionClient(self, FollowJointTrajectory, 'leg_intact_controller/follow_joint_trajectory')
 
-        self.hip_setpoints_quick = np.array([16.0,12.0,-4.0,-17.6,-20.8,-20.0,-18.4,-12.0,-2.4,9.6,16.0,12.0,-4.0,-17.6,-20.8,-20.0,-18.4,-12.0,-2.4,9.6,16.0], dtype=np.float32)
-        self.knee_setpoints_quick = np.array([16,38,60,55,18,8,18,20,12,10,16,38,60,55,18,8,18,20,12,10,16], dtype=np.float32)
-        self.ankle_setpoints_quick = np.array([-10, 12, 0, -10, -15, -15, -9, -15, -20, -18, -10, 12, 0, -10, -15, -15,  -9, -15, -20, -18, -10], dtype=np.float32)
+        self.hip_setpoints_quick = np.array([40,38,30,18,3,-5,0,20,37,41], dtype=np.float32)
+        self.hip_setpoints_quick = -(self.hip_setpoints_quick - 15) * 0.8
+
+        self.knee_setpoints_quick = np.array([8,18,20,12,10,16,38,60,55,18], dtype=np.float32)
+
+        self.ankle_setpoints_quick = np.array([5,81,75,70,72,80,102,90,80,75], dtype=np.float32)
+        self.ankle_setpoints_quick = self.ankle_setpoints_quick - 90
                 
-        self.T = 8.0
+        self.T = 4.0
 
         self.leg_joint_trajectory = JetLegGait.gen_joint_trajectory_from(self.hip_setpoints_quick, self.knee_setpoints_quick, self.ankle_setpoints_quick, self.T)
 
@@ -34,9 +39,7 @@ class JetLegGait(Node):
 
         self.follow_trajectory_client.wait_for_server()
 
-        self.future = self.follow_trajectory_client.send_goal_async(goal_msg, feedback_callback=self.feedback_callback)
-    
-        self.future.add_done_callback(self.goal_response_callback)
+        return self.follow_trajectory_client.send_goal_async(goal_msg, feedback_callback=self.feedback_callback)
 
     def goal_response_callback(self, future):
         goal_handle = future.result()
@@ -93,8 +96,15 @@ def main():
     rclpy.init()
     node = JetLegGait()
 
-    node.send_goal(node.leg_joint_trajectory)
-    rclpy.spin(node)
+    while True:
+
+        future = node.send_goal(node.leg_joint_trajectory)
+        rclpy.spin_until_future_complete(node, future=future)
+
+        goal_handle = future.result()
+        future = goal_handle.get_result_async()
+
+        rclpy.spin_until_future_complete(node, future=future)
 
     node.get_logger().info('Close program')
 
