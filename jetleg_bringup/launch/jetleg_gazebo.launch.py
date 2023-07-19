@@ -2,28 +2,48 @@
 Launches Gazebo and spawns a jetleg model
 """
 
-import os
-import xacro
-
-from ament_index_python.packages import get_package_share_directory
-
 from launch_ros.substitutions import FindPackageShare
 from launch import LaunchDescription
+from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch_ros.actions import Node
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
 from launch.conditions import IfCondition
-from launch.substitutions import PathJoinSubstitution, PythonExpression
+from launch.substitutions import PathJoinSubstitution, PythonExpression, Command, LaunchConfiguration
 
-from packbionics_launch_utils.launch_utils import add_launch_argument, add_launch_file
+
+def add_launch_argument(name: str, default: str, description: str) -> tuple:
+    launch_config = LaunchConfiguration(name)
+
+    launch_arg = DeclareLaunchArgument(
+        name, 
+        default_value=default,
+        description=description
+    )
+    
+    return launch_config, launch_arg
+
+def add_launch_file(package_name: str, launch_name: str, conditional=None):
+    package = FindPackageShare(package_name)
+
+    launch_condition = None
+    if conditional is not None:
+        launch_condition = IfCondition(
+            conditional
+        )
+
+    launch_file = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource([package, '/launch', '/' + launch_name]),
+        condition=launch_condition
+    )
+
+    return launch_file
 
 def generate_launch_description():
 
-    jetleg_description_path = get_package_share_directory("jetleg_description")
+    jetleg_description_path = FindPackageShare("jetleg_description")
     jetleg_bringup_path = FindPackageShare("jetleg_bringup")
 
-    xacro_path = os.path.join(jetleg_description_path, 'urdf/jetleg_testrig_vision.xacro')
-
-    urdf_model = xacro.parse(open(xacro_path))
-    xacro.process_doc(urdf_model)
+    xacro_path = PathJoinSubstitution([jetleg_description_path, 'urdf/jetleg_testrig_vision.xacro'])
 
     controller_list = ['leg_controller', 'leg_intact_controller', 'joint_state_broadcaster']
 
@@ -50,6 +70,14 @@ def generate_launch_description():
         description='Toggles the Gazebo client'
     )
 
+    model, model_arg = add_launch_argument(
+        'model',
+        default=xacro_path,
+        description='Absolute path to xacro file'
+    )
+
+    robot_urdf = Command(['xacro', ' ', model])
+
     gazebo = add_launch_file('gazebo_ros', 'gazebo.launch.py')
 
     spawn_entity = Node(
@@ -62,7 +90,7 @@ def generate_launch_description():
     rsp = Node(
         package='robot_state_publisher',
         executable='robot_state_publisher',
-        parameters=[{'robot_description': urdf_model.toxml()}]
+        parameters=[{'robot_description': robot_urdf}]
     )
 
     rviz = Node(
@@ -82,6 +110,7 @@ def generate_launch_description():
     ld.add_action(rviz_config_arg)
     ld.add_action(rviz_toggle_arg)
     ld.add_action(gui_toggle_arg)
+    ld.add_action(model_arg)
 
     ld.add_action(gazebo)
     ld.add_action(rsp)

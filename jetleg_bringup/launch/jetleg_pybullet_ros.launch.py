@@ -1,50 +1,78 @@
-import os
-
-from ament_index_python import get_package_share_directory
-
 from launch import LaunchDescription
-from launch_ros.actions import Node
-from launch.actions import IncludeLaunchDescription
+from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument
 from launch.launch_description_sources import PythonLaunchDescriptionSource
+from launch.substitutions import PathJoinSubstitution
+from launch_ros.substitutions import FindPackageShare
 
-from packbionics_launch_utils.launch_utils import add_launch_argument
+def add_pybullet_sim(ld: LaunchDescription):
 
-def generate_launch_description():
+    # Retrieve simulation launch file
+    pybullet_ros_share = FindPackageShare('pybullet_ros')
+    bringup_robot_example_path = PathJoinSubstitution([pybullet_ros_share, 'launch/bringup_robot_example.launch.py'])
 
-    pybullet_ros_dir = get_package_share_directory('pybullet_ros')
-    jetleg_description_dir = get_package_share_directory('jetleg_description')
+    # assign launch description to be executed
+    bringup_robot_example = IncludeLaunchDescription(PythonLaunchDescriptionSource(bringup_robot_example_path))
+    ld.add_action(bringup_robot_example)
 
-    pybullet_ros_launch_dir = os.path.join(pybullet_ros_dir, 'launch')
+def add_rsp(ld: LaunchDescription):
+
+    # Adds a robot_state_publisher to manage robot configuration
+    rsp = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            PathJoinSubstitution(
+                [
+                    FindPackageShare('jetleg_bringup'),
+                    'launch/rsp.launch.py'
+                ]
+            )
+        )
+    )
+
+    ld.add_action(rsp)
     
-    bringup_robot_example_path = os.path.join(pybullet_ros_launch_dir, 'bringup_robot_example.launch.py')
-    default_model_path = os.path.join(jetleg_description_dir, 'urdf/jetleg_testrig.xacro')
 
-    default_rviz_config_path = os.path.join(jetleg_description_dir, 'rviz/urdf.rviz')
+def add_visualization(ld: LaunchDescription):
 
-    _, model_arg = add_launch_argument('model', default=default_model_path, description='Robot model to be loaded into simulation')
-    rviz, rviz_arg = add_launch_argument(
+    jetleg_description_dir = FindPackageShare('jetleg_description')
+    default_rviz_config_path = PathJoinSubstitution([jetleg_description_dir, 'rviz/urdf.rviz'])
+
+    rviz_arg = DeclareLaunchArgument(
         'rvizconfig', 
-        default=str(default_rviz_config_path),
+        default_value=default_rviz_config_path,
         description='Absolute path to rviz config file'
     )
 
-    bringup_robot_example = IncludeLaunchDescription(PythonLaunchDescriptionSource(bringup_robot_example_path))
+    ld.add_action(rviz_arg)
 
-    rviz_node = Node(
-        package='rviz2',
-        executable='rviz2',
-        name='rviz2',
-        output='screen',
-        arguments=['-d', rviz],
+    # Adds an Rviz2 visualization
+
+    rviz = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            PathJoinSubstitution(
+                [
+                    FindPackageShare('jetleg_bringup'),
+                    'launch/rviz.launch.py'
+                ]
+            )
+        )
     )
 
+    ld.add_action(rviz)
+
+def generate_launch_description():
 
     ld = LaunchDescription()
 
-    ld.add_action(model_arg)
-    ld.add_action(rviz_arg)
+    model_arg = DeclareLaunchArgument(
+        'model', 
+        default_value=PathJoinSubstitution([FindPackageShare('jetleg_description'), 'urdf/jetleg_testrig.xacro']),
+        description='Robot model to be loaded into simulation'
+    )
 
-    ld.add_action(bringup_robot_example)
-    ld.add_action(rviz_node)
+    ld.add_action(model_arg)
+
+    add_pybullet_sim(ld=ld)
+    add_rsp(ld=ld)
+    add_visualization(ld=ld)
 
     return ld
