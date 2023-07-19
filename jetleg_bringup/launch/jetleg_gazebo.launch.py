@@ -38,11 +38,47 @@ def add_launch_file(package_name: str, launch_name: str, conditional=None):
 
     return launch_file
 
+def add_rviz(ld: LaunchDescription):
+    jetleg_bringup_path = FindPackageShare("jetleg_bringup")
+
+    rviz_config_arg = DeclareLaunchArgument(
+        'rvizconfig', 
+        default_value=PathJoinSubstitution([jetleg_bringup_path, 'config/jetleg_gazebo.rviz']),
+        description='Specifies the absolute path of the RVIZ config used for default RVIZ visualization'
+    )
+
+    rviz_toggle, rviz_toggle_arg = add_launch_argument(
+        'rviz',
+        default='True',
+        description='Toggles the startup of the RVIZ visualization'
+    )
+
+    rviz = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            PathJoinSubstitution([FindPackageShare('jetleg_bringup'), 'launch/rviz.launch.py'])
+        ),
+        condition=IfCondition(rviz_toggle)
+    )
+
+    ld.add_action(rviz_config_arg)
+    ld.add_action(rviz_toggle_arg)
+    ld.add_action(rviz)
+
+def add_rsp(ld: LaunchDescription):
+    model = LaunchConfiguration('model')
+    robot_urdf = Command(['xacro', ' ', model])
+
+    rsp = Node(
+        package='robot_state_publisher',
+        executable='robot_state_publisher',
+        parameters=[{'robot_description': robot_urdf}]
+    )
+
+    ld.add_action(rsp)
+
 def generate_launch_description():
 
     jetleg_description_path = FindPackageShare("jetleg_description")
-    jetleg_bringup_path = FindPackageShare("jetleg_bringup")
-
     xacro_path = PathJoinSubstitution([jetleg_description_path, 'urdf/jetleg_testrig_vision.xacro'])
 
     controller_list = ['leg_controller', 'leg_intact_controller', 'joint_state_broadcaster']
@@ -54,16 +90,6 @@ def generate_launch_description():
 
     spawn_params = model_description + model_pos + model_orientation
 
-    rviz_config, rviz_config_arg = add_launch_argument(
-        'rviz_config',
-        default=PathJoinSubstitution([jetleg_bringup_path, 'config/jetleg_gazebo.rviz']),
-        description='Specifies the absolute path of the RVIZ config used for default RVIZ visualization'
-    )
-    rviz_toggle, rviz_toggle_arg = add_launch_argument(
-        'rviz',
-        default='True',
-        description='Toggles the startup of the RVIZ visualization'
-    )
     _, gui_toggle_arg = add_launch_argument(
         'gui',
         default='false',
@@ -93,29 +119,16 @@ def generate_launch_description():
         parameters=[{'robot_description': robot_urdf}]
     )
 
-    rviz = Node(
-        package='rviz2',
-        executable='rviz2',
-        arguments=['-d', rviz_config],
-        condition=IfCondition(
-            PythonExpression(
-                [rviz_toggle]
-            )
-        ),
-        output='screen'
-    )
-
     ld = LaunchDescription()
 
-    ld.add_action(rviz_config_arg)
-    ld.add_action(rviz_toggle_arg)
     ld.add_action(gui_toggle_arg)
     ld.add_action(model_arg)
 
     ld.add_action(gazebo)
     ld.add_action(rsp)
     ld.add_action(spawn_entity)
-    ld.add_action(rviz)
+
+    add_rviz(ld=ld)
 
     for controller in controller_list:
         ld.add_action(Node(
