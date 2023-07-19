@@ -1,12 +1,17 @@
+"""
+Adds a robot_state_publisher to manage robot configuration
+"""
+
 from launch import LaunchDescription
 from launch.substitutions import LaunchConfiguration, Command
 from launch_ros.actions import Node
 
 def generate_launch_description():
 
-    # Adds a robot_state_publisher to manage robot configuration
-
+    # synchronizes ROS clock with simulation clock if true
     use_sim_time = LaunchConfiguration('use_sim_time', default='false')
+    
+    # specifies the XACRO/URDF file to utilize
     model = LaunchConfiguration('model')
 
     robot_urdf = Command(['xacro', ' ', model])

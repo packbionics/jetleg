@@ -7,104 +7,61 @@ from launch import LaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch_ros.actions import Node
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
-from launch.conditions import IfCondition
-from launch.substitutions import PathJoinSubstitution, PythonExpression, Command, LaunchConfiguration
+from launch.substitutions import PathJoinSubstitution
 
-
-def add_launch_argument(name: str, default: str, description: str) -> tuple:
-    launch_config = LaunchConfiguration(name)
-
-    launch_arg = DeclareLaunchArgument(
-        name, 
-        default_value=default,
-        description=description
-    )
-    
-    return launch_config, launch_arg
-
-def add_launch_file(package_name: str, launch_name: str, conditional=None):
-    package = FindPackageShare(package_name)
-
-    launch_condition = None
-    if conditional is not None:
-        launch_condition = IfCondition(
-            conditional
-        )
-
-    launch_file = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource([package, '/launch', '/' + launch_name]),
-        condition=launch_condition
-    )
-
-    return launch_file
 
 def add_rviz(ld: LaunchDescription):
     jetleg_bringup_path = FindPackageShare("jetleg_bringup")
 
+    # Specify RVIZ config
     rviz_config_arg = DeclareLaunchArgument(
         'rvizconfig', 
         default_value=PathJoinSubstitution([jetleg_bringup_path, 'config/jetleg_gazebo.rviz']),
         description='Specifies the absolute path of the RVIZ config used for default RVIZ visualization'
     )
+    ld.add_action(rviz_config_arg)
 
-    rviz_toggle, rviz_toggle_arg = add_launch_argument(
-        'rviz',
-        default='True',
-        description='Toggles the startup of the RVIZ visualization'
-    )
-
+    # Launch Rviz2
     rviz = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             PathJoinSubstitution([FindPackageShare('jetleg_bringup'), 'launch/rviz.launch.py'])
         ),
-        condition=IfCondition(rviz_toggle)
     )
-
-    ld.add_action(rviz_config_arg)
-    ld.add_action(rviz_toggle_arg)
     ld.add_action(rviz)
 
 def add_rsp(ld: LaunchDescription):
-    model = LaunchConfiguration('model')
-    robot_urdf = Command(['xacro', ' ', model])
 
-    rsp = Node(
-        package='robot_state_publisher',
-        executable='robot_state_publisher',
-        parameters=[{'robot_description': robot_urdf}]
+    rsp = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            PathJoinSubstitution([FindPackageShare('jetleg_bringup'), 'launch/rsp.launch.py'])
+        )
     )
 
     ld.add_action(rsp)
 
-def generate_launch_description():
+def add_gazebo_sim(ld: LaunchDescription):
+    gui_toggle_arg = DeclareLaunchArgument(
+        'gui',
+        default_value='false',
+        description='Toggles the Gazebo client'
+    )
+    ld.add_action(gui_toggle_arg)
 
-    jetleg_description_path = FindPackageShare("jetleg_description")
-    xacro_path = PathJoinSubstitution([jetleg_description_path, 'urdf/jetleg_testrig_vision.xacro'])
+    gazebo = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            PathJoinSubstitution([FindPackageShare('gazebo_ros'), 'launch/gazebo.launch.py'])
+        )
+    )
 
-    controller_list = ['leg_controller', 'leg_intact_controller', 'joint_state_broadcaster']
+    ld.add_action(gazebo)
 
     # arguments to pass when spawning model
     model_description = ['-entity', 'jetleg_wheeled_testrig', '-topic', '/robot_description']
     model_pos = ['-x', '0.0', '-y', '0.0', '-z', '1.0']
     model_orientation = ['-R', '0.0', '-P', '0.0', '-Y', '0.0']
 
+
     spawn_params = model_description + model_pos + model_orientation
-
-    _, gui_toggle_arg = add_launch_argument(
-        'gui',
-        default='false',
-        description='Toggles the Gazebo client'
-    )
-
-    model, model_arg = add_launch_argument(
-        'model',
-        default=xacro_path,
-        description='Absolute path to xacro file'
-    )
-
-    robot_urdf = Command(['xacro', ' ', model])
-
-    gazebo = add_launch_file('gazebo_ros', 'gazebo.launch.py')
 
     spawn_entity = Node(
         package='gazebo_ros', 
@@ -112,29 +69,38 @@ def generate_launch_description():
         arguments=spawn_params,
         output='screen'
     )
-    
-    rsp = Node(
-        package='robot_state_publisher',
-        executable='robot_state_publisher',
-        parameters=[{'robot_description': robot_urdf}]
+    ld.add_action(spawn_entity)
+
+
+def spawn_controllers(ld: LaunchDescription):
+    spawn_controls = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            PathJoinSubstitution([FindPackageShare('jetleg_bringup'), 'launch/spawn_controllers.py'])
+        )
     )
+
+    ld.add_action(spawn_controls)
+
+
+def generate_launch_description():
 
     ld = LaunchDescription()
 
-    ld.add_action(gui_toggle_arg)
+    jetleg_description_path = FindPackageShare("jetleg_description")
+    xacro_path = PathJoinSubstitution([jetleg_description_path, 'urdf/jetleg_testrig_vision.xacro'])
+
+    model_arg = DeclareLaunchArgument(
+        'model',
+        default_value=xacro_path,
+        description='Absolute path to xacro file'
+    )
+
     ld.add_action(model_arg)
 
-    ld.add_action(gazebo)
-    ld.add_action(rsp)
-    ld.add_action(spawn_entity)
-
+    add_gazebo_sim(ld=ld)
     add_rviz(ld=ld)
+    add_rsp(ld=ld)
 
-    for controller in controller_list:
-        ld.add_action(Node(
-            package='controller_manager',
-            executable='spawner.py',
-            arguments=[controller]
-        ))
+    spawn_controllers(ld=ld)
 
     return ld
