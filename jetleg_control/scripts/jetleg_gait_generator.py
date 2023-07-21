@@ -81,8 +81,6 @@ class JetLegGait(Node):
             time_from_start = time_per_interval * i
             traj_point = JointTrajectoryPoint()
 
-            print(time_from_start)
-
             traj_point.time_from_start.sec = int(time_from_start)
             traj_point.time_from_start.nanosec = int((time_from_start % 1) * 1e9)
             traj_point.positions = array('d', np.radians([thigh_setpoints[i], knee_setpoints[i], ankle_setpoints[i]]))
