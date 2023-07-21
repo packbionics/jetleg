@@ -75,7 +75,7 @@ def add_gazebo_sim(ld: LaunchDescription):
 def spawn_controllers(ld: LaunchDescription):
     spawn_controls = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            PathJoinSubstitution([FindPackageShare('jetleg_bringup'), 'launch/spawn_controllers.py'])
+            PathJoinSubstitution([FindPackageShare('jetleg_bringup'), 'launch/spawn_controllers.launch.py'])
         )
     )
 
