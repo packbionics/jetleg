@@ -1,8 +1,9 @@
 
 from launch_ros.actions import Node
 from launch import LaunchDescription
-
-from packbionics_launch_utils.launch_utils import add_launch_file
+from launch_ros.substitutions import FindPackageShare
+from launch.actions import IncludeLaunchDescription
+from launch.launch_description_sources import PythonLaunchDescriptionSource
 
 def generate_launch_description():
     
@@ -13,9 +14,13 @@ def generate_launch_description():
         prefix = 'xterm -e', 
         output='screen'
     )
-    
-    pybullet_sim = add_launch_file('jetleg_bringup', 'jetleg_pybullet_ros.launch.py')
-    
+
+    jetleg_bringup_share = FindPackageShare('jetleg_bringup')
+
+    pybullet_sim = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource([jetleg_bringup_share, '/launch', '/' + 'jetleg_pybullet_ros.launch.py']),
+    )
+        
     ld = LaunchDescription()
 
     ld.add_action(teleop_node)

@@ -1,11 +1,16 @@
 from launch_ros.actions import Node
 from launch import LaunchDescription
-
-from packbionics_launch_utils.launch_utils import add_launch_file
+from launch_ros.substitutions import FindPackageShare
+from launch.actions import IncludeLaunchDescription
+from launch.launch_description_sources import PythonLaunchDescriptionSource
 
 def generate_launch_description():
 
-    zed2i_launch = add_launch_file('jetleg_vision', 'jetleg_zed2i.launch.py')
+    jetleg_vision_share = FindPackageShare('jetleg_vision')
+
+    zed2i_launch = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource([jetleg_vision_share, '/launch', '/' + 'jetleg_zed2i.launch.py']),
+    )
     
     pointcloud_proc = Node(
         package='jetleg_vision',
