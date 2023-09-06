@@ -57,6 +57,7 @@ def generate_launch_description():
 
     jetleg_vision = add_launch_file('jetleg_vision', 'jetleg_vision.launch.py')
     pybullet_sim = add_launch_file('jetleg_bringup', 'jetleg_vision_pybullet_ros.launch.py')
+    rsp = add_launch_file('jetleg_bringup', 'rsp.launch.py')
 
     rviz_node = Node(
         package='rviz2',
@@ -71,6 +72,7 @@ def generate_launch_description():
     ld.add_action(rvizconfig_arg)
     ld.add_action(use_rviz_arg)
     ld.add_action(pybullet_sim)
+    ld.add_action(rsp)
     ld.add_action(jetleg_vision)
     ld.add_action(rviz_node)
     
