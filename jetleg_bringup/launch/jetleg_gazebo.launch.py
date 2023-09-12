@@ -95,6 +95,18 @@ def generate_launch_description():
         description='Absolute path to xacro file'
     )
 
+    staircase_obs_world = PathJoinSubstitution([
+        FindPackageShare("gazebo_env"),
+        'world/staircase_obstacle.world'
+    ])
+
+    world_arg = DeclareLaunchArgument(
+        "world",
+        default_value=staircase_obs_world,
+        description="Path to world file to load into Gazebo"
+    )
+
+    ld.add_action(world_arg)
     ld.add_action(model_arg)
 
     add_gazebo_sim(ld=ld)

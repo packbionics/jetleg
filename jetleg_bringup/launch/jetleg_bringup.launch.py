@@ -23,22 +23,22 @@ def add_launch_file(package_name: str, launch_name: str, conditional=None):
 
 def generate_launch_description():
 
-    use_pybullet_env_arg = DeclareLaunchArgument(
-        name='use_pybullet_env',
+    pybullet_arg = DeclareLaunchArgument(
+        name='pybullet',
         default_value='True',
         description='Toggles between using Pybullet or Gazebo for physics simulation'
     )
 
-    use_pybullet_env = LaunchConfiguration('use_pybullet_env')
+    pybullet_launch = LaunchConfiguration('pybullet')
 
-    gazebo = add_launch_file("jetleg_bringup", 'jetleg_gazebo.launch.py', conditional=PythonExpression(['not ', use_pybullet_env]))
-    pybullet = add_launch_file("jetleg_bringup", 'jetleg_pybullet_ros.launch.py', conditional=use_pybullet_env)
+    gazebo = add_launch_file("jetleg_bringup", 'jetleg_gazebo.launch.py', conditional=PythonExpression(['not ', pybullet_launch]))
+    pybullet_launch = add_launch_file("jetleg_bringup", 'jetleg_pybullet_ros.launch.py', conditional=pybullet_launch)
 
     ld = LaunchDescription()
 
-    ld.add_action(use_pybullet_env_arg)
+    ld.add_action(pybullet_arg)
 
     ld.add_action(gazebo)
-    ld.add_action(pybullet)
+    ld.add_action(pybullet_launch)
 
     return ld

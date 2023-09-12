@@ -1,11 +1,39 @@
 from launch_ros.actions import Node
-
 from launch import LaunchDescription
-from launch.substitutions import PathJoinSubstitution
+from launch.conditions import IfCondition
 from launch_ros.substitutions import FindPackageShare
+from launch.actions import IncludeLaunchDescription
+from launch.launch_description_sources import PythonLaunchDescriptionSource
+from launch.substitutions import LaunchConfiguration
+from launch.actions import DeclareLaunchArgument
+from launch.substitutions import PathJoinSubstitution
 
-from packbionics_launch_utils.launch_utils import add_launch_argument, add_launch_file
+def add_launch_argument(name: str, default: str, description: str) -> tuple:
+    launch_config = LaunchConfiguration(name)
 
+    launch_arg = DeclareLaunchArgument(
+        name, 
+        default_value=default,
+        description=description
+    )
+    
+    return launch_config, launch_arg
+
+def add_launch_file(package_name: str, launch_name: str, conditional=None):
+    package = FindPackageShare(package_name)
+
+    launch_condition = None
+    if conditional is not None:
+        launch_condition = IfCondition(
+            conditional
+        )
+
+    launch_file = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource([package, '/launch', '/' + launch_name]),
+        condition=launch_condition
+    )
+
+    return launch_file
 def generate_launch_description():
     model_path = PathJoinSubstitution([
         FindPackageShare('jetleg_description'), 
