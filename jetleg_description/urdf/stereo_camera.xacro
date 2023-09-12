@@ -88,7 +88,7 @@
 
         <!-- Specifies configurations for simulating in Gazebo -->
         <gazebo reference="gazebo_camera_link">
-            <sensor name="camera" type="camera">
+            <sensor name="camera" type="depth">
                 <visualize>true</visualize>
                 <update_rate>60.0</update_rate>
                 <camera name="head">

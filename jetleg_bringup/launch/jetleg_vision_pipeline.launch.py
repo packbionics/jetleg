@@ -1,14 +1,12 @@
-import os
-from ament_index_python.packages import get_package_share_path
-
-from launch_ros.actions import Node
 from launch import LaunchDescription
 from launch.conditions import IfCondition
-from launch_ros.substitutions import FindPackageShare
-from launch.actions import IncludeLaunchDescription
-from launch.launch_description_sources import PythonLaunchDescriptionSource
+from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument
 from launch.substitutions import LaunchConfiguration
-from launch.actions import DeclareLaunchArgument
+from launch.launch_description_sources import PythonLaunchDescriptionSource
+
+from launch_ros.actions import Node
+from launch_ros.substitutions import FindPackageShare
+
 
 def add_launch_argument(name: str, default: str, description: str) -> tuple:
     launch_config = LaunchConfiguration(name)
@@ -40,40 +38,26 @@ def add_launch_file(package_name: str, launch_name: str, conditional=None):
 
 def generate_launch_description():
 
-    jetleg_bringup_path = get_package_share_path('jetleg_bringup')
-    default_rviz_config_path = os.path.join(jetleg_bringup_path, 'config', 'jetleg_vision.rviz')
-
-    use_rviz, use_rviz_arg = add_launch_argument(
+    _, use_rviz_arg = add_launch_argument(
         'use_rviz',
-        default='False',
+        default='True',
         description='Specifies to use RVIZ for visualization'
     )
 
-    rvizconfig, rvizconfig_arg = add_launch_argument(
-        'rvizconfig',
-        default=default_rviz_config_path,
-        description='Specifies the RVIZ config file to use for visualization'
-    )
-
-    jetleg_vision = add_launch_file('jetleg_vision', 'jetleg_vision.launch.py')
-    pybullet_sim = add_launch_file('jetleg_bringup', 'jetleg_vision_pybullet_ros.launch.py')
+    sim_launch = add_launch_file('jetleg_bringup', 'jetleg_bringup.launch.py')
     rsp = add_launch_file('jetleg_bringup', 'rsp.launch.py')
 
-    rviz_node = Node(
-        package='rviz2',
-        executable='rviz2',
-        output='screen',
-        arguments=['-d', rvizconfig],
-        condition=IfCondition(use_rviz)
+    pointcloud_proc = Node(
+        package="jetleg_vision",
+        executable="jetleg_pointcloud_proc.py",
+        remappings=[('/zed2i/zed_node/point_cloud/cloud_registered', '/camera/points')]
     )
 
     ld = LaunchDescription()
 
-    ld.add_action(rvizconfig_arg)
     ld.add_action(use_rviz_arg)
-    ld.add_action(pybullet_sim)
+    ld.add_action(sim_launch)
     ld.add_action(rsp)
-    ld.add_action(jetleg_vision)
-    ld.add_action(rviz_node)
-    
+    ld.add_action(pointcloud_proc)
+
     return ld

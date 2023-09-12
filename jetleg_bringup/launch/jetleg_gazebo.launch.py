@@ -1,13 +1,10 @@
-"""
-Launches Gazebo and spawns a jetleg model
-"""
-
-from launch_ros.substitutions import FindPackageShare
 from launch import LaunchDescription
-from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch_ros.actions import Node
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
 from launch.substitutions import PathJoinSubstitution
+from launch.launch_description_sources import PythonLaunchDescriptionSource
+
+from launch_ros.actions import Node
+from launch_ros.substitutions import FindPackageShare
 
 
 def add_rviz(ld: LaunchDescription):

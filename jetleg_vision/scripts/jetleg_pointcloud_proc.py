@@ -86,7 +86,10 @@ class PointCloudProcessing(Node):
         cloud_array = cloud_array[:,:,:num_fields]
         cloud_array = cloud_array.reshape((cloud_array.shape[0] * cloud_array.shape[1], num_fields))
 
-        if cloud_array.shape[0] == 0 or self.pose is None:
+        # if self.pose is None:
+        #     return
+
+        if cloud_array.shape[0] == 0:
             return
 
         cloud_array = cloud_array[:, :3]
