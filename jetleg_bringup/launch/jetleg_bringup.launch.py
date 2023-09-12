@@ -25,7 +25,7 @@ def generate_launch_description():
 
     pybullet_arg = DeclareLaunchArgument(
         name='pybullet',
-        default_value='True',
+        default_value='False',
         description='Toggles between using Pybullet or Gazebo for physics simulation'
     )
 
