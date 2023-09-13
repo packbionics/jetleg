@@ -1,25 +1,14 @@
 import os
 from ament_index_python.packages import get_package_share_directory
 
-from launch_ros.actions import Node
 from launch_ros.actions import ComposableNodeContainer
 from launch_ros.descriptions import ComposableNode
+from launch_ros.actions import Node
 from launch import LaunchDescription
-from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.actions import IncludeLaunchDescription
+
 
 def generate_launch_description():
-    jetleg_bringup_dir = get_package_share_directory('jetleg_bringup')
-    jetleg_vision_dir = get_package_share_directory('jetleg_vision')
 
-    rviz_config_file = os.path.join(jetleg_vision_dir, 'config/pybullet_pointcloud_vision_config.rviz')
-    jetleg_bringup_launch_dir = os.path.join(jetleg_bringup_dir, 'launch')
-
-    pybullet_sim_launch = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource([jetleg_bringup_launch_dir,
-            '/jetleg_vision_example.launch.py'])
-    )
-    
     # launch plugin through rclcpp_components container
     pointcloud_xyz_node = ComposableNodeContainer(
             name='container',
@@ -39,11 +28,19 @@ def generate_launch_description():
             ],
             output='screen',
     )
-    
-    rviz_config = Node(package='rviz2',
-                       executable='rviz2',
-                       output='screen',
-                       arguments=['-d', rviz_config_file]
-                    )
 
-    return LaunchDescription([pybullet_sim_launch, pointcloud_xyz_node, rviz_config])
+    # pointcloud processing node
+    jetleg_pointcloud_proc = Node(
+        package='jetleg_vision',
+        executable='jetleg_pointcloud_proc.py',
+        remappings=[('/zed2i/zed_node/point_cloud/cloud_registered', '/points'),
+                    ('camera_state', 'camera/state')],
+        output="screen"
+    )
+
+    ld = LaunchDescription()
+
+    ld.add_action(pointcloud_xyz_node)
+    ld.add_action(jetleg_pointcloud_proc)
+
+    return ld

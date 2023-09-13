@@ -1,45 +1,43 @@
-import os
-
-from ament_index_python.packages import get_package_share_path
-from launch_ros.actions import Node
-
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
+from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument
+from launch.substitutions import PathJoinSubstitution
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import LaunchConfiguration
+
+from launch_ros.actions import Node
+from launch_ros.substitutions import FindPackageShare
 
 
 def generate_launch_description():
-    description_path = get_package_share_path('jetleg_description')
 
-    default_rviz_config_path = description_path / 'rviz/urdf.rviz'
-    rviz_arg = DeclareLaunchArgument(name='rvizconfig', default_value=str(default_rviz_config_path),
-                                    description='Absolute path to rviz config file')
+    model_path = PathJoinSubstitution([
+        FindPackageShare('jetleg_description'), 
+        'urdf/', 
+        'jetleg_testrig_vision.xacro'
+    ])
 
-    model_path = os.path.join(description_path, 'urdf/jetleg_wheeled_testrig.xacro')
+    model_arg = DeclareLaunchArgument(
+        'model', 
+        default_value=model_path,
+        description='Robot model loaded into simulation'
+    )
 
-    launch_arguments = {
-        'model': model_path
-    }
-    
-    teleop_node = Node(
+    gait_generator_node = Node(
         package='jetleg_control',
-        executable='jetleg_gait_generator',
+        executable='jetleg_gait_generator.py',
         output='screen'
     )
-    pybullet_sim = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource([os.path.join(
-            get_package_share_path('jetleg_bringup'), 'launch'),
-            '/jetleg_pybullet_ros.launch.py']
-            ),
-        launch_arguments=launch_arguments.items()
-    )
-    rviz_node = Node(
-        package='rviz2',
-        executable='rviz2',
-        name='rviz2',
-        output='screen',
-        arguments=['-d', LaunchConfiguration('rvizconfig')],
+    
+    jetleg_bringup_share = FindPackageShare('jetleg_bringup')
+
+    sim_launch = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource([jetleg_bringup_share, '/launch', '/' + 'jetleg_bringup.launch.py']),
     )
     
-    return LaunchDescription([rviz_arg, teleop_node, pybullet_sim, rviz_node])
+    ld = LaunchDescription()
+
+    ld.add_action(model_arg)
+    ld.add_action(gait_generator_node)
+
+    ld.add_action(sim_launch)
+
+    return ld

@@ -7,7 +7,7 @@
     Y_MIN:                  -1.0
     Y_MAX:                  1.5
 
-    Z_MIN:                  1.0
-    Z_MAX:                  1.5
+    Z_MIN:                  0.5
+    Z_MAX:                  2.0
 
     resolution:             80

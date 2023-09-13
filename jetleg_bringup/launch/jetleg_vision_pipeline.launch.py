@@ -1,61 +1,63 @@
-import os
-from ament_index_python.packages import get_package_share_directory
+from launch import LaunchDescription
+from launch.conditions import IfCondition
+from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument
+from launch.substitutions import LaunchConfiguration
+from launch.launch_description_sources import PythonLaunchDescriptionSource
 
 from launch_ros.actions import Node
-from launch import LaunchDescription
-from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.actions import IncludeLaunchDescription
+from launch_ros.substitutions import FindPackageShare
+
+
+def add_launch_argument(name: str, default: str, description: str) -> tuple:
+    launch_config = LaunchConfiguration(name)
+
+    launch_arg = DeclareLaunchArgument(
+        name, 
+        default_value=default,
+        description=description
+    )
+    
+    return launch_config, launch_arg
+
+def add_launch_file(package_name: str, launch_name: str, conditional=None):
+    package = FindPackageShare(package_name)
+
+    launch_condition = None
+    if conditional is not None:
+        launch_condition = IfCondition(
+            conditional
+        )
+
+    launch_file = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource([package, '/launch', '/' + launch_name]),
+        condition=launch_condition
+    )
+
+    return launch_file
+
 
 def generate_launch_description():
-    jetleg_bringup_dir = get_package_share_directory('jetleg_bringup')
-    jetleg_vision_dir = get_package_share_directory('jetleg_vision')
 
-    jetleg_pointcloud_launch_dir = os.path.join(jetleg_bringup_dir, 'launch')
-
-    jetleg_pointcloud_launch = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource([jetleg_pointcloud_launch_dir,
-            '/jetleg_pointcloud_vision.launch.py'])
+    _, use_rviz_arg = add_launch_argument(
+        'use_rviz',
+        default='True',
+        description='Specifies to use RVIZ for visualization'
     )
 
-    pointcloud_proc_params_file = os.path.join('config/params.yaml')
-    pointcloud_proc_params = os.path.join(jetleg_vision_dir, pointcloud_proc_params_file)
+    sim_launch = add_launch_file('jetleg_bringup', 'jetleg_bringup.launch.py')
+    rsp = add_launch_file('jetleg_bringup', 'rsp.launch.py')
 
-    jetleg_pointcloud_proc_cpp = Node(
-        package='jetleg_vision',
-        executable='jetleg_pointcloud_proc',
-        parameters=pointcloud_proc_params,
-        remappings=[('/pointcloud', '/points'),
-                    ('camera_state', 'camera/state')]
+    pointcloud_proc = Node(
+        package="jetleg_vision",
+        executable="jetleg_pointcloud_proc.py",
+        remappings=[('/zed2i/zed_node/point_cloud/cloud_registered', '/camera/points')]
     )
 
-    image_to_map_node = Node(
-        package='map_to_jpeg',
-        executable='image_to_map_node',
-        parameters=[{'frame_id': 'transformed_map'}],
-        remappings=[('image', 'traversibility')]
-    )
+    ld = LaunchDescription()
 
-    static_transform = Node(
-        package='tf2_ros',
-        executable='static_transform_publisher',
-        arguments=['0', '0', '0', '0.0', '1.0', '0.0', '0.0', 'camera_link', 'partial_transformed_map']
-    )
+    ld.add_action(use_rviz_arg)
+    ld.add_action(sim_launch)
+    ld.add_action(rsp)
+    ld.add_action(pointcloud_proc)
 
-    another_transform = Node(
-        package='tf2_ros',
-        executable='static_transform_publisher',
-        arguments=['0', '0', '0', '-0.5733227', '0.0', '0.0', '0.8193297', 'partial_transformed_map', 'partial_partial_transformed_map']
-    )
-
-    third_transform = Node(
-        package='tf2_ros',
-        executable='static_transform_publisher',
-        arguments=['0', '3', '-1', '0', '0.0', '0.0', '1', 'partial_partial_transformed_map', 'transformed_map']
-    )
-
-    return LaunchDescription([jetleg_pointcloud_launch, 
-                                jetleg_pointcloud_proc_cpp, 
-                                image_to_map_node, 
-                                static_transform, 
-                                another_transform,
-                                third_transform])
+    return ld

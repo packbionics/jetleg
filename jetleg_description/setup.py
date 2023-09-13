@@ -22,7 +22,7 @@ def glob_recursive(data_files, directory):
             glob_recursive(data_files, dir)
         return data_files
 
-data_directories = ['launch', 'rviz', 'urdf', 'ros2_control']
+data_directories = ['launch', 'rviz', 'urdf', 'ros2_control', 'sdf']
 
 for directory in data_directories:
     glob_recursive(data_files, directory)
