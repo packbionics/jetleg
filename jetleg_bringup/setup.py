@@ -22,7 +22,7 @@ def glob_recursive(data_files, directory):
         for dir in subdirectories:
             glob_recursive(data_files, dir)
 
-data_directories = ['launch', 'resource', 'config']
+data_directories = ['launch', 'resource', 'config', 'world']
 
 for directory in data_directories:
     glob_recursive(data_files, directory)
