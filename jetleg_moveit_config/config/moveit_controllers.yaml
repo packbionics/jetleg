@@ -1,0 +1,37 @@
+# MoveIt uses this configuration for controller management
+
+moveit_controller_manager: moveit_simple_controller_manager/MoveItSimpleControllerManager
+
+moveit_simple_controller_manager:
+  controller_names:
+    - jetleg_controller
+    - jetleg_intact_controller
+    - foot_controller
+    - foot_intact_controller
+
+  jetleg_controller:
+    type: FollowJointTrajectory
+    action_ns: follow_joint_trajectory
+    default: true
+    joints:
+      - vertical_rail_to_mount
+      - knee_joint
+  jetleg_intact_controller:
+    type: FollowJointTrajectory
+    action_ns: follow_joint_trajectory
+    default: true
+    joints:
+      - vertical_rail_to_mount_intact
+      - knee_joint_intact
+  foot_controller:
+    type: FollowJointTrajectory
+    action_ns: follow_joint_trajectory
+    default: true
+    joints:
+      - ankle_joint
+  foot_intact_controller:
+    type: FollowJointTrajectory
+    action_ns: follow_joint_trajectory
+    default: true
+    joints:
+      - ankle_joint_intact
