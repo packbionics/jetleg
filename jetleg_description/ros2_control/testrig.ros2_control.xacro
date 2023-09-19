@@ -46,15 +46,6 @@
           </state_interface>
       </joint>
 
-      <joint name="base_to_gantry">
-          <state_interface name="position">
-            <param name="initial_value">0.0</param>
-          </state_interface>
-          <state_interface name="velocity">
-            <param name="initial_value">0.0</param>
-          </state_interface>
-      </joint>
-
       <joint name="gantry_to_vertical_rail">
           <state_interface name="position">
             <param name="initial_value">0.0</param>
