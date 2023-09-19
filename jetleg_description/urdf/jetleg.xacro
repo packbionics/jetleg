@@ -13,6 +13,8 @@
     <xacro:property name="shank_mass" value="10" />
     <xacro:property name="foot_mass" value="1.5" />
 
+    <xacro:arg name="jetleg_initial_positions_file" default="$(find jetleg_description)/ros2_control/initial_positions.yaml" />
+
     <xacro:macro name="jetleg" params="identifier">
         <link name="thigh${identifier}">
             <visual>
@@ -102,6 +104,10 @@
             <axis xyz="0 1 0"/>
             <limit effort="100" lower="-0.1" upper="0.5" velocity="10"/>
         </joint>
-    </xacro:macro>
 
+        <!-- Import control_xacro -->
+        <xacro:include filename="$(find jetleg_description)/ros2_control/jetleg.ros2_control.xacro" />
+        <xacro:jetleg_ros2_control name="GazeboSystem" initial_positions_file="$(arg jetleg_initial_positions_file)" joint_label="${identifier}"/>
+
+    </xacro:macro>
 </robot>

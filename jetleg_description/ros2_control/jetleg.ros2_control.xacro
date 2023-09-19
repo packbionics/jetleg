@@ -1,40 +1,35 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
-
-  <xacro:macro name="jetleg_ros2_control" params="name">
+  <xacro:macro name="jetleg_ros2_control" params="name initial_positions_file joint_label">
+    <xacro:property name="initial_positions" value="${load_yaml(initial_positions_file)['initial_positions']}"/>
 
     <ros2_control name="${name}" type="system">
       <hardware>
-        <plugin>odrive_hardware_interface/ODriveHardwareInterface</plugin>
+        <!-- By default, set up controllers for simulation. This won't work on real hardware -->
+        <plugin>gazebo_ros2_control/GazeboSystem</plugin>
       </hardware>
+      
+      <joint name="knee_joint${joint_label}">
+        <command_interface name="position"/>
 
-      <sensor name="odrv0">
-        <param name="serial_number">000000000000</param>
-      </sensor>
-
-      <joint name="knee_joint">
-        <param name="serial_number">000000000000</param>
-        <param name="axis">0</param>
-        <param name="enable_watchdog">1</param>
-        <param name="watchdog_timeout">0.1</param>
+        <state_interface name="position">
+          <param name="initial_value">${initial_positions['knee_joint']}</param>
+        </state_interface>
+        <state_interface name="velocity">
+          <param name="initial_value">0.0</param>
+        </state_interface>
       </joint>
+      <joint name="ankle_joint${joint_label}">
+        <command_interface name="position"/>
 
-      <joint name="ankle_joint">
-        <param name="serial_number">000000000000</param>
-        <param name="axis">1</param>
-        <param name="enable_watchdog">1</param>
-        <param name="watchdog_timeout">0.1</param>
-      </joint>
-
-      <joint name="gantry_to_mount">
-        <param name="serial_number">000000000000</param>
-        <param name="axis">1</param>
-        <param name="enable_watchdog">1</param>
-        <param name="watchdog_timeout">0.1</param>
+        <state_interface name="position">
+          <param name="initial_value">${initial_positions['ankle_joint']}</param>
+        </state_interface>
+        <state_interface name="velocity">
+          <param name="initial_value">0.0</param>
+        </state_interface>
       </joint>
 
     </ros2_control>
-
   </xacro:macro>
-
 </robot>
