@@ -32,62 +32,6 @@
         </state_interface>
       </joint>
 
-      <!-- Passive Joints -->
-
-      <joint name="wheel_hind_left_joint">
-          <state_interface name="position">
-            <param name="initial_value">${initial_positions['wheel_hind_left_joint']}</param>
-          </state_interface>
-          <state_interface name="velocity">
-            <param name="initial_value">0.0</param>
-          </state_interface>
-      </joint>
-
-      <joint name="wheel_hind_right_joint">
-          <state_interface name="position">
-            <param name="initial_value">${initial_positions['wheel_hind_right_joint']}</param>
-          </state_interface>
-          <state_interface name="velocity">
-            <param name="initial_value">0.0</param>
-          </state_interface>
-      </joint>
-
-      <joint name="wheel_fore_left_joint">
-          <state_interface name="position">
-            <param name="initial_value">${initial_positions['wheel_fore_left_joint']}</param>
-          </state_interface>
-          <state_interface name="velocity">
-            <param name="initial_value">0.0</param>
-          </state_interface>
-      </joint>
-
-      <joint name="wheel_fore_right_joint">
-          <state_interface name="position">
-            <param name="initial_value">${initial_positions['wheel_fore_right_joint']}</param>
-          </state_interface>
-          <state_interface name="velocity">
-            <param name="initial_value">0.0</param>
-          </state_interface>
-      </joint>
-
-      <joint name="base_to_gantry">
-          <state_interface name="position">
-            <param name="initial_value">${initial_positions['base_to_gantry']}</param>
-          </state_interface>
-          <state_interface name="velocity">
-            <param name="initial_value">0.0</param>
-          </state_interface>
-      </joint>
-
-      <joint name="gantry_to_vertical_rail">
-          <state_interface name="position">
-            <param name="initial_value">${initial_positions['gantry_to_vertical_rail']}</param>
-          </state_interface>
-          <state_interface name="velocity">
-            <param name="initial_value">0.0</param>
-          </state_interface>
-      </joint>
-
     </ros2_control>
   </xacro:macro>
 </robot>
