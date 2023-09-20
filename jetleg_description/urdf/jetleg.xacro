@@ -106,8 +106,8 @@
         </joint>
 
         <!-- Import control_xacro -->
-        <xacro:include filename="$(find jetleg_description)/ros2_control/jetleg.ros2_control.xacro" />
-        <xacro:jetleg_ros2_control name="GazeboSystem" initial_positions_file="$(arg jetleg_initial_positions_file)" joint_label="${identifier}"/>
+        <!-- <xacro:include filename="$(find jetleg_description)/ros2_control/jetleg.ros2_control.xacro" />
+        <xacro:jetleg_ros2_control name="GazeboSystem" initial_positions_file="$(arg jetleg_initial_positions_file)" joint_label="${identifier}"/> -->
 
     </xacro:macro>
 </robot>

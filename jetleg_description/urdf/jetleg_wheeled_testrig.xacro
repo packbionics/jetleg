@@ -132,7 +132,7 @@
     <xacro:arg name="initial_positions_file" default="$(find jetleg_description)/ros2_control/initial_positions.yaml" />
 
     <!-- Import control_xacro -->
-    <xacro:include filename="$(find jetleg_description)/ros2_control/jetleg_wheeled_testrig.ros2_control.xacro" />
+    <!-- <xacro:include filename="$(find jetleg_description)/ros2_control/jetleg_wheeled_testrig.ros2_control.xacro" />
     <xacro:jetleg_wheeled_testrig_ros2_control name="GazeboSystem" initial_positions_file="$(arg initial_positions_file)"/>
 
     <gazebo>
@@ -142,7 +142,7 @@
             <robot_param>robot_description</robot_param>
             <robot_param_node>robot_state_publisher</robot_param_node>
         </plugin>
-    </gazebo>
+    </gazebo> -->
 
 
 </robot>

@@ -10,31 +10,31 @@ default_acceleration_scaling_factor: 0.1
 joint_limits:
   ankle_joint:
     has_velocity_limits: true
-    max_velocity: 10
-    has_acceleration_limits: false
-    max_acceleration: 0
+    max_velocity: 10.0
+    has_acceleration_limits: true
+    max_acceleration: 10.0
   ankle_joint_intact:
     has_velocity_limits: true
-    max_velocity: 10
-    has_acceleration_limits: false
-    max_acceleration: 0
+    max_velocity: 10.0
+    has_acceleration_limits: true
+    max_acceleration: 10.0
   knee_joint:
     has_velocity_limits: true
-    max_velocity: 10
-    has_acceleration_limits: false
-    max_acceleration: 0
+    max_velocity: 10.0
+    has_acceleration_limits: true
+    max_acceleration: 10.0
   knee_joint_intact:
     has_velocity_limits: true
-    max_velocity: 10
-    has_acceleration_limits: false
-    max_acceleration: 0
+    max_velocity: 10.0
+    has_acceleration_limits: true
+    max_acceleration: 10.0
   vertical_rail_to_mount:
     has_velocity_limits: true
-    max_velocity: 10
-    has_acceleration_limits: false
-    max_acceleration: 0
+    max_velocity: 10.0
+    has_acceleration_limits: true
+    max_acceleration: 10.0
   vertical_rail_to_mount_intact:
     has_velocity_limits: true
-    max_velocity: 10
-    has_acceleration_limits: false
-    max_acceleration: 0
+    max_velocity: 10.0
+    has_acceleration_limits: true
+    max_acceleration: 10.0

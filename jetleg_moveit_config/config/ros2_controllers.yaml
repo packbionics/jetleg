@@ -11,14 +11,6 @@ controller_manager:
       type: joint_trajectory_controller/JointTrajectoryController
 
 
-    foot_controller:
-      type: joint_trajectory_controller/JointTrajectoryController
-
-
-    foot_intact_controller:
-      type: joint_trajectory_controller/JointTrajectoryController
-
-
     joint_state_broadcaster:
       type: joint_state_broadcaster/JointStateBroadcaster
 
@@ -27,6 +19,7 @@ jetleg_controller:
     joints:
       - vertical_rail_to_mount
       - knee_joint
+      - ankle_joint
     command_interfaces:
       - position
     state_interfaces:
@@ -37,22 +30,7 @@ jetleg_intact_controller:
     joints:
       - vertical_rail_to_mount_intact
       - knee_joint_intact
-    command_interfaces:
-      - position
-    state_interfaces:
-      - position
-      - velocity
-foot_controller:
-  ros__parameters:
-    joint: ankle_joint
-    command_interfaces:
-      - position
-    state_interfaces:
-      - position
-      - velocity
-foot_intact_controller:
-  ros__parameters:
-    joint: ankle_joint_intact
+      - ankle_joint_intact
     command_interfaces:
       - position
     state_interfaces:
