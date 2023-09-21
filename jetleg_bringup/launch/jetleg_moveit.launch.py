@@ -47,7 +47,7 @@ def generate_launch_description():
             ])
         )
     )
-    ld.add_action(spawn_controllers)
+    # ld.add_action(spawn_controllers)
 
     static_virtual_joint_tfs = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
