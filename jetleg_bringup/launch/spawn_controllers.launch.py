@@ -8,7 +8,7 @@ def generate_launch_description():
     for controller in controller_list:
         ld.add_action(Node(
             package='controller_manager',
-            executable='spawner.py',
+            executable='spawner',
             arguments=[controller]
         ))
 

@@ -10,7 +10,7 @@ def generate_launch_description() -> LaunchDescription:
 
   # Path to staircase description
   world_path = PathJoinSubstitution([
-    FindPackageShare("gazebo_env"), 
+    FindPackageShare("jetleg_bringup"), 
     'world/staircase_obstacle.world'
   ])
 
@@ -63,8 +63,8 @@ def generate_launch_description() -> LaunchDescription:
   # Add Gazebo to launch step
   ld.add_action(gazebo_ros)
 
-  # Spawn ros2_controllers
-  ld.add_action(spawn_controls)
+  # # Spawn ros2_controllers
+  # ld.add_action(spawn_controls)
 
   # Optionally show Rviz2 Display
   ld.add_action(rviz)

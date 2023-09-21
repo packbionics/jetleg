@@ -14,7 +14,7 @@ def generate_launch_description() -> LaunchDescription:
   # Publish robot description as topic
   
   jetleg_description_path = FindPackageShare("jetleg_description")
-  xacro_path = PathJoinSubstitution([jetleg_description_path, 'urdf/jetleg_testrig_vision.xacro'])
+  xacro_path = PathJoinSubstitution([jetleg_description_path, 'urdf/jetleg_wheeled_testrig.xacro'])
 
   model_arg = DeclareLaunchArgument(
         'model',
@@ -28,8 +28,8 @@ def generate_launch_description() -> LaunchDescription:
       )
   )
 
-  ld.add_action(model_arg)
-  ld.add_action(rsp)
+#   ld.add_action(model_arg)
+#   ld.add_action(rsp)
 
   # Spawn Jetleg in Gazebo
 

@@ -92,6 +92,6 @@
 
     <!-- Import control_xacro -->
     <!-- <xacro:include filename="$(find jetleg_description)/ros2_control/testrig.ros2_control.xacro" />
-    <xacro:testrig_ros2_control name="GazeboSystem" /> -->
+    <xacro:testrig_ros2_control name="TestrigGazeboSystem" /> -->
 
 </robot>

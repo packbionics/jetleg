@@ -129,20 +129,20 @@
         <limit effort="100" velocity="10" lower="0" upper="0.6" />
     </joint>
 
-    <xacro:arg name="initial_positions_file" default="$(find jetleg_description)/ros2_control/initial_positions.yaml" />
+    <!-- <xacro:arg name="initial_positions_file" default="$(find jetleg_description)/ros2_control/initial_positions.yaml" /> -->
 
     <!-- Import control_xacro -->
     <!-- <xacro:include filename="$(find jetleg_description)/ros2_control/jetleg_wheeled_testrig.ros2_control.xacro" />
-    <xacro:jetleg_wheeled_testrig_ros2_control name="GazeboSystem" initial_positions_file="$(arg initial_positions_file)"/>
+    <xacro:jetleg_wheeled_testrig_ros2_control name="JetlegTestrigGazeboSystem" initial_positions_file="$(arg initial_positions_file)"/> -->
 
     <gazebo>
         <plugin filename="libgazebo_ros2_control.so" name="gazebo_ros2_control">
-            <parameters>$(find jetleg_description)/ros2_control/ros2_controllers.yaml</parameters>
+            <parameters>$(find jetleg_moveit_config)/config/ros2_controllers.yaml</parameters>
 
             <robot_param>robot_description</robot_param>
             <robot_param_node>robot_state_publisher</robot_param_node>
         </plugin>
-    </gazebo> -->
+    </gazebo>
 
 
 </robot>
