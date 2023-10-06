@@ -18,8 +18,8 @@ class JetLegGait(Node):
     def __init__(self):
         super().__init__('jetleg_gait_generator')
         
-        self.follow_trajectory_client = ActionClient(self, FollowJointTrajectory, 'leg_controller/follow_joint_trajectory')
-        self.follow_trajectory_client_intact = ActionClient(self, FollowJointTrajectory, 'leg_intact_controller/follow_joint_trajectory')
+        self.follow_trajectory_client = ActionClient(self, FollowJointTrajectory, 'jetleg_controller/follow_joint_trajectory')
+        self.follow_trajectory_client_intact = ActionClient(self, FollowJointTrajectory, 'jetleg_intact_controller/follow_joint_trajectory')
 
         self.hip_setpoints_quick = np.array([40,38,30,18,3,-5,0,20,37,41], dtype=np.float32)
         self.hip_setpoints_quick = -(self.hip_setpoints_quick - 15) * 0.8

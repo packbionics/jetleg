@@ -29,26 +29,6 @@ def generate_launch_description():
     )
     ld.add_action(moveit_rviz)
 
-    rsp = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            PathJoinSubstitution([
-                FindPackageShare("jetleg_moveit_config"),
-                "launch/rsp.launch.py"
-            ])
-        )
-    )
-    ld.add_action(rsp)
-
-    spawn_controllers = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            PathJoinSubstitution([
-                FindPackageShare("jetleg_moveit_config"),
-                "launch/spawn_controllers.launch.py"
-            ])
-        )
-    )
-    # ld.add_action(spawn_controllers)
-
     static_virtual_joint_tfs = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             PathJoinSubstitution([

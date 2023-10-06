@@ -1,8 +1,9 @@
 from launch import LaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument
-from launch.substitutions import PathJoinSubstitution
+from launch.substitutions import PathJoinSubstitution, Command, LaunchConfiguration
 
+from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 
 
@@ -24,6 +25,8 @@ def generate_launch_description() -> LaunchDescription:
     FindPackageShare("jetleg_moveit_config"),
     "config", "jetleg_wheeled_testrig.urdf.xacro"
   ])
+
+  model = LaunchConfiguration("model")
 
   ld = LaunchDescription()
 
@@ -71,14 +74,6 @@ def generate_launch_description() -> LaunchDescription:
   )
   ld.add_action(rviz)
 
-  # Load Jetleg into the world
-  spawn_jetleg = IncludeLaunchDescription(
-    PythonLaunchDescriptionSource(
-      PathJoinSubstitution([FindPackageShare("jetleg_bringup"), 'launch/spawn_jetleg.launch.py'])
-    )
-  )
-  ld.add_action(spawn_jetleg)
-
   # Begin publishing robot state
   rsp = IncludeLaunchDescription(
       PythonLaunchDescriptionSource(
@@ -90,5 +85,19 @@ def generate_launch_description() -> LaunchDescription:
   )
   ld.add_action(rsp)
 
+  robot_urdf = Command(['xacro', ' ', model])
+  controller_manager_params = PathJoinSubstitution([
+    FindPackageShare("jetleg_moveit_config"),
+    "config", "ros2_controllers.yaml"
+  ])
+
+  controller_manager = Node(
+    package="controller_manager",
+    executable="ros2_control_node",
+    parameters=[
+      {"robot_description": robot_urdf},
+      controller_manager_params]
+  )
+  ld.add_action(controller_manager)
 
   return ld
