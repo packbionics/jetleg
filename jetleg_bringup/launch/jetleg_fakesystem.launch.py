@@ -45,18 +45,19 @@ def generate_launch_description() -> LaunchDescription:
 
   ld.add_action(gui_arg)
 
+  # Specify RVIZ config
+  rviz_config_arg = DeclareLaunchArgument(
+    'rvizconfig', 
+    default_value=PathJoinSubstitution([FindPackageShare("jetleg_bringup"), 'config/jetleg_gazebo.rviz']),
+  )
+  ld.add_action(rviz_config_arg)
+  
   # Specify robot path
   model_arg = DeclareLaunchArgument(
     "model",
     default_value=model_path
   )
   ld.add_action(model_arg)
-
-  # Add Gazebo to launch step
-  gazebo_ros = IncludeLaunchDescription(
-    PythonLaunchDescriptionSource(gazebo_launch_path)
-  )
-  ld.add_action(gazebo_ros)
 
   # Spawn ros2_controllers
   spawn_controls = IncludeLaunchDescription(
