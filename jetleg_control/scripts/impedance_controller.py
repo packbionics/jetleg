@@ -1,6 +1,8 @@
 #!/usr/bin/python3
 
 import rclpy
+from rcl_interfaces.msg import ParameterDescriptor
+from rcl_interfaces.msg import ParameterType
 from rclpy.publisher import Publisher
 from rclpy.qos import qos_profile_system_default
 
@@ -18,7 +20,7 @@ class ImpedanceParams:
     equilibrium: float
 
 
-def compute_torque(position: float, velocity: float, params: ImpedanceParams) -> float:
+def compute_command(position: float, velocity: float, params: ImpedanceParams) -> float:
     error = params.equilibrium - position
     return params.stiffness * error - params.damping * velocity
 
@@ -43,15 +45,14 @@ class ImpedanceParamsManager:
         if len(req.stiffness) != self.n_joints:
             return
         
+        # Use values given in the request
         if self.impedance_params is None:
             self.impedance_params = list()
 
-            # Use values given in the request
             for i in range(len(req.stiffness)):
                 self.impedance_params.append(req.stiffness[i], req.damping[i], req.equilibrium[i])
         else:
-
-            # Use values given in the request
+            
             for i in range(len(req.stiffness)):
                 self.impedance_params[i].stiffness = req.stiffness[i]
                 self.impedance_params[i].damping = req.damping[i]
@@ -76,7 +77,7 @@ class JointStateManager:
 
 
 class CmdPubManager:
-    def __init__(self, joints: List[str], publisher: Publisher, ipm: ImpedanceParamsManager, jsm: JointStateManager, msg: Float64MultiArray = None):
+    def __init__(self, joints: List[str], publisher: Publisher, ipm: ImpedanceParamsManager, jsm: JointStateManager):
         
         # Publisher to the commands topic
         self.publisher = publisher
@@ -90,13 +91,17 @@ class CmdPubManager:
         # Maintains list of controllable joints
         self.joints = joints
 
-        # Maintains the most recent command to send to the low-level controller
-        self.msg = msg
+        # Maintains the most recent command to sent to the low-level controller
+        self.msg = Float64MultiArray()
 
         self.msg.data.extend([0.0] * len(self.joints))
 
 
     def command_callback(self):
+
+        # Wait to receive initial list of parameters before proceeding
+        if self.ipm.impedance_params is None:
+            return
 
         # Populate message with command values
         for joint_idx in range(len(self.joints)):
@@ -104,7 +109,7 @@ class CmdPubManager:
             if joint_state is None:
                 continue
 
-            signal = compute_torque(joint_state[0], joint_state[1], self.ipm.impedance_params[joint_idx])
+            signal = compute_command(joint_state[0], joint_state[1], self.ipm.impedance_params[joint_idx])
             self.msg.data[joint_idx] = signal
 
         self.publisher.publish(self.msg)
@@ -119,7 +124,14 @@ def main():
     node = rclpy.create_node("impedance_controller")
 
     # Access the controllable joints
-    joints = node.get_parameter("joints")
+    node.declare_parameter(
+        "joints", 
+        [''],
+        ParameterDescriptor(
+            name="joints",
+            type=ParameterType.PARAMETER_STRING_ARRAY
+        ))
+    joints = node.get_parameter("joints").get_parameter_value().string_array_value
 
     ipm = ImpedanceParamsManager(len(joints))
     jsm = JointStateManager(None)
@@ -129,7 +141,7 @@ def main():
     cpm = CmdPubManager(joints, forward_pub, ipm, jsm)
 
     # Create a subscriber to the joint states topic
-    joint_state_sub = node.create_subscription(JointState, "joint_states", jsm.joint_state_callback)
+    joint_state_sub = node.create_subscription(JointState, "joint_states", jsm.joint_state_callback, qos_profile_system_default)
 
     # Create timer to periodically send commands to the forward controller
     RATE = 0.01

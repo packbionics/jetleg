@@ -1,0 +1,6 @@
+impedance_controller:
+  ros__parameters:
+    joints:
+      - vertical_rail_to_mount
+      - knee_joint
+      - ankle_joint
