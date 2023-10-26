@@ -23,6 +23,7 @@ install(PROGRAMS
     scripts/jetleg_teleop_key.py
     scripts/forwarder.py
     scripts/Service.py
+    scripts/send_cmd.py
 
     DESTINATION lib/${PROJECT_NAME}
 )
