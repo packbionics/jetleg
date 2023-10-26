@@ -5,6 +5,8 @@ from packbionics_interfaces.srv._update_impedance import UpdateImpedance
 import rclpy
 from rclpy.node import Node
 
+import math
+
 
 class MinimalClientAsync(Node):
 
@@ -29,9 +31,9 @@ def main(args=None):
 
     minimal_client = MinimalClientAsync()
 
-    stiffness = [1.0,1.0,0.0]
-    damping = [1.0 , 1.0 , 0.0]
-    equilibrium = [1.0 , 1.0, 0.0]
+    stiffness = [1000.0,1000.0,1000.0]
+    damping = [0.0 , 0.0 , 0.0]
+    equilibrium = [math.radians((40 - 15) * 0.8) , math.radians(60), math.radians(102 - 90)]
     stiffness = array('d', stiffness)
     damping = array('d', damping)
     equilibrium = array('d', equilibrium)

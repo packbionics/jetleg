@@ -4,11 +4,11 @@ controller_manager:
     update_rate: 100  # Hz
 
     jetleg_controller:
-      type: joint_trajectory_controller/JointTrajectoryController
+      type: impedance_controller/ImpedanceController
 
 
     jetleg_intact_controller:
-      type: joint_trajectory_controller/JointTrajectoryController
+      type: impedance_controller/ImpedanceController
 
 
     joint_state_broadcaster:
@@ -20,8 +20,9 @@ jetleg_controller:
       - vertical_rail_to_mount
       - knee_joint
       - ankle_joint
+    interface_name: acceleration
     command_interfaces:
-      - position
+      - acceleration
     state_interfaces:
       - position
       - velocity
@@ -31,6 +32,7 @@ jetleg_intact_controller:
       - vertical_rail_to_mount_intact
       - knee_joint_intact
       - ankle_joint_intact
+    interface_name: acceleration
     command_interfaces:
       - position
     state_interfaces:
