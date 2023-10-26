@@ -24,6 +24,7 @@ install(PROGRAMS
     scripts/forwarder.py
     scripts/Service.py
     scripts/impedance_controller.py
+    scripts/send_impedance_update.py
 
     DESTINATION lib/${PROJECT_NAME}
 )

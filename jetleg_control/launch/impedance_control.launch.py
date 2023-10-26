@@ -17,7 +17,8 @@ def generate_launch_description():
     impedance_controller = Node(
         package="jetleg_control",
         executable="impedance_controller.py",
-        parameters=[impedance_params_file]
+        parameters=[impedance_params_file],
+        remappings=[("commands", "jetleg_controller/commands")]
     )
     ld.add_action(impedance_controller)
 

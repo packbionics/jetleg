@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 import rclpy
 from rclpy.client import Client
 
@@ -23,13 +25,13 @@ def main():
 
     node = rclpy.create_node("impedance_updater")
 
-    node.create_client(UpdateImpedance, "update_impedance")
+    client = node.create_client(UpdateImpedance, "update_impedance")
 
-    stiffness = [1.0, 1.0, 1.0]
-    damping = [0.0, 0.0, 0.0]
+    stiffness = [10.0, 10.0, 10.0]
+    damping = [5.0, 5.0, 5.0]
     equilibrium = [math.radians(40 - 15) * 0.8, math.radians(60), math.radians(102 - 90)]
 
-    future = send_request(stiffness, damping, equilibrium)
+    future = send_request(client, stiffness, damping, equilibrium)
     rclpy.spin_until_future_complete(node, future)
 
     node.get_logger().info("Result received")

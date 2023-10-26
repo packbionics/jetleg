@@ -50,13 +50,16 @@ class ImpedanceParamsManager:
             self.impedance_params = list()
 
             for i in range(len(req.stiffness)):
-                self.impedance_params.append(req.stiffness[i], req.damping[i], req.equilibrium[i])
+                new_params = ImpedanceParams(req.stiffness[i], req.damping[i], req.equilibrium[i])
+                self.impedance_params.append(new_params)
         else:
             
             for i in range(len(req.stiffness)):
                 self.impedance_params[i].stiffness = req.stiffness[i]
                 self.impedance_params[i].damping = req.damping[i]
                 self.impedance_params[i].equilibrium = req.equilibrium[i]
+
+        return resp
 
 
 class JointStateManager:
@@ -137,7 +140,7 @@ def main():
     jsm = JointStateManager(None)
 
     # Create a publisher that sends commands to the forward controller
-    forward_pub = node.create_publisher(Float64MultiArray, "command", qos_profile_system_default)
+    forward_pub = node.create_publisher(Float64MultiArray, "commands", qos_profile_system_default)
     cpm = CmdPubManager(joints, forward_pub, ipm, jsm)
 
     # Create a subscriber to the joint states topic
