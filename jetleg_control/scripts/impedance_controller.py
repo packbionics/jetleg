@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 import rclpy
+from rclpy.node import Node
 from rcl_interfaces.msg import ParameterDescriptor
 from rcl_interfaces.msg import ParameterType
 from rclpy.publisher import Publisher
@@ -27,7 +28,10 @@ def compute_command(position: float, velocity: float, params: ImpedanceParams) -
 
 class ImpedanceParamsManager:
 
-    def __init__(self, n_joints: int):
+    def __init__(self, node: Node, n_joints: int):
+
+        # Stores the node which shall manage the impedance update service
+        self.node = node
 
         # Stores the number of controllable joints
         self.n_joints = n_joints
@@ -37,6 +41,10 @@ class ImpedanceParamsManager:
 
     def update_impedance_callback(self, req: UpdateImpedance.Request, resp: UpdateImpedance.Response):
         
+        # Acknowledge request
+        self.node.get_logger().info("Request received")
+        self.node.get_logger().info(repr(req))
+
         # Ensure the request is properly formatted
         if len(req.stiffness) != len(req.damping) or len(req.stiffness) != len(req.equilibrium):
             return
@@ -58,6 +66,8 @@ class ImpedanceParamsManager:
                 self.impedance_params[i].stiffness = req.stiffness[i]
                 self.impedance_params[i].damping = req.damping[i]
                 self.impedance_params[i].equilibrium = req.equilibrium[i]
+
+        self.node.get_logger().info("Request handled")
 
         return resp
 
@@ -136,7 +146,7 @@ def main():
         ))
     joints = node.get_parameter("joints").get_parameter_value().string_array_value
 
-    ipm = ImpedanceParamsManager(len(joints))
+    ipm = ImpedanceParamsManager(node, len(joints))
     jsm = JointStateManager(None)
 
     # Create a publisher that sends commands to the forward controller
