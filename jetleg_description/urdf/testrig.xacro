@@ -82,12 +82,12 @@
         <child link="gantry"/>
     </joint>
 
-    <joint name="gantry_to_vertical_rail" type="prismatic">
+    <joint name="gantry_to_vertical_rail" type="fixed">
         <origin rpy="0 0 0" xyz="0 0 0"/>
         <parent link="gantry"/>
         <child link="vertical_rail"/>
-        <limit effort="100" lower="-0.5" upper="0.0" velocity="10"/>
-        <axis xyz="0 0 1"/>
+        <!-- <limit effort="100" lower="-0.5" upper="0.0" velocity="10"/>
+        <axis xyz="0 0 1"/> -->
     </joint>
 
 </robot>

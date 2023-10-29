@@ -20,7 +20,7 @@ jetleg_controller:
       - vertical_rail_to_mount
       - knee_joint
       - ankle_joint
-    interface_name: acceleration
+    interface_name: effort
     command_interfaces:
       - acceleration
     state_interfaces:
@@ -32,7 +32,7 @@ jetleg_intact_controller:
       - vertical_rail_to_mount_intact
       - knee_joint_intact
       - ankle_joint_intact
-    interface_name: acceleration
+    interface_name: effort
     command_interfaces:
       - position
     state_interfaces:
