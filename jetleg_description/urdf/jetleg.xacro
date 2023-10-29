@@ -9,8 +9,8 @@
     <xacro:property name="foot_width" value="0.1" />
     <xacro:property name="foot_height" value="0.05" />
 
-    <xacro:property name="thigh_mass" value="20" />
-    <xacro:property name="shank_mass" value="10" />
+    <xacro:property name="thigh_mass" value="1" />
+    <xacro:property name="shank_mass" value="1" />
     <xacro:property name="foot_mass" value="1.5" />
 
     <xacro:macro name="jetleg" params="identifier">

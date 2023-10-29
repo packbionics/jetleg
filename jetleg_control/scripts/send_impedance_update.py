@@ -5,7 +5,7 @@ from rclpy.client import Client
 
 from packbionics_interfaces.srv import UpdateImpedance
 
-import math
+import time
 import numpy as np
 
 from typing import List
@@ -19,7 +19,8 @@ def send_request(client: Client, stiffness: List[float], damping: List[float], e
     request.damping = array('d', damping)
     request.equilibrium = array('d', equilibrium)
 
-    return client.call_async(request)
+    future = client.call_async(request)
+    return future
 
 def main():
     rclpy.init()
@@ -28,14 +29,14 @@ def main():
 
     client = node.create_client(UpdateImpedance, "update_impedance")
 
-    stiffness = [30.0, 30.0, 30.0]
-    damping = [30.0, 30.0, 30.0]
+    stiffness = [40.0, 40.0, 40.0]
+    damping = [40.0, 40.0, 40.0]
 
     equilibrium = np.array([
-        [15, 0, 0],
-        [-20, 0, -12],
-        [15, 60, 2.5],
-        [15, 0, 2.5]
+        [0, 0, 0],
+        [40, 0, -12],
+        [-40, 90, 2.5],
+        [-40, 0, 2.5]
     ])
 
     equilibrium = np.radians(equilibrium)
@@ -46,6 +47,8 @@ def main():
     # equilibrium = [math.radians(40 - 15) * 0.8, math.radians(60), math.radians(102 - 90)]
 
     future = send_request(client, stiffness, damping, equilibrium[idx])
+
+    node.get_logger().info("Request sent")
     rclpy.spin_until_future_complete(node, future)
 
     node.get_logger().info("Result received")
