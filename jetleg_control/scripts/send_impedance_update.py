@@ -63,7 +63,8 @@ def get_damping(params: RosParams) -> np.array:
     return np.reshape(params.damping, (len(params.phases), len(params.joints)))
 
 def get_equilibrium(params: RosParams) -> np.array:
-    return np.reshape(params.equilibrium, (len(params.phases), len(params.joints)))
+    equilibrium = np.reshape(params.equilibrium, (len(params.phases), len(params.joints)))
+    return np.radians(equilibrium)
 
 def main():
     rclpy.init()
