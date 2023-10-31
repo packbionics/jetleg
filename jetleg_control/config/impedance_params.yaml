@@ -6,14 +6,9 @@
       - swing_flexion
       - swing_extension
     joints:
-      - vertical_rail_to_mount
       - knee_joint
       - ankle_joint
     stiffness:
-      - 40.0
-      - 40.0
-      - 40.0
-      - 40.0
       - 40.0
       - 40.0
       - 40.0
@@ -31,20 +26,12 @@
       - 40.0
       - 40.0
       - 40.0
-      - 40.0
-      - 40.0
-      - 40.0
-      - 40.0
     equilibrium:
       - 0.0
       - 0.0
       - 0.0
-      - 40.0
-      - 0.0
       - -12.0
-      - -40.0
       - 90.0
       - 2.5
-      - 40.0
       - 0.0
       - 2.5

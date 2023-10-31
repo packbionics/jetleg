@@ -44,17 +44,17 @@ def read_parameters(node: Node) -> RosParams:
     params = RosParams(None, None, None, None, None)
 
     # Retrieve list of gait phases
-    params.phases = node.get_parameter("phases").get_parameter_value().string_array_value
+    phases = node.get_parameter("phases").get_parameter_value().string_array_value
 
     # Retrieve list of controlled joints
-    params.joints = node.get_parameter("joints").get_parameter_value().string_array_value
+    joints = node.get_parameter("joints").get_parameter_value().string_array_value
 
     # Retrieve ordered list of impedance parameters
-    params.stiffness = node.get_parameter("stiffness").get_parameter_value().double_array_value
-    params.damping = node.get_parameter("damping").get_parameter_value().double_array_value
-    params.equilibrium = node.get_parameter("equilibrium").get_parameter_value().double_array_value
+    stiffness = node.get_parameter("stiffness").get_parameter_value().double_array_value
+    damping = node.get_parameter("damping").get_parameter_value().double_array_value
+    equilibrium = node.get_parameter("equilibrium").get_parameter_value().double_array_value
     
-    return params
+    return RosParams(phases, joints, stiffness, damping, equilibrium)
 
 def get_stiffness(params: RosParams) -> np.array:
     return np.reshape(params.stiffness, (len(params.phases), len(params.joints)))

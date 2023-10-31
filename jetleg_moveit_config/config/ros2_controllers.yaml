@@ -17,7 +17,6 @@ controller_manager:
 jetleg_controller:
   ros__parameters:
     joints:
-      - vertical_rail_to_mount
       - knee_joint
       - ankle_joint
     interface_name: effort
