@@ -10,7 +10,7 @@
                 <!-- <plugin>fake_effort_interface/GenericSystem</plugin> -->
             </hardware>
             <joint name="vertical_rail_to_mount">
-                <command_interface name="effort"/>
+                <command_interface name="position"/>
                 <state_interface name="position">
                   <param name="initial_value">${initial_positions['vertical_rail_to_mount']}</param>
                 </state_interface>
