@@ -138,5 +138,13 @@
         </plugin>
     </gazebo>
 
+    <xacro:include filename="$(find jetleg_description)/urdf/jetleg_imu.xacro"/> 
+    <xacro:jetleg_imu />
+
+    <joint name="shank_imu_joint" type="fixed">
+        <parent link="shank"/>
+        <child link="shank_imu"/>
+        <origin xyz="0 0 ${-thigh_length/2-knee_joint_radius}" rpy="0 0 0"/>
+    </joint>
 
 </robot>
