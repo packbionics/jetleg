@@ -34,7 +34,7 @@ if(BUILD_TESTING)
   set(_pytest_tests
     test/test_gait_mode.py
     test/test_rule_list.py
-    # Add other test files here
+    test/test_rule_based_classifier.py
   )
   foreach(_test_path ${_pytest_tests})
     get_filename_component(_test_name ${_test_path} NAME_WE)
