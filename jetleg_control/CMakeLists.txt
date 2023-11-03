@@ -33,6 +33,7 @@ if(BUILD_TESTING)
   find_package(ament_cmake_pytest REQUIRED)
   set(_pytest_tests
     test/test_gait_mode.py
+    test/test_rule_list.py
     # Add other test files here
   )
   foreach(_test_path ${_pytest_tests})

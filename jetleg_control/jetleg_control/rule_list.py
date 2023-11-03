@@ -11,9 +11,9 @@ class RuleList:
     def __init__(self):
         """Constructs an empty mapping from condition to corresponding value"""
 
-        self.rule_map = Dict[ConditionFunc, int]
+        self.rule_map = dict()
 
-    def add_rule(self, condition_test: ConditionFunc, val: int):
+    def add_rule(self, condition_test: ConditionFunc, val: Tuple[int, int]):
         """Adds a new rule to the dictionary of (rule, value)"""
 
         self.rule_map.update({condition_test: val})
