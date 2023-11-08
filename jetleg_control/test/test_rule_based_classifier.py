@@ -1,11 +1,8 @@
 from jetleg_control.classifier import RuleBasedClassifier
 from jetleg_control.gait_mode import GaitMode, GaitPhase
-from jetleg_control.data import SensorData
 from jetleg_control.rule_list import RuleList
 
-
-def test_init():
-
+def construct() -> RuleList:
 
     num_phases = 4
     phases = list()
@@ -14,7 +11,10 @@ def test_init():
         phases.append(GaitPhase())
 
     startphase = phases[2]
+    
+    singleton_gait_modes = [GaitMode(phases)]
 
+    
     # Define set of rules for making transitions
     rule1 = lambda x, y: x == phases[0] and y.imu_mean > 5
     rule2 = lambda x, y: x == phases[0] and y.imu_mean <= 5
@@ -43,8 +43,11 @@ def test_init():
 
     simple_rule_list.add_rule(rule8, (0, 3))
     simple_rule_list.add_rule(rule9, (0, 0))
-    
-    singleton_gait_modes = [GaitMode(phases)]
+
+    return startphase, simple_rule_list, singleton_gait_modes
+
+
+def test_init():
 
     classifier = RuleBasedClassifier(startphase, simple_rule_list, singleton_gait_modes)
 
