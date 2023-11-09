@@ -3,6 +3,7 @@
 import rclpy
 from rclpy.node import Node
 from rclpy.client import Client
+from jetleg_control.gait_mode import GaitMode as GaitMode
 
 from packbionics_interfaces.srv import UpdateImpedance
 

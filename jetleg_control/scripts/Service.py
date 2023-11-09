@@ -5,8 +5,6 @@ from packbionics_interfaces.srv._update_impedance import UpdateImpedance
 import rclpy
 from rclpy.node import Node
 
-import math
-
 
 class MinimalClientAsync(Node):
 
@@ -24,6 +22,33 @@ class MinimalClientAsync(Node):
         self.future = self.cli.call_async(self.req)
         rclpy.spin_until_future_complete(self, self.future)
         return self.future.result()
+    
+
+    def GaitMode(Littlephase):
+        gait_phases = ["IC", "LR", "Ms", "TS", "Ps", "Is", "MS", "LS"]
+        gait_values = [[-1.0,0.0,1.0,- 1.0,0.0,1.0],[-1.0,-1.0,1.0, -1.0,0.0,1.0],[-1.0, 1.0,0.0, -1.0,0.0,1.0],[1.0,0.0,-1.0, -1.0,0.0,1.0],
+                       [-1.0,0.0,1.0, -1.0,0.0,1.0],[-1.0,-1.0,1.0], -1.0,0.0,1.0, [-1.0, 1.0,0.0, -1.0,0.0,1.0],[1.0,0.0,-1.0, -1.0,0.0,1.0]]
+        gp_orientation = dict(zip(gait_phases,gait_values))
+
+        if GaitPhase(Littlephase) == "Stance":
+
+    
+
+
+
+    def GaitPhase(Bigphase):
+        if Bigphase == "IC" or phase == "LR" or phase == "Ms" or phase == "TS":
+            return "Stance"
+        else:
+            return "Swing"
+
+        print("blobk")
+        return 5
+
+
+
+    
+
 
 
 def main(args=None):
@@ -31,9 +56,11 @@ def main(args=None):
 
     minimal_client = MinimalClientAsync()
 
-    stiffness = [1000.0,1000.0,1000.0]
-    damping = [0.0 , 0.0 , 0.0]
-    equilibrium = [math.radians((40 - 15) * 0.8) , math.radians(60), math.radians(102 - 90)]
+    stiffness = [1.0,1.0,0.0]
+    damping = [1.0 , 1.0 , 0.0]
+    equilibrium = [0.0 , 0.0, 0.0] 
+    
+
     stiffness = array('d', stiffness)
     damping = array('d', damping)
     equilibrium = array('d', equilibrium)
@@ -49,3 +76,24 @@ def main(args=None):
 
 if __name__ == '__main__':
     main()
+class GaitMode():
+        def __init__(self, BigPhase, LittlePhases, PhaseChosen):
+            self.BigPhase = BigPhase
+            self.LittlePhase = LittlePhases
+            self.PhaseChosen = PhaseChosen
+            self.gait_phase_list = ["IC", "LR", "Ms", "TS", "Ps", "Is", "MS", "LS"]
+        def Transition(self, Number):
+            self.PhaseChosen = self.gait_phase_list[Number]
+        
+
+
+        
+        
+
+
+class GaitPhase():
+    #contains a set of parameters (numbers) associated with each phase
+    #will be read via a yaml file
+    #take in an index corresponding to the index of the phase we want
+    # 3 lists, 1 for each parameter
+
