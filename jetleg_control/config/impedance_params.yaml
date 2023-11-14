@@ -1,13 +1,10 @@
-/impedance_updater:
+/classifier_tester:
   ros__parameters:
     phases:
       - early_stance
       - late_stance
       - swing_flexion
       - swing_extension
-    joints:
-      - knee_joint
-      - ankle_joint
     stiffness:
       - 40.0
       - 40.0

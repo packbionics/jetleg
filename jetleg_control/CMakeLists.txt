@@ -27,7 +27,7 @@ install(PROGRAMS
     scripts/Service.py
     scripts/impedance_controller.py
     scripts/send_impedance_update.py
-    scripts/classifier_tester.py
+    scripts/rule_based_classifier.py
 
     DESTINATION lib/${PROJECT_NAME}
 )

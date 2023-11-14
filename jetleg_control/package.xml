@@ -16,6 +16,7 @@
   <test_depend>ament_cmake_pytest</test_depend>
 
   <depend>jetleg_interfaces</depend>
+  <depend>rcl_interfaces</depend>
   <depend>python3-pytorch-pip</depend>
 
   <export>
