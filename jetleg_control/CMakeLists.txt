@@ -14,6 +14,8 @@ find_package(ament_cmake_python REQUIRED)
 
 find_package(rclpy REQUIRED)
 
+ament_python_install_package(${PROJECT_NAME})
+
 install(DIRECTORY launch config
     DESTINATION share/${PROJECT_NAME}
 )
@@ -25,7 +27,7 @@ install(PROGRAMS
     scripts/Service.py
     scripts/impedance_controller.py
     scripts/send_impedance_update.py
-    scripts/TestClassifier.py
+    scripts/classifier_tester.py
 
     DESTINATION lib/${PROJECT_NAME}
 )

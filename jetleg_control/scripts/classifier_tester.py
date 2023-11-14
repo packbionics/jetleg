@@ -1,4 +1,3 @@
-
 #!/usr/bin/python3
 
 import rclpy
@@ -33,23 +32,23 @@ class ClassifierNode(Node):
         self.rule_list = RuleList()
         
         # Define a loop transition to remain in current state
-        first_stay = lambda currentPhase, recentInfo: currentPhase == self.gait_modes.get(0) and recentInfo.imu_mean < 0
+        first_stay = lambda currentPhase, recentInfo: currentPhase == self.gait_modes[0].get(0) and recentInfo.imu_mean < 0
         self.rule_list.add_rule(first_stay,(0,0))
         
         # Define a transition for moving to next state
-        first_advance = lambda currentPhase, recentInfo: currentPhase == self.gait_modes.get(0) and recentInfo.imu_mean >= 0
+        first_advance = lambda currentPhase, recentInfo: currentPhase == self.gait_modes[0].get(0) and recentInfo.imu_mean >= 0
         self.rule_list.add_rule(first_advance,(0,1))
 
         # Define a loop transition to remain in 2nd state
-        second_stay = lambda currentPhase, recentInfo: currentPhase == self.gait_modes.get(1) and recentInfo.imu_mean >= 0
+        second_stay = lambda currentPhase, recentInfo: currentPhase == self.gait_modes[0].get(1) and recentInfo.imu_mean >= 0
         self.rule_list.add_rule(second_stay, (0, 1))
 
         # Define a transition for moving back to first state
-        second_advance = lambda currentPhase, recentInfo: currentPhase == self.gait_modes.get(1) and recentInfo.imu_mean < 0
+        second_advance = lambda currentPhase, recentInfo: currentPhase == self.gait_modes[0].get(1) and recentInfo.imu_mean < 0
         self.rule_list.add_rule(second_advance, (0, 0))
 
         # Create a classifier to determine gait phase
-        self.classifier = RuleBasedClassifier(self.rule_list, self.gait_modes, self.gait_modes.get(0))
+        self.classifier = RuleBasedClassifier(self.gait_modes[0].get(0), self.rule_list, self.gait_modes)
         self.currentData = None
 
         # Maintain state of the ROS 2 client
@@ -83,14 +82,14 @@ class ClassifierNode(Node):
 def main(args=None):
     rclpy.init(args=args)
 
-    minimal_publisher = ClassifierNode()
+    classifier_tester = ClassifierNode()
 
-    rclpy.spin(minimal_publisher)
+    rclpy.spin(classifier_tester)
 
     # Destroy the node explicitly
     # (optional - otherwise it will be done automatically
     # when the garbage collector destroys the node object)
-    minimal_publisher.destroy_node()
+    classifier_tester.destroy_node()
     rclpy.shutdown()
 
 
