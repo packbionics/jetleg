@@ -11,21 +11,23 @@ from jetleg_control.data import SensorData
 from std_msgs.msg import Float64
 from packbionics_interfaces.srv import UpdateImpedance
 
+from array import array
+
 class ClassifierNode(Node):
 
     def __init__(self):
         super().__init__('classifier_tester')
 
         # Define the points of communication for the node
-        self.publisher_ = self.create_client(UpdateImpedance, 'update_impedance')
+        self.client = self.create_client(UpdateImpedance, 'update_impedance')
         self.subscriber = self.create_subscription(Float64, 'sensor_data', self.sub_callback, qos_profile_system_default)
         
         # Define the rate of impedance update
-        timer_period = 0.5  # seconds
+        timer_period = 0.1  # seconds
         self.timer = self.create_timer(timer_period, self.timer_callback)
 
         # Maintain a list of gait modes
-        self.gait_modes = [GaitMode([GaitPhase(), GaitPhase()])]
+        self.gait_modes = [GaitMode([GaitPhase([1.0, 1.0], [0.5, 0.5], [0.0, 0.0]), GaitPhase([1.0, 1.0], [0.5, 0.5], [0.2, 0.1])])]
 
         # Maintain a list of gait phases for each gait mode
         self.rule_list = RuleList()
@@ -50,16 +52,29 @@ class ClassifierNode(Node):
         self.classifier = RuleBasedClassifier(self.rule_list, self.gait_modes, self.gait_modes.get(0))
         self.currentData = None
 
+        # Maintain state of the ROS 2 client
+        self.future = None
+
     def timer_callback(self):
         if self.currentData is None: 
             return
 
-        msg = Int32()
-        msg.data = self.classifier.classify(sensor_data=self.currentData)
-        self.publisher_.publish(msg)
-        self.get_logger().info('Publishing: "%s"' % msg.data)
-        self.i += 1
+        # Check if the client has not sent a request or received a response by the server
+        if self.future is None or self.future.done():
 
+            # Classify the gait phase given the current data
+            gait_phase = self.classifier.classify(sensor_data=self.currentData)
+
+            # Describe a service request to update impedance parameters
+            request = UpdateImpedance.Request()
+
+            # TODO: Fill in parameters to send to server
+            request.stiffness = array('d', gait_phase.stiffness)
+            request.damping = array('d', gait_phase.damping)
+            request.equilibrium = array('d', gait_phase.equilibrium)
+            
+            self.future = self.client.call_async(request)
+            self.get_logger().info('Impedance Update request made')
 
     def sub_callback(self, msg):
         self.currentData = SensorData(msg.data)

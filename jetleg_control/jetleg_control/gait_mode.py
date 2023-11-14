@@ -1,10 +1,11 @@
 from typing import List
+from dataclasses import dataclass
 
-
+@dataclass
 class GaitPhase:
-    """Describes a discrete stage during a gait cycle"""
-
-    pass
+    stiffness: List[float]
+    damping: List[float]
+    equilibrium: List[float]
 
 class GaitMode:
     """Describes a mostly closed cycle of repeated gait phases"""
