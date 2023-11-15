@@ -1,22 +1,31 @@
 #!/usr/bin/python3
 
+# Import ROS client libraries
 import rclpy
 from rclpy.qos import qos_profile_system_default
 from rclpy.node import Node
 from rclpy.client import Client
+
+# Import jetleg_control modules
 from jetleg_control.classifier import RuleBasedClassifier
 from jetleg_control.rule_list import RuleList
 from jetleg_control.gait_mode import GaitMode, GaitPhase
 from jetleg_control.data import SensorData
+
+# Import ROS interface stubs
 from std_msgs.msg import Float64
 from rcl_interfaces.srv import GetParameters
 from packbionics_interfaces.srv import UpdateImpedance
 
+# Import general Python 3 modules
 from array import array
 from typing import List
 from dataclasses import dataclass
 
 import numpy as np
+
+from jetleg_control.helper import add_client, gen_gait_phases
+from jetleg_control.classifier_parameters import rule_based_classifier as classifier_parameters
 
 @dataclass
 class RosParams:
@@ -26,14 +35,13 @@ class RosParams:
     damping: np.array
     equilibrium: np.array
 
-def add_client(node: Node, srv_type, srv_name) -> Client:
-    client = node.create_client(srv_type, srv_name)
-    while not client.wait_for_service(timeout_sec=1.0):
-        node.get_logger().info('service not available, waiting again...')
-    return client
-
 
 class ClassifierNode(Node):
+    """
+    Reads sensor input from a ROS topic and uses it to predict the most likely
+    gait mode and gait phase. The impedance parameters of the corresponding phase
+    is then sent to the impedance controller server as a request.
+    """
 
     def __init__(self, joint_names: List[str]):
         super().__init__('rule_based_classifier')
@@ -43,17 +51,15 @@ class ClassifierNode(Node):
         self.subscriber = self.create_subscription(Float64, 'sensor_data', self.sub_callback, qos_profile_system_default)
 
         # Retrieve configuration parameters
-        self.declare_config_parameters()
-        self.params = self.read_parameters()
-
-        self.params.joints = joint_names
+        param_listener = classifier_parameters.ParamListener(self)
+        params = param_listener.get_params()
 
         # Define the rate of impedance update
         timer_period = 0.1  # seconds
         self.timer = self.create_timer(timer_period, self.timer_callback)
 
         # Maintain a list of gait modes
-        gait_phases = ClassifierNode.gen_gait_phases(self.params)
+        gait_phases = gen_gait_phases(params, joint_names)
         self.gait_modes = [GaitMode(gait_phases)]
 
         # Maintain a list of gait phases for each gait mode
@@ -82,6 +88,7 @@ class ClassifierNode(Node):
         # Maintain state of the ROS 2 client
         self.future = None
 
+
     def timer_callback(self):
         if self.currentData is None: 
             return
@@ -106,43 +113,6 @@ class ClassifierNode(Node):
     def sub_callback(self, msg):
         self.currentData = SensorData(msg.data)
 
-    def declare_config_parameters(self: Node):
-        self.declare_parameter("phases", [""])
-
-        self.declare_parameter("stiffness", [0.0])
-        self.declare_parameter("damping", [0.0])
-        self.declare_parameter("equilibrium", [0.0])
-
-    def read_parameters(self: Node) -> RosParams:
-
-        # Retrieve list of gait phases
-        phases = self.get_parameter("phases").get_parameter_value().string_array_value
-
-        # Retrieve ordered list of impedance parameters
-        stiffness = self.get_parameter("stiffness").get_parameter_value().double_array_value
-        damping = self.get_parameter("damping").get_parameter_value().double_array_value
-        equilibrium = self.get_parameter("equilibrium").get_parameter_value().double_array_value
-        
-        return RosParams(phases, None, stiffness, damping, equilibrium)
-
-    def gen_gait_phases(params: RosParams) -> List[GaitPhase]:
-        
-        phases = list()
-        num_joints = len(params.joints)
-
-        # Iterate over each gait phase
-        for idx in range(0, len(params.stiffness), num_joints):
-
-            # Access parameters for each phase at a time
-            phase_stiffness = params.stiffness[idx: idx + num_joints]
-            phase_damping = params.damping[idx: idx + num_joints]
-            phase_equilibrum = params.equilibrium[idx: idx + num_joints]
-
-            current_phase = GaitPhase(phase_stiffness, phase_damping, phase_equilibrum)
-            phases.append(current_phase)
-
-        return phases
-
 def query_joint_names(node, client):
     # Retrieve list of controlled joints
     joint_param_request = GetParameters.Request()
@@ -155,11 +125,7 @@ def query_joint_names(node, client):
     parameter_values = future.result().values
     return parameter_values[0].string_array_value
 
-
-def main(args=None):
-    rclpy.init(args=args)
-
-    # Retrieve joint names from running impedance controller node
+def get_joint_names() -> List[str]:
     parameter_node = rclpy.create_node("joint_names_requester")
     parameter_client = add_client(parameter_node, GetParameters, '/impedance_controller/get_parameters')
 
@@ -167,6 +133,13 @@ def main(args=None):
 
     # Destroy node after completing its task
     parameter_node.destroy_node()
+    return joint_names
+
+def main(args=None):
+    rclpy.init(args=args)
+
+    # Retrieve joint names from running impedance controller node
+    joint_names = get_joint_names()
 
     # Create a classifier to determine gait phase in real-time
     rule_based_classifier = ClassifierNode(joint_names)

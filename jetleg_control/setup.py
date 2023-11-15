@@ -4,7 +4,7 @@ from glob import glob
 from setuptools import setup
 
 package_name = 'jetleg_control'
-submodules = [os.path.join(package_name, sub) for sub in ['machine_learning']]
+submodules = []
 
 data_files = [
         ('share/ament_index/resource_index/packages',
@@ -27,6 +27,14 @@ data_directories = ['launch', 'config']
 for directory in data_directories:
     glob_recursive(data_files, directory)
 
+# Generate ROS parameters from YAML description
+from generate_parameter_library_py.setup_helper import generate_parameter_module
+
+generate_parameter_module(
+  "classifier_parameters", # python module name for parameter library
+  "src/classifier_parameters.yaml", # path to input yaml file
+)
+
 setup(
     name=package_name,
     version='0.0.1',
@@ -43,9 +51,6 @@ setup(
         'console_scripts': [
         		'jetleg_teleop_key = jetleg_control.jetleg_teleop_key:main',
                 'jetleg_gait_generator = jetleg_control.jetleg_gait_generator:main',
-                'jetleg_gazebo_gait_generator = jetleg_control.jetleg_gazebo_gait_generator:main',
-                'train_leg_agent = jetleg_control.train_leg_agent:main',
-                'run_leg_agent = jetleg_control.run_leg_agent:main'
         ],
     },
 )

@@ -13,8 +13,14 @@ find_package(ament_cmake REQUIRED)
 find_package(ament_cmake_python REQUIRED)
 
 find_package(rclpy REQUIRED)
+find_package(generate_parameter_library REQUIRED)
 
 ament_python_install_package(${PROJECT_NAME})
+
+generate_parameter_library(
+  classifier_parameters # cmake target name for the parameter library
+  src/classifier_parameters.yaml # path to input yaml file
+)
 
 install(DIRECTORY launch config
     DESTINATION share/${PROJECT_NAME}
@@ -24,7 +30,6 @@ install(PROGRAMS
     scripts/jetleg_gait_generator.py
     scripts/jetleg_teleop_key.py
     scripts/forwarder.py
-    scripts/Service.py
     scripts/impedance_controller.py
     scripts/send_impedance_update.py
     scripts/rule_based_classifier.py

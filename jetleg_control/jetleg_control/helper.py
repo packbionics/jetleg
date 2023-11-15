@@ -1,6 +1,11 @@
 import matplotlib.pyplot as plt
 
-# plt.ion()
+from rclpy.node import Node
+from rclpy.client import Client
+
+from jetleg_control.gait_mode import GaitPhase
+from jetleg_control.classifier_parameters import rule_based_classifier
+
 
 def init_subplots(num_plots, subplot_description):
     fig, ax = plt.subplots(num_plots)
@@ -42,3 +47,31 @@ def plot(data_plots, fig, ax):
             ax[i].plot(data)
     
     plt.pause(0.1)
+
+def add_client(node: Node, srv_type, srv_name) -> Client:
+    """Helper function for creating ROS client and waiting for service availability"""
+
+    client = node.create_client(srv_type, srv_name)
+    while not client.wait_for_service(timeout_sec=1.0):
+        node.get_logger().info('service not available, waiting again...')
+    return client
+
+from typing import List
+
+def gen_gait_phases(params: rule_based_classifier.Params, joint_names: List[str]) -> List[GaitPhase]:
+    
+    phases = list()
+    num_joints = len(joint_names)
+
+    # Iterate over each gait phase
+    for idx in range(0, len(params.stiffness), num_joints):
+
+        # Access parameters for each phase at a time
+        phase_stiffness = params.stiffness[idx: idx + num_joints]
+        phase_damping = params.damping[idx: idx + num_joints]
+        phase_equilibrum = params.equilibrium[idx: idx + num_joints]
+
+        current_phase = GaitPhase(phase_stiffness, phase_damping, phase_equilibrum)
+        phases.append(current_phase)
+
+    return phases
