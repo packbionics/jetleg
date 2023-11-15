@@ -4,36 +4,22 @@
 import rclpy
 from rclpy.qos import qos_profile_system_default
 from rclpy.node import Node
-from rclpy.client import Client
 
 # Import jetleg_control modules
 from jetleg_control.classifier import RuleBasedClassifier
 from jetleg_control.rule_list import RuleList
-from jetleg_control.gait_mode import GaitMode, GaitPhase
+from jetleg_control.gait_mode import GaitMode
 from jetleg_control.data import SensorData
+from jetleg_control.helper import add_client, gen_gait_phases, query_joint_names
+from jetleg_control.classifier_parameters import rule_based_classifier as classifier_parameters
 
 # Import ROS interface stubs
 from std_msgs.msg import Float64
-from rcl_interfaces.srv import GetParameters
 from packbionics_interfaces.srv import UpdateImpedance
 
 # Import general Python 3 modules
 from array import array
 from typing import List
-from dataclasses import dataclass
-
-import numpy as np
-
-from jetleg_control.helper import add_client, gen_gait_phases
-from jetleg_control.classifier_parameters import rule_based_classifier as classifier_parameters
-
-@dataclass
-class RosParams:
-    phases: str
-    joints: str
-    stiffness: np.array
-    damping: np.array
-    equilibrium: np.array
 
 
 class ClassifierNode(Node):
@@ -102,7 +88,7 @@ class ClassifierNode(Node):
             # Describe a service request to update impedance parameters
             request = UpdateImpedance.Request()
 
-            # TODO: Fill in parameters to send to server
+            # Fill in parameters to send to server
             request.stiffness = array('d', gait_phase.stiffness)
             request.damping = array('d', gait_phase.damping)
             request.equilibrium = array('d', gait_phase.equilibrium)
@@ -112,18 +98,6 @@ class ClassifierNode(Node):
 
     def sub_callback(self, msg):
         self.currentData = SensorData(msg.data)
-
-def query_joint_names(node, client):
-    # Retrieve list of controlled joints
-    joint_param_request = GetParameters.Request()
-
-    joint_param_request.names = ["joints"]
-
-    future = client.call_async(joint_param_request)
-    rclpy.spin_until_future_complete(node, future)
-
-    parameter_values = future.result().values
-    return parameter_values[0].string_array_value
 
 def get_joint_names() -> List[str]:
     parameter_node = rclpy.create_node("joint_names_requester")

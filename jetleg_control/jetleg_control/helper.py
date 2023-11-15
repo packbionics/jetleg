@@ -1,7 +1,10 @@
 import matplotlib.pyplot as plt
 
+import rclpy
 from rclpy.node import Node
 from rclpy.client import Client
+
+from rcl_interfaces.srv import GetParameters
 
 from jetleg_control.gait_mode import GaitPhase
 from jetleg_control.classifier_parameters import rule_based_classifier
@@ -75,3 +78,15 @@ def gen_gait_phases(params: rule_based_classifier.Params, joint_names: List[str]
         phases.append(current_phase)
 
     return phases
+
+def query_joint_names(node, client):
+    # Retrieve list of controlled joints
+    joint_param_request = GetParameters.Request()
+
+    joint_param_request.names = ["joints"]
+
+    future = client.call_async(joint_param_request)
+    rclpy.spin_until_future_complete(node, future)
+
+    parameter_values = future.result().values
+    return parameter_values[0].string_array_value
