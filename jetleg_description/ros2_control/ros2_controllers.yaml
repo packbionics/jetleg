@@ -1,0 +1,49 @@
+# This config file is used by ros2_control
+controller_manager:
+  ros__parameters:
+    update_rate: 100  # Hz
+
+    hip_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+
+    jetleg_controller:
+      type: forward_command_controller/ForwardCommandController
+
+
+    jetleg_intact_controller:
+      type: forward_command_controller/ForwardCommandController
+
+
+    joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+
+hip_controller:
+  ros__parameters:
+    joints:
+      - vertical_rail_to_mount
+    command_interfaces:
+      - position
+    state_interfaces:
+      - position
+      - velocity
+jetleg_controller:
+  ros__parameters:
+    joints:
+      - knee_joint
+      - ankle_joint
+    interface_name: effort
+    state_interfaces:
+      - position
+      - velocity
+jetleg_intact_controller:
+  ros__parameters:
+    joints:
+      - vertical_rail_to_mount_intact
+      - knee_joint_intact
+      - ankle_joint_intact
+    interface_name: effort
+    # command_interfaces:
+    #   - position
+    state_interfaces:
+      - position
+      - velocity

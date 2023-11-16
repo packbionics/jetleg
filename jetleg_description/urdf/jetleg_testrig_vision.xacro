@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="jetleg_testrig_vision">
   <xacro:include filename="$(find jetleg_description)/urdf/jetleg_wheeled_testrig.xacro"/>
-  <xacro:include filename="$(find jetleg_description)/urdf/stereo_camera.xacro"/>
+  <xacro:include filename="$(find jetleg_description)/urdf/components/stereo_camera.xacro"/>
 
   <xacro:stereo_camera baseline="0.1">
       <joint name="gantry_to_camera_base" type="fixed">
