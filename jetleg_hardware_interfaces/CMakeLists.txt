@@ -39,7 +39,7 @@ endif()
 
 install(
   DIRECTORY include/
-  DESTINATION include/jetleg_hardware_interfaces
+  DESTINATION include/
 )
 install(
   TARGETS jetleg_system
