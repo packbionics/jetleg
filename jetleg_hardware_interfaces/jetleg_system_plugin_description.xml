@@ -1,9 +1,0 @@
-<library path="jetleg_hardware_interfaces">
-
-  <class name="jetleg_hardware_interfaces/JetlegSystem" type="jetleg_hardware_interfaces::JetlegSystem" base_class_type="hardware_interface::SystemInterface">
-    <description>
-      Interfaces with the electronic components of the Jetleg system and provides sensor data
-    </description>
-  </class>
-
-</library>
