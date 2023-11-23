@@ -2,15 +2,16 @@
 #define JETLEG_SYSTEM_HPP
 
 #include "hardware_interface/system_interface.hpp"
-#include "jetleg_hardware_interface/visibility_control.h"
+#include "jetleg_system/visibility_control.h"
 
-namespace jetleg_hardware_interface
+namespace jetleg_system
 {
 
 using CallbackReturn = rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn;
 
-class JetlegSystem : public hardware_interface::SystemInterface
+class HARDWARE_INTERFACE_PUBLIC JetlegSystem : public hardware_interface::SystemInterface
 {
+public:
   CallbackReturn on_init(const hardware_interface::HardwareInfo & info) override;
 
   std::vector<hardware_interface::StateInterface> export_state_interfaces() override;
@@ -24,6 +25,11 @@ class JetlegSystem : public hardware_interface::SystemInterface
   hardware_interface::return_type write(
     const rclcpp::Time & /*time*/,
     const rclcpp::Duration & /*period*/) override;
+private:
+
+  std::vector<std::vector<double>> mJointStates;
+  std::vector<double> mJointCommands;
+
 };
 
 }

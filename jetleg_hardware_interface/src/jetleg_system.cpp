@@ -1,34 +1,36 @@
-#include "jetleg_hardware_interface/jetleg_system.hpp"
+#include "jetleg_system/jetleg_system.hpp"
 
-namespace jetleg_hardware_interface
+namespace jetleg_system
 {
-CallbackReturn on_init(const hardware_interface::HardwareInfo & info)
+CallbackReturn JetlegSystem::on_init(const hardware_interface::HardwareInfo & /*info*/)
 {
-
+  return CallbackReturn::SUCCESS;
 }
 
-std::vector<hardware_interface::StateInterface> export_state_interfaces()
+std::vector<hardware_interface::StateInterface> JetlegSystem::export_state_interfaces()
 {
-
+  return {};
 }
 
-std::vector<hardware_interface::CommandInterface> export_command_interfaces()
+std::vector<hardware_interface::CommandInterface> JetlegSystem::export_command_interfaces()
 {
-
+  return {};
 }
 
-hardware_interface::return_type read(const rclcpp::Time & time, const rclcpp::Duration & period)
-{
-
-}
-
-hardware_interface::return_type write(
+hardware_interface::return_type JetlegSystem::read(
   const rclcpp::Time & /*time*/,
   const rclcpp::Duration & /*period*/)
 {
+  return hardware_interface::return_type::OK;
+}
 
+hardware_interface::return_type JetlegSystem::write(
+  const rclcpp::Time & /*time*/,
+  const rclcpp::Duration & /*period*/)
+{
+  return hardware_interface::return_type::OK;
 }
 }
 
 #include "pluginlib/class_list_macros.hpp"
-PLUGINLIB_EXPORT_CLASS(jetleg_hardware_interface::JetlegSystem, hardware_interface::SystemInterface)
+PLUGINLIB_EXPORT_CLASS(jetleg_system::JetlegSystem, hardware_interface::SystemInterface)

@@ -26,11 +26,11 @@
 TEST(TestJetlegSystem, load_jetleg_system_2dof)
 {
 
-  std::string hardware_system_2dof_ =
+  std::string hardware_system_2dof =
     R"(
   <ros2_control name="HardwareSystem2dof" type="system">
     <hardware>
-      <plugin>jetleg_hardware_interface/JetlegSystem</plugin>
+      <plugin>jetleg_system/JetlegSystem</plugin>
     </hardware>
     <joint name="joint1">
       <command_interface name="position"/>
@@ -49,5 +49,5 @@ TEST(TestJetlegSystem, load_jetleg_system_2dof)
 
   auto urdf = ros2_control_test_assets::urdf_head + hardware_system_2dof +
     ros2_control_test_assets::urdf_tail;
-  ASSERT_NO_THROW(TestableResourceManager rm(urdf));
+  ASSERT_NO_THROW(hardware_interface::ResourceManager rm(urdf));
 }
