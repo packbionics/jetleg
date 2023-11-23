@@ -32,13 +32,13 @@ def generate_launch_description() -> LaunchDescription:
   )
   ld.add_action(model_arg)
 
-  # Spawn ros2_controllers
-  spawn_controls = IncludeLaunchDescription(
-    PythonLaunchDescriptionSource(
-        PathJoinSubstitution([FindPackageShare('jetleg_bringup'), 'launch/spawn_controllers.launch.py'])
-    )
-  )
-  ld.add_action(spawn_controls)
+  # # Spawn ros2_controllers
+  # spawn_controls = IncludeLaunchDescription(
+  #   PythonLaunchDescriptionSource(
+  #       PathJoinSubstitution([FindPackageShare('jetleg_bringup'), 'launch/spawn_controllers.launch.py'])
+  #   )
+  # )
+  # ld.add_action(spawn_controls)
 
   # Optionally show Rviz2 Display
   rviz = IncludeLaunchDescription(
