@@ -2,8 +2,24 @@
 
 namespace jetleg_system
 {
-CallbackReturn JetlegSystem::on_init(const hardware_interface::HardwareInfo & /*info*/)
+CallbackReturn JetlegSystem::on_init(const hardware_interface::HardwareInfo & info)
 {
+
+  // Delegate to base class to perform initial hardware setup
+  if (hardware_interface::SystemInterface::on_init(info) != CallbackReturn::SUCCESS)
+  {
+    return CallbackReturn::ERROR;
+  }
+
+  // A list of interfaces created for each joint
+  mJointStates.resize(info_.joints.size());
+
+  // Each list contains the state information for the corresponding joint
+  const int numStateInterfaces = 2;
+  for(auto & joint : mJointStates) {
+    joint.resize(numStateInterfaces);
+  }
+
   return CallbackReturn::SUCCESS;
 }
 

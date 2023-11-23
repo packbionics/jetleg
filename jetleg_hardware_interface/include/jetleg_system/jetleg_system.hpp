@@ -27,7 +27,10 @@ public:
     const rclcpp::Duration & /*period*/) override;
 private:
 
+  /** Maintains record of current joint states */
   std::vector<std::vector<double>> mJointStates;
+
+  /** Maintains current commands sent to the system */
   std::vector<double> mJointCommands;
 
 };
