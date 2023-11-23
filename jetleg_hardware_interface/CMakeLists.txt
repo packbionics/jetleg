@@ -1,84 +1,63 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.8)
 project(jetleg_hardware_interface)
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  add_compile_options(-Wall -Wextra)
+  add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
-set(THIS_PACKAGE_INCLUDE_DEPENDS
-    rclcpp
-    pluginlib
-    rclcpp_lifecycle
-    hardware_interface
-)
-
+# find dependencies
 find_package(ament_cmake REQUIRED)
-foreach(Dependency IN ITEMS ${THIS_PACKAGE_INCLUDE_DEPENDS})
-  find_package(${Dependency} REQUIRED)
-endforeach()
 
-# Mock components
-add_library(
-  mock_components
-  SHARED
-  src/mock_components/generic_system.cpp
+# Minimal dependencies for hardware interface
+find_package(hardware_interface REQUIRED)
+find_package(pluginlib REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(rclcpp_lifecycle REQUIRED)
+
+# Add compile directive for hardware interface
+add_library(jetleg_system SHARED src/jetleg_system.cpp)
+target_include_directories(jetleg_system PUBLIC
+  $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
 )
-target_include_directories(
-  mock_components
-  PUBLIC
-  include
-)
-target_link_libraries(
-  mock_components
-)
-ament_target_dependencies(
-  mock_components
-  pluginlib
-  rcpputils
+ament_target_dependencies(jetleg_system PUBLIC
   hardware_interface
+  pluginlib
+  rclcpp
+  rclcpp_lifecycle
+)
+pluginlib_export_plugin_description_file(
+  hardware_interface jetleg_hardware_interface.xml
 )
 
-# Causes the visibility macros to use dllexport rather than dllimport,
-# which is appropriate when building the dll but not consuming it.
-target_compile_definitions(mock_components PRIVATE "HARDWARE_INTERFACE_BUILDING_DLL")
+if(BUILD_TESTING)
+  find_package(ament_lint_auto REQUIRED)
+  # the following line skips the linter which checks for copyrights
+  # comment the line when a copyright and license is added to all source files
+  set(ament_cmake_copyright_FOUND TRUE)
+  # the following line skips cpplint (only works in a git repo)
+  # comment the line when this package is in a git repo and when
+  # a copyright and license is added to all source files
+  set(ament_cmake_cpplint_FOUND TRUE)
+  ament_lint_auto_find_test_dependencies()
+endif()
 
-pluginlib_export_plugin_description_file(
-  hardware_interface mock_components_plugin_description.xml)
-
+# Specify install directives for hardware interface
 install(
   DIRECTORY include/
-  DESTINATION include
+  DESTINATION include/
 )
-
 install(
-  TARGETS
-  mock_components
+  TARGETS jetleg_system
   RUNTIME DESTINATION bin
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
 )
 
-if(BUILD_TESTING)
-
-  # Find testing dependencies
-  find_package(ament_cmake_gmock REQUIRED)
-  find_package(ros2_control_test_assets REQUIRED)
-
-  # Test the hardware interface
-  ament_add_gmock(test_generic_system test/mock_components/test_generic_system.cpp)
-    target_include_directories(test_generic_system PRIVATE include)
-    ament_target_dependencies(test_generic_system
-      pluginlib
-      hardware_interface
-      ros2_control_test_assets
-    )
-endif()
-
-ament_export_include_directories(
-  include
+ament_export_dependencies(
+  hardware_interface
+  pluginlib
+  rclcpp
+  rclcpp_lifecycle
 )
-ament_export_libraries(
-  mock_components
-)
-ament_export_dependencies(${THIS_PACKAGE_INCLUDE_DEPENDS})
+
 ament_package()
