@@ -18,6 +18,25 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
+import xacro
+import os
+
+from xml.parsers.expat import ExpatError
+from ament_index_python.packages import get_package_share_directory
+
 
 def test_parse_jetleg_wheeled_testrig():
-    assert True
+
+    # Compute the absolute path to the robot description
+    jetleg_description_share = get_package_share_directory("jetleg_description")
+    jetleg_wheeled_testrig_path = os.path.join(
+        jetleg_description_share,
+        "urdf/jetleg_wheeled_testrig.xacro"
+    )
+
+    # Attempt to parse the file as a XACRO file
+    try:
+        _ = xacro.process_file(jetleg_wheeled_testrig_path)
+        assert True
+    except ExpatError:
+        assert False, f"{jetleg_wheeled_testrig_path} is a mal-formed xacro file"
