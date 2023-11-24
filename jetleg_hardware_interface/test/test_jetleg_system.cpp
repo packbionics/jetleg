@@ -51,3 +51,33 @@ TEST(TestJetlegSystem, load_jetleg_system_2dof)
     ros2_control_test_assets::urdf_tail;
   ASSERT_NO_THROW(hardware_interface::ResourceManager rm(urdf));
 }
+
+TEST(TestJetlegSystem, load_jetleg_system_2dof_multiple_cmd_interfaces)
+{
+
+  std::string hardware_system_2dof =
+    R"(
+  <ros2_control name="HardwareSystem2dof" type="system">
+    <hardware>
+      <plugin>jetleg_system/JetlegSystem</plugin>
+    </hardware>
+    <joint name="joint1">
+      <command_interface name="position"/>
+      <command_interface name="velocity"/>
+      <state_interface name="position">
+        <param name="initial_value">1.57</param>
+      </state_interface>
+    </joint>
+    <joint name="joint2">
+      <command_interface name="position"/>
+      <state_interface name="position">
+        <param name="initial_value">0.7854</param>
+      </state_interface>
+    </joint>
+  </ros2_control>
+)";
+
+  auto urdf = ros2_control_test_assets::urdf_head + hardware_system_2dof +
+    ros2_control_test_assets::urdf_tail;
+  ASSERT_THROW(hardware_interface::ResourceManager rm(urdf), std::runtime_error);
+}

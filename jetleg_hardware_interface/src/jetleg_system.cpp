@@ -20,17 +20,14 @@ CallbackReturn JetlegSystem::on_init(const hardware_interface::HardwareInfo & in
   // Make sure each joint has at most one command interface
   for (const auto & joint : info_.joints) {
     if (joint.command_interfaces.size() > 1) {
+
+      // Record the error and return with non-successful status
       RCLCPP_ERROR(
         logger,
         "<%s> has multiple detected command interfaces. "
         "This is currently not supported.", joint.name.c_str()
       );
       return CallbackReturn::ERROR;
-
-      // throw std::runtime_error(
-      //         "<" + joint.name + "> has multiple detected command interfaces. "
-      //         "This is currently not supported."
-      // );
     }
   }
 
@@ -81,9 +78,12 @@ std::vector<hardware_interface::StateInterface> JetlegSystem::export_state_inter
           &mJointStates[jointOffset][interfaceOffset]
         );
       } else {
-        throw std::runtime_error(
-                "State interface " + state_interface.name + "not found. "
-                "Please ensure the hardware is correctly described in URDF."
+        rclcpp::Logger logger = rclcpp::get_logger("JetlegSystem");
+        RCLCPP_ERROR(
+          logger,
+          "State interface <%s> not found. "
+          "Please ensure the hardware is correctly described in URDF.",
+          state_interface.name.c_str()
         );
       }
     }
