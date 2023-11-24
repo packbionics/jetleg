@@ -11,6 +11,7 @@ data_files = [
         ('share/' + package_name, ['package.xml'])
     ]
 
+
 def glob_recursive(data_files, directory):
     files = glob(directory+'*.*')
     data_files.append((os.path.join('share', package_name, directory), files))
@@ -21,6 +22,7 @@ def glob_recursive(data_files, directory):
         for dir in subdirectories:
             glob_recursive(data_files, dir)
         return data_files
+
 
 data_directories = ['launch', 'rviz', 'urdf', 'ros2_control', 'sdf']
 
