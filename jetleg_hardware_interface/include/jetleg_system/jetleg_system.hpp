@@ -25,8 +25,8 @@ public:
   hardware_interface::return_type write(
     const rclcpp::Time & /*time*/,
     const rclcpp::Duration & /*period*/) override;
-private:
 
+private:
   /** Maintains record of current joint states */
   std::vector<std::vector<double>> mJointStates;
 
