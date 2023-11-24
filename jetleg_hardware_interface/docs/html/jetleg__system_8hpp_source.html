@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.9.1"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>My Project: /home/anthony/packbionics-ws/src/jetleg/jetleg_hardware_interface/include/jetleg_system/jetleg_system.hpp Source File</title>
+<title>jetleg_hardware_interface: /home/anthony/packbionics-ws/src/jetleg/jetleg_hardware_interface/include/jetleg_system/jetleg_system.hpp Source File</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -21,7 +21,7 @@
  <tbody>
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
-   <div id="projectname">My Project
+   <div id="projectname">jetleg_hardware_interface
    </div>
   </td>
  </tr>
@@ -80,34 +80,40 @@ $(function() {
 <div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160; </div>
 <div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;<span class="keyword">using</span> CallbackReturn = rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn;</div>
 <div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160; </div>
-<div class="line"><a name="l00012"></a><span class="lineno"><a class="line" href="classjetleg__system_1_1JetlegSystem.html">   12</a></span>&#160;<span class="keyword">class </span>HARDWARE_INTERFACE_PUBLIC <a class="code" href="classjetleg__system_1_1JetlegSystem.html">JetlegSystem</a> : <span class="keyword">public</span> hardware_interface::SystemInterface</div>
-<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;{</div>
-<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;<span class="keyword">public</span>:</div>
-<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;  CallbackReturn on_init(<span class="keyword">const</span> hardware_interface::HardwareInfo &amp; info) <span class="keyword">override</span>;</div>
-<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160; </div>
-<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;  std::vector&lt;hardware_interface::StateInterface&gt; export_state_interfaces() <span class="keyword">override</span>;</div>
-<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160; </div>
-<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;  std::vector&lt;hardware_interface::CommandInterface&gt; export_command_interfaces() <span class="keyword">override</span>;</div>
-<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160; </div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;  hardware_interface::return_type read(</div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;    <span class="keyword">const</span> rclcpp::Time &amp; time,</div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;    <span class="keyword">const</span> rclcpp::Duration &amp; period) <span class="keyword">override</span>;</div>
+<div class="line"><a name="l00021"></a><span class="lineno"><a class="line" href="classjetleg__system_1_1JetlegSystem.html">   21</a></span>&#160;<span class="keyword">class </span>HARDWARE_INTERFACE_PUBLIC <a class="code" href="classjetleg__system_1_1JetlegSystem.html">JetlegSystem</a> : <span class="keyword">public</span> hardware_interface::SystemInterface</div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;{</div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;<span class="keyword">public</span>:</div>
 <div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160; </div>
-<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;  hardware_interface::return_type write(</div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;    <span class="keyword">const</span> rclcpp::Time &amp; <span class="comment">/*time*/</span>,</div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;    <span class="keyword">const</span> rclcpp::Duration &amp; <span class="comment">/*period*/</span>) <span class="keyword">override</span>;</div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160; </div>
-<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;<span class="keyword">private</span>:</div>
-<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;  std::vector&lt;std::vector&lt;double&gt;&gt; mJointStates;</div>
-<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160; </div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;  std::vector&lt;double&gt; mJointCommands;</div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160; </div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;};</div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160; </div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;}</div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160; </div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;<span class="preprocessor">#endif </span><span class="comment">// JETLEG_SYSTEM_HPP</span></div>
-<div class="ttc" id="aclassjetleg__system_1_1JetlegSystem_html"><div class="ttname"><a href="classjetleg__system_1_1JetlegSystem.html">jetleg_system::JetlegSystem</a></div><div class="ttdef"><b>Definition:</b> jetleg_system.hpp:13</div></div>
+<div class="line"><a name="l00032"></a><span class="lineno"><a class="line" href="classjetleg__system_1_1JetlegSystem.html#aa89602fb1038dbbcd624b98235a882bc">   32</a></span>&#160;  CallbackReturn <a class="code" href="classjetleg__system_1_1JetlegSystem.html#aa89602fb1038dbbcd624b98235a882bc">on_init</a>(<span class="keyword">const</span> hardware_interface::HardwareInfo &amp; info) <span class="keyword">override</span>;</div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160; </div>
+<div class="line"><a name="l00040"></a><span class="lineno"><a class="line" href="classjetleg__system_1_1JetlegSystem.html#a0e5d4c9dbd146f96ababbb67e4ad08bc">   40</a></span>&#160;  std::vector&lt;hardware_interface::StateInterface&gt; <a class="code" href="classjetleg__system_1_1JetlegSystem.html#a0e5d4c9dbd146f96ababbb67e4ad08bc">export_state_interfaces</a>() <span class="keyword">override</span>;</div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160; </div>
+<div class="line"><a name="l00048"></a><span class="lineno"><a class="line" href="classjetleg__system_1_1JetlegSystem.html#ab230b4a577e2b3bfb40ea5c501cdfb1c">   48</a></span>&#160;  std::vector&lt;hardware_interface::CommandInterface&gt; <a class="code" href="classjetleg__system_1_1JetlegSystem.html#ab230b4a577e2b3bfb40ea5c501cdfb1c">export_command_interfaces</a>() <span class="keyword">override</span>;</div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160; </div>
+<div class="line"><a name="l00062"></a><span class="lineno"><a class="line" href="classjetleg__system_1_1JetlegSystem.html#a4625d35ae677cc38bf735fd885615bd7">   62</a></span>&#160;  hardware_interface::return_type <a class="code" href="classjetleg__system_1_1JetlegSystem.html#a4625d35ae677cc38bf735fd885615bd7">read</a>(</div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;    <span class="keyword">const</span> rclcpp::Time &amp; time,</div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;    <span class="keyword">const</span> rclcpp::Duration &amp; period) <span class="keyword">override</span>;</div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160; </div>
+<div class="line"><a name="l00072"></a><span class="lineno"><a class="line" href="classjetleg__system_1_1JetlegSystem.html#a806fe995c7fd3b5e3b9bdcb1c223bd6a">   72</a></span>&#160;  hardware_interface::return_type <a class="code" href="classjetleg__system_1_1JetlegSystem.html#a806fe995c7fd3b5e3b9bdcb1c223bd6a">write</a>(</div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;    <span class="keyword">const</span> rclcpp::Time &amp; <span class="comment">/*time*/</span>,</div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;    <span class="keyword">const</span> rclcpp::Duration &amp; <span class="comment">/*period*/</span>) <span class="keyword">override</span>;</div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160; </div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;<span class="keyword">private</span>:</div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;  std::vector&lt;std::vector&lt;double&gt;&gt; mJointStates;</div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160; </div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;  std::vector&lt;double&gt; mJointCommands;</div>
+<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160; </div>
+<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;};</div>
+<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160; </div>
+<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;}</div>
+<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160; </div>
+<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;<span class="preprocessor">#endif </span><span class="comment">// JETLEG_SYSTEM_HPP</span></div>
+<div class="ttc" id="aclassjetleg__system_1_1JetlegSystem_html"><div class="ttname"><a href="classjetleg__system_1_1JetlegSystem.html">jetleg_system::JetlegSystem</a></div><div class="ttdoc">Provides an interface for communicating with the Jetleg prosthetic leg system.</div><div class="ttdef"><b>Definition:</b> jetleg_system.hpp:22</div></div>
+<div class="ttc" id="aclassjetleg__system_1_1JetlegSystem_html_a0e5d4c9dbd146f96ababbb67e4ad08bc"><div class="ttname"><a href="classjetleg__system_1_1JetlegSystem.html#a0e5d4c9dbd146f96ababbb67e4ad08bc">jetleg_system::JetlegSystem::export_state_interfaces</a></div><div class="ttdeci">std::vector&lt; hardware_interface::StateInterface &gt; export_state_interfaces() override</div><div class="ttdoc">Advertises available state interfaces to the rest of ros2_control.</div></div>
+<div class="ttc" id="aclassjetleg__system_1_1JetlegSystem_html_a4625d35ae677cc38bf735fd885615bd7"><div class="ttname"><a href="classjetleg__system_1_1JetlegSystem.html#a4625d35ae677cc38bf735fd885615bd7">jetleg_system::JetlegSystem::read</a></div><div class="ttdeci">hardware_interface::return_type read(const rclcpp::Time &amp;time, const rclcpp::Duration &amp;period) override</div><div class="ttdoc">Updates the maintained joint states.</div></div>
+<div class="ttc" id="aclassjetleg__system_1_1JetlegSystem_html_a806fe995c7fd3b5e3b9bdcb1c223bd6a"><div class="ttname"><a href="classjetleg__system_1_1JetlegSystem.html#a806fe995c7fd3b5e3b9bdcb1c223bd6a">jetleg_system::JetlegSystem::write</a></div><div class="ttdeci">hardware_interface::return_type write(const rclcpp::Time &amp;, const rclcpp::Duration &amp;) override</div><div class="ttdoc">Updates the current command signals to send to the system.</div></div>
+<div class="ttc" id="aclassjetleg__system_1_1JetlegSystem_html_aa89602fb1038dbbcd624b98235a882bc"><div class="ttname"><a href="classjetleg__system_1_1JetlegSystem.html#aa89602fb1038dbbcd624b98235a882bc">jetleg_system::JetlegSystem::on_init</a></div><div class="ttdeci">CallbackReturn on_init(const hardware_interface::HardwareInfo &amp;info) override</div><div class="ttdoc">Performs basic error-checking and allocates memory for joint state and commands.</div></div>
+<div class="ttc" id="aclassjetleg__system_1_1JetlegSystem_html_ab230b4a577e2b3bfb40ea5c501cdfb1c"><div class="ttname"><a href="classjetleg__system_1_1JetlegSystem.html#ab230b4a577e2b3bfb40ea5c501cdfb1c">jetleg_system::JetlegSystem::export_command_interfaces</a></div><div class="ttdeci">std::vector&lt; hardware_interface::CommandInterface &gt; export_command_interfaces() override</div><div class="ttdoc">Advertises available command interfaces to the rest of ros2_control.</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

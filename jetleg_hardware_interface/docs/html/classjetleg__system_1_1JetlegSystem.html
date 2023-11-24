@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.9.1"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>My Project: jetleg_system::JetlegSystem Class Reference</title>
+<title>jetleg_hardware_interface: jetleg_system::JetlegSystem Class Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -21,7 +21,7 @@
  <tbody>
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
-   <div id="projectname">My Project
+   <div id="projectname">jetleg_hardware_interface
    </div>
   </td>
  </tr>
@@ -72,12 +72,17 @@ $(function() {
 <div class="title">jetleg_system::JetlegSystem Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
+
+<p>Provides an interface for communicating with the Jetleg prosthetic leg system.  
+ <a href="classjetleg__system_1_1JetlegSystem.html#details">More...</a></p>
+
+<p><code>#include &lt;<a class="el" href="jetleg__system_8hpp_source.html">jetleg_system.hpp</a>&gt;</code></p>
 <div class="dynheader">
 Inheritance diagram for jetleg_system::JetlegSystem:</div>
 <div class="dyncontent">
 <div class="center"><img src="classjetleg__system_1_1JetlegSystem__inherit__graph.png" border="0" usemap="#ajetleg__system_1_1JetlegSystem_inherit__map" alt="Inheritance graph"/></div>
 <map name="ajetleg__system_1_1JetlegSystem_inherit__map" id="ajetleg__system_1_1JetlegSystem_inherit__map">
-<area shape="rect" title=" " alt="" coords="5,95,213,121"/>
+<area shape="rect" title="Provides an interface for communicating with the Jetleg prosthetic leg system." alt="" coords="5,95,213,121"/>
 <area shape="rect" title=" " alt="" coords="35,5,183,47"/>
 </map>
 <center><span class="legend">[<a href="graph_legend.html">legend</a>]</span></center></div>
@@ -86,29 +91,211 @@ Collaboration diagram for jetleg_system::JetlegSystem:</div>
 <div class="dyncontent">
 <div class="center"><img src="classjetleg__system_1_1JetlegSystem__coll__graph.png" border="0" usemap="#ajetleg__system_1_1JetlegSystem_coll__map" alt="Collaboration graph"/></div>
 <map name="ajetleg__system_1_1JetlegSystem_coll__map" id="ajetleg__system_1_1JetlegSystem_coll__map">
-<area shape="rect" title=" " alt="" coords="5,95,213,121"/>
+<area shape="rect" title="Provides an interface for communicating with the Jetleg prosthetic leg system." alt="" coords="5,95,213,121"/>
 <area shape="rect" title=" " alt="" coords="35,5,183,47"/>
 </map>
 <center><span class="legend">[<a href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:aa89602fb1038dbbcd624b98235a882bc"><td class="memItemLeft" align="right" valign="top"><a id="aa89602fb1038dbbcd624b98235a882bc"></a>
-CallbackReturn&#160;</td><td class="memItemRight" valign="bottom"><b>on_init</b> (const hardware_interface::HardwareInfo &amp;info) override</td></tr>
+<tr class="memitem:aa89602fb1038dbbcd624b98235a882bc"><td class="memItemLeft" align="right" valign="top">CallbackReturn&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classjetleg__system_1_1JetlegSystem.html#aa89602fb1038dbbcd624b98235a882bc">on_init</a> (const hardware_interface::HardwareInfo &amp;info) override</td></tr>
+<tr class="memdesc:aa89602fb1038dbbcd624b98235a882bc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Performs basic error-checking and allocates memory for joint state and commands.  <a href="classjetleg__system_1_1JetlegSystem.html#aa89602fb1038dbbcd624b98235a882bc">More...</a><br /></td></tr>
 <tr class="separator:aa89602fb1038dbbcd624b98235a882bc"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0e5d4c9dbd146f96ababbb67e4ad08bc"><td class="memItemLeft" align="right" valign="top"><a id="a0e5d4c9dbd146f96ababbb67e4ad08bc"></a>
-std::vector&lt; hardware_interface::StateInterface &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>export_state_interfaces</b> () override</td></tr>
+<tr class="memitem:a0e5d4c9dbd146f96ababbb67e4ad08bc"><td class="memItemLeft" align="right" valign="top">std::vector&lt; hardware_interface::StateInterface &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classjetleg__system_1_1JetlegSystem.html#a0e5d4c9dbd146f96ababbb67e4ad08bc">export_state_interfaces</a> () override</td></tr>
+<tr class="memdesc:a0e5d4c9dbd146f96ababbb67e4ad08bc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Advertises available state interfaces to the rest of ros2_control.  <a href="classjetleg__system_1_1JetlegSystem.html#a0e5d4c9dbd146f96ababbb67e4ad08bc">More...</a><br /></td></tr>
 <tr class="separator:a0e5d4c9dbd146f96ababbb67e4ad08bc"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab230b4a577e2b3bfb40ea5c501cdfb1c"><td class="memItemLeft" align="right" valign="top"><a id="ab230b4a577e2b3bfb40ea5c501cdfb1c"></a>
-std::vector&lt; hardware_interface::CommandInterface &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>export_command_interfaces</b> () override</td></tr>
+<tr class="memitem:ab230b4a577e2b3bfb40ea5c501cdfb1c"><td class="memItemLeft" align="right" valign="top">std::vector&lt; hardware_interface::CommandInterface &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classjetleg__system_1_1JetlegSystem.html#ab230b4a577e2b3bfb40ea5c501cdfb1c">export_command_interfaces</a> () override</td></tr>
+<tr class="memdesc:ab230b4a577e2b3bfb40ea5c501cdfb1c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Advertises available command interfaces to the rest of ros2_control.  <a href="classjetleg__system_1_1JetlegSystem.html#ab230b4a577e2b3bfb40ea5c501cdfb1c">More...</a><br /></td></tr>
 <tr class="separator:ab230b4a577e2b3bfb40ea5c501cdfb1c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4625d35ae677cc38bf735fd885615bd7"><td class="memItemLeft" align="right" valign="top"><a id="a4625d35ae677cc38bf735fd885615bd7"></a>
-hardware_interface::return_type&#160;</td><td class="memItemRight" valign="bottom"><b>read</b> (const rclcpp::Time &amp;time, const rclcpp::Duration &amp;period) override</td></tr>
+<tr class="memitem:a4625d35ae677cc38bf735fd885615bd7"><td class="memItemLeft" align="right" valign="top">hardware_interface::return_type&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classjetleg__system_1_1JetlegSystem.html#a4625d35ae677cc38bf735fd885615bd7">read</a> (const rclcpp::Time &amp;time, const rclcpp::Duration &amp;period) override</td></tr>
+<tr class="memdesc:a4625d35ae677cc38bf735fd885615bd7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Updates the maintained joint states.  <a href="classjetleg__system_1_1JetlegSystem.html#a4625d35ae677cc38bf735fd885615bd7">More...</a><br /></td></tr>
 <tr class="separator:a4625d35ae677cc38bf735fd885615bd7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a806fe995c7fd3b5e3b9bdcb1c223bd6a"><td class="memItemLeft" align="right" valign="top"><a id="a806fe995c7fd3b5e3b9bdcb1c223bd6a"></a>
-hardware_interface::return_type&#160;</td><td class="memItemRight" valign="bottom"><b>write</b> (const rclcpp::Time &amp;, const rclcpp::Duration &amp;) override</td></tr>
+<tr class="memitem:a806fe995c7fd3b5e3b9bdcb1c223bd6a"><td class="memItemLeft" align="right" valign="top">hardware_interface::return_type&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classjetleg__system_1_1JetlegSystem.html#a806fe995c7fd3b5e3b9bdcb1c223bd6a">write</a> (const rclcpp::Time &amp;, const rclcpp::Duration &amp;) override</td></tr>
+<tr class="memdesc:a806fe995c7fd3b5e3b9bdcb1c223bd6a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Updates the current command signals to send to the system.  <a href="classjetleg__system_1_1JetlegSystem.html#a806fe995c7fd3b5e3b9bdcb1c223bd6a">More...</a><br /></td></tr>
 <tr class="separator:a806fe995c7fd3b5e3b9bdcb1c223bd6a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Provides an interface for communicating with the Jetleg prosthetic leg system. </p>
+<p>This class describes an interface for regulating the communication between low-level controller implemented with ros2_control and the electronic components of the Jetleg prosthetic device for users with transfemoral amputation. The available state information shall be angular position and velocity of the knee (and ankle if available). The command given to the device will be assumed to be torque </p>
+</div><h2 class="groupheader">Member Function Documentation</h2>
+<a id="ab230b4a577e2b3bfb40ea5c501cdfb1c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab230b4a577e2b3bfb40ea5c501cdfb1c">&#9670;&nbsp;</a></span>export_command_interfaces()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt;hardware_interface::CommandInterface&gt; jetleg_system::JetlegSystem::export_command_interfaces </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Advertises available command interfaces to the rest of ros2_control. </p>
+<dl class="section return"><dt>Returns</dt><dd>std::vector&lt;hardware_interface::CommandInterface&gt; with entries associated with current commands to send to system </dd></dl>
+
+</div>
+</div>
+<a id="a0e5d4c9dbd146f96ababbb67e4ad08bc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0e5d4c9dbd146f96ababbb67e4ad08bc">&#9670;&nbsp;</a></span>export_state_interfaces()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt;hardware_interface::StateInterface&gt; jetleg_system::JetlegSystem::export_state_interfaces </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Advertises available state interfaces to the rest of ros2_control. </p>
+<dl class="section return"><dt>Returns</dt><dd>std::vector&lt;hardware_interface::StateInterface&gt; with entries associated with maintained joint states to share with the rest of ros2_control </dd></dl>
+
+</div>
+</div>
+<a id="aa89602fb1038dbbcd624b98235a882bc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa89602fb1038dbbcd624b98235a882bc">&#9670;&nbsp;</a></span>on_init()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">CallbackReturn jetleg_system::JetlegSystem::on_init </td>
+          <td>(</td>
+          <td class="paramtype">const hardware_interface::HardwareInfo &amp;&#160;</td>
+          <td class="paramname"><em>info</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Performs basic error-checking and allocates memory for joint state and commands. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">info</td><td>structured hardware description as given by URDF </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>CallbackReturn with value CallbackReturn::OK if no error were encountered <br  />
+ or CallbackReturn::ERROR otherwise </dd></dl>
+
+</div>
+</div>
+<a id="a4625d35ae677cc38bf735fd885615bd7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4625d35ae677cc38bf735fd885615bd7">&#9670;&nbsp;</a></span>read()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">hardware_interface::return_type jetleg_system::JetlegSystem::read </td>
+          <td>(</td>
+          <td class="paramtype">const rclcpp::Time &amp;&#160;</td>
+          <td class="paramname"><em>time</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const rclcpp::Duration &amp;&#160;</td>
+          <td class="paramname"><em>period</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Updates the maintained joint states. </p>
+<p>The current record of joint states shall be updated based on the received signals from the system. These updated values will be used by the rest of ros2_control</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">time</td><td>current record of time </td></tr>
+    <tr><td class="paramname">period</td><td>Time elapsed since last control cycle </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>hardware_interface::return_type with value OK if successful or ERROR otherwise </dd></dl>
+
+</div>
+</div>
+<a id="a806fe995c7fd3b5e3b9bdcb1c223bd6a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a806fe995c7fd3b5e3b9bdcb1c223bd6a">&#9670;&nbsp;</a></span>write()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">hardware_interface::return_type jetleg_system::JetlegSystem::write </td>
+          <td>(</td>
+          <td class="paramtype">const rclcpp::Time &amp;&#160;</td>
+          <td class="paramname">, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const rclcpp::Duration &amp;&#160;</td>
+          <td class="paramname">&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Updates the current command signals to send to the system. </p>
+<dl class="section return"><dt>Returns</dt><dd>hardware_interface::return_type with value OK if successful or ERROR otherwise </dd></dl>
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following file:<ul>
 <li>/home/anthony/packbionics-ws/src/jetleg/jetleg_hardware_interface/include/jetleg_system/<a class="el" href="jetleg__system_8hpp_source.html">jetleg_system.hpp</a></li>
 </ul>

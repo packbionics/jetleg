@@ -2,8 +2,16 @@
 \label{classjetleg__system_1_1JetlegSystem}\index{jetleg\_system::JetlegSystem@{jetleg\_system::JetlegSystem}}
 
 
-Inheritance diagram for jetleg\+\_\+system\+::Jetleg\+System\+:
-\nopagebreak
+Provides an interface for communicating with the Jetleg prosthetic leg system.  
+
+
+
+
+{\ttfamily \#include $<$jetleg\+\_\+system.\+hpp$>$}
+
+
+
+Inheritance diagram for jetleg\+\_\+system\+::Jetleg\+System\+:\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
@@ -12,8 +20,7 @@ Inheritance diagram for jetleg\+\_\+system\+::Jetleg\+System\+:
 \end{figure}
 
 
-Collaboration diagram for jetleg\+\_\+system\+::Jetleg\+System\+:
-\nopagebreak
+Collaboration diagram for jetleg\+\_\+system\+::Jetleg\+System\+:\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
@@ -23,21 +30,104 @@ Collaboration diagram for jetleg\+\_\+system\+::Jetleg\+System\+:
 \doxysubsection*{Public Member Functions}
 \begin{DoxyCompactItemize}
 \item 
-\mbox{\Hypertarget{classjetleg__system_1_1JetlegSystem_aa89602fb1038dbbcd624b98235a882bc}\label{classjetleg__system_1_1JetlegSystem_aa89602fb1038dbbcd624b98235a882bc}} 
-Callback\+Return {\bfseries on\+\_\+init} (const hardware\+\_\+interface\+::\+Hardware\+Info \&info) override
-\item 
-\mbox{\Hypertarget{classjetleg__system_1_1JetlegSystem_a0e5d4c9dbd146f96ababbb67e4ad08bc}\label{classjetleg__system_1_1JetlegSystem_a0e5d4c9dbd146f96ababbb67e4ad08bc}} 
-std\+::vector$<$ hardware\+\_\+interface\+::\+State\+Interface $>$ {\bfseries export\+\_\+state\+\_\+interfaces} () override
-\item 
+Callback\+Return \mbox{\hyperlink{classjetleg__system_1_1JetlegSystem_aa89602fb1038dbbcd624b98235a882bc}{on\+\_\+init}} (const hardware\+\_\+interface\+::\+Hardware\+Info \&info) override
+\begin{DoxyCompactList}\small\item\em Performs basic error-\/checking and allocates memory for joint state and commands. \end{DoxyCompactList}\item 
+std\+::vector$<$ hardware\+\_\+interface\+::\+State\+Interface $>$ \mbox{\hyperlink{classjetleg__system_1_1JetlegSystem_a0e5d4c9dbd146f96ababbb67e4ad08bc}{export\+\_\+state\+\_\+interfaces}} () override
+\begin{DoxyCompactList}\small\item\em Advertises available state interfaces to the rest of ros2\+\_\+control. \end{DoxyCompactList}\item 
+std\+::vector$<$ hardware\+\_\+interface\+::\+Command\+Interface $>$ \mbox{\hyperlink{classjetleg__system_1_1JetlegSystem_ab230b4a577e2b3bfb40ea5c501cdfb1c}{export\+\_\+command\+\_\+interfaces}} () override
+\begin{DoxyCompactList}\small\item\em Advertises available command interfaces to the rest of ros2\+\_\+control. \end{DoxyCompactList}\item 
+hardware\+\_\+interface\+::return\+\_\+type \mbox{\hyperlink{classjetleg__system_1_1JetlegSystem_a4625d35ae677cc38bf735fd885615bd7}{read}} (const rclcpp\+::\+Time \&time, const rclcpp\+::\+Duration \&period) override
+\begin{DoxyCompactList}\small\item\em Updates the maintained joint states. \end{DoxyCompactList}\item 
+hardware\+\_\+interface\+::return\+\_\+type \mbox{\hyperlink{classjetleg__system_1_1JetlegSystem_a806fe995c7fd3b5e3b9bdcb1c223bd6a}{write}} (const rclcpp\+::\+Time \&, const rclcpp\+::\+Duration \&) override
+\begin{DoxyCompactList}\small\item\em Updates the current command signals to send to the system. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Provides an interface for communicating with the Jetleg prosthetic leg system. 
+
+This class describes an interface for regulating the communication between low-\/level controller implemented with ros2\+\_\+control and the electronic components of the Jetleg prosthetic device for users with transfemoral amputation. The available state information shall be angular position and velocity of the knee (and ankle if available). The command given to the device will be assumed to be torque 
+
+\doxysubsection{Member Function Documentation}
 \mbox{\Hypertarget{classjetleg__system_1_1JetlegSystem_ab230b4a577e2b3bfb40ea5c501cdfb1c}\label{classjetleg__system_1_1JetlegSystem_ab230b4a577e2b3bfb40ea5c501cdfb1c}} 
-std\+::vector$<$ hardware\+\_\+interface\+::\+Command\+Interface $>$ {\bfseries export\+\_\+command\+\_\+interfaces} () override
-\item 
+\index{jetleg\_system::JetlegSystem@{jetleg\_system::JetlegSystem}!export\_command\_interfaces@{export\_command\_interfaces}}
+\index{export\_command\_interfaces@{export\_command\_interfaces}!jetleg\_system::JetlegSystem@{jetleg\_system::JetlegSystem}}
+\doxysubsubsection{\texorpdfstring{export\_command\_interfaces()}{export\_command\_interfaces()}}
+{\footnotesize\ttfamily std\+::vector$<$hardware\+\_\+interface\+::\+Command\+Interface$>$ jetleg\+\_\+system\+::\+Jetleg\+System\+::export\+\_\+command\+\_\+interfaces (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [override]}}
+
+
+
+Advertises available command interfaces to the rest of ros2\+\_\+control. 
+
+\begin{DoxyReturn}{Returns}
+std\+::vector$<$hardware\+\_\+interface\+::\+Command\+Interface$>$ with entries associated with current commands to send to system 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classjetleg__system_1_1JetlegSystem_a0e5d4c9dbd146f96ababbb67e4ad08bc}\label{classjetleg__system_1_1JetlegSystem_a0e5d4c9dbd146f96ababbb67e4ad08bc}} 
+\index{jetleg\_system::JetlegSystem@{jetleg\_system::JetlegSystem}!export\_state\_interfaces@{export\_state\_interfaces}}
+\index{export\_state\_interfaces@{export\_state\_interfaces}!jetleg\_system::JetlegSystem@{jetleg\_system::JetlegSystem}}
+\doxysubsubsection{\texorpdfstring{export\_state\_interfaces()}{export\_state\_interfaces()}}
+{\footnotesize\ttfamily std\+::vector$<$hardware\+\_\+interface\+::\+State\+Interface$>$ jetleg\+\_\+system\+::\+Jetleg\+System\+::export\+\_\+state\+\_\+interfaces (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [override]}}
+
+
+
+Advertises available state interfaces to the rest of ros2\+\_\+control. 
+
+\begin{DoxyReturn}{Returns}
+std\+::vector$<$hardware\+\_\+interface\+::\+State\+Interface$>$ with entries associated with maintained joint states to share with the rest of ros2\+\_\+control 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classjetleg__system_1_1JetlegSystem_aa89602fb1038dbbcd624b98235a882bc}\label{classjetleg__system_1_1JetlegSystem_aa89602fb1038dbbcd624b98235a882bc}} 
+\index{jetleg\_system::JetlegSystem@{jetleg\_system::JetlegSystem}!on\_init@{on\_init}}
+\index{on\_init@{on\_init}!jetleg\_system::JetlegSystem@{jetleg\_system::JetlegSystem}}
+\doxysubsubsection{\texorpdfstring{on\_init()}{on\_init()}}
+{\footnotesize\ttfamily Callback\+Return jetleg\+\_\+system\+::\+Jetleg\+System\+::on\+\_\+init (\begin{DoxyParamCaption}\item[{const hardware\+\_\+interface\+::\+Hardware\+Info \&}]{info }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [override]}}
+
+
+
+Performs basic error-\/checking and allocates memory for joint state and commands. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em info} & structured hardware description as given by URDF \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Callback\+Return with value Callback\+Return\+::\+OK if no error were encountered ~\newline
+ or Callback\+Return\+::\+ERROR otherwise 
+\end{DoxyReturn}
 \mbox{\Hypertarget{classjetleg__system_1_1JetlegSystem_a4625d35ae677cc38bf735fd885615bd7}\label{classjetleg__system_1_1JetlegSystem_a4625d35ae677cc38bf735fd885615bd7}} 
-hardware\+\_\+interface\+::return\+\_\+type {\bfseries read} (const rclcpp\+::\+Time \&time, const rclcpp\+::\+Duration \&period) override
-\item 
+\index{jetleg\_system::JetlegSystem@{jetleg\_system::JetlegSystem}!read@{read}}
+\index{read@{read}!jetleg\_system::JetlegSystem@{jetleg\_system::JetlegSystem}}
+\doxysubsubsection{\texorpdfstring{read()}{read()}}
+{\footnotesize\ttfamily hardware\+\_\+interface\+::return\+\_\+type jetleg\+\_\+system\+::\+Jetleg\+System\+::read (\begin{DoxyParamCaption}\item[{const rclcpp\+::\+Time \&}]{time,  }\item[{const rclcpp\+::\+Duration \&}]{period }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [override]}}
+
+
+
+Updates the maintained joint states. 
+
+The current record of joint states shall be updated based on the received signals from the system. These updated values will be used by the rest of ros2\+\_\+control
+
+
+\begin{DoxyParams}{Parameters}
+{\em time} & current record of time \\
+\hline
+{\em period} & Time elapsed since last control cycle \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+hardware\+\_\+interface\+::return\+\_\+type with value OK if successful or ERROR otherwise 
+\end{DoxyReturn}
 \mbox{\Hypertarget{classjetleg__system_1_1JetlegSystem_a806fe995c7fd3b5e3b9bdcb1c223bd6a}\label{classjetleg__system_1_1JetlegSystem_a806fe995c7fd3b5e3b9bdcb1c223bd6a}} 
-hardware\+\_\+interface\+::return\+\_\+type {\bfseries write} (const rclcpp\+::\+Time \&, const rclcpp\+::\+Duration \&) override
-\end{DoxyCompactItemize}
+\index{jetleg\_system::JetlegSystem@{jetleg\_system::JetlegSystem}!write@{write}}
+\index{write@{write}!jetleg\_system::JetlegSystem@{jetleg\_system::JetlegSystem}}
+\doxysubsubsection{\texorpdfstring{write()}{write()}}
+{\footnotesize\ttfamily hardware\+\_\+interface\+::return\+\_\+type jetleg\+\_\+system\+::\+Jetleg\+System\+::write (\begin{DoxyParamCaption}\item[{const rclcpp\+::\+Time \&}]{,  }\item[{const rclcpp\+::\+Duration \&}]{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [override]}}
+
+
+
+Updates the current command signals to send to the system. 
+
+\begin{DoxyReturn}{Returns}
+hardware\+\_\+interface\+::return\+\_\+type with value OK if successful or ERROR otherwise 
+\end{DoxyReturn}
 
 
 The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
