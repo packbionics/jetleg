@@ -61,6 +61,10 @@ endif()
 
 # Specify install directives for hardware interface
 install(
+  DIRECTORY docs/
+  DESTINATION share/${PROJECT_NAME}/docs
+)
+install(
   DIRECTORY include/
   DESTINATION include/
 )
