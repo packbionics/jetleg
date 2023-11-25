@@ -8,14 +8,16 @@ from launch_ros.actions import Node
 
 def generate_launch_description():
 
+    ld = LaunchDescription()
+
     # synchronizes ROS clock with simulation clock if true
     use_sim_time = LaunchConfiguration('use_sim_time', default='false')
     
     # specifies the XACRO/URDF file to utilize
     model = LaunchConfiguration('model')
-
     robot_urdf = Command(['xacro', ' ', model])
 
+    # Stages the robot state publisher for execution
     rsp = Node(
             package='robot_state_publisher',
             executable='robot_state_publisher',
@@ -24,8 +26,6 @@ def generate_launch_description():
             parameters=[{'use_sim_time': use_sim_time, 
                          'robot_description': robot_urdf}],
     )
-
-    ld = LaunchDescription()
     ld.add_action(rsp)
 
     return ld

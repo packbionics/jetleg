@@ -8,26 +8,13 @@ from launch_ros.substitutions import FindPackageShare
 
 def generate_launch_description() -> LaunchDescription:
 
-  # Path to staircase description
+  ld = LaunchDescription()
+
+  # Specify world environment in Gazebo
   world_path = PathJoinSubstitution([
     FindPackageShare("jetleg_bringup"), 
     'world/staircase_obstacle.world'
   ])
-
-  # Path to top-level gazebo launch file
-  gazebo_launch_path = PathJoinSubstitution([
-    FindPackageShare("gazebo_ros"),
-    "launch/gazebo.launch.py"
-  ])
-
-  model_path = PathJoinSubstitution([
-    FindPackageShare("jetleg_moveit_config"),
-    "config", "jetleg_wheeled_testrig.urdf.xacro"
-  ])
-
-  ld = LaunchDescription()
-
-  # Specify world environment in Gazebo
   world_arg = DeclareLaunchArgument(
     "world",
     default_value=world_path
@@ -42,34 +29,15 @@ def generate_launch_description() -> LaunchDescription:
 
   ld.add_action(gui_arg)
 
-  # Specify robot path
-  model_arg = DeclareLaunchArgument(
-    "model",
-    default_value=model_path
-  )
-  ld.add_action(model_arg)
-
   # Add Gazebo to launch step
+  gazebo_launch_path = PathJoinSubstitution([
+    FindPackageShare("gazebo_ros"),
+    "launch/gazebo.launch.py"
+  ])
   gazebo_ros = IncludeLaunchDescription(
     PythonLaunchDescriptionSource(gazebo_launch_path)
   )
   ld.add_action(gazebo_ros)
-
-  # Spawn ros2_controllers
-  spawn_controls = IncludeLaunchDescription(
-    PythonLaunchDescriptionSource(
-        PathJoinSubstitution([FindPackageShare('jetleg_bringup'), 'launch/spawn_controllers.launch.py'])
-    )
-  )
-  ld.add_action(spawn_controls)
-
-  # Optionally show Rviz2 Display
-  rviz = IncludeLaunchDescription(
-    PythonLaunchDescriptionSource(
-        PathJoinSubstitution([FindPackageShare('jetleg_bringup'), 'launch/rviz.launch.py'])
-    )
-  )
-  ld.add_action(rviz)
 
   # Load Jetleg into the world
   spawn_jetleg = IncludeLaunchDescription(
@@ -78,17 +46,5 @@ def generate_launch_description() -> LaunchDescription:
     )
   )
   ld.add_action(spawn_jetleg)
-
-  # Begin publishing robot state
-  rsp = IncludeLaunchDescription(
-      PythonLaunchDescriptionSource(
-          PathJoinSubstitution([
-              FindPackageShare("jetleg_bringup"),
-              "launch/rsp.launch.py"
-          ])
-      )
-  )
-  ld.add_action(rsp)
-
 
   return ld

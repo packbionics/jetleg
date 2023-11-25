@@ -12,14 +12,29 @@ def generate_launch_description():
 
     jetleg_bringup_share = FindPackageShare("jetleg_bringup")
 
-    # Specify RVIZ config
-    rviz_config_arg = DeclareLaunchArgument(
-        'rvizconfig', 
-        default_value=PathJoinSubstitution([jetleg_bringup_share, 'config/jetleg_gazebo.rviz']),
+    # Specify robot path
+    model_path = PathJoinSubstitution([
+        FindPackageShare("jetleg_moveit_config"),
+        "config", "jetleg_wheeled_testrig.urdf.xacro"
+    ])
+    model_arg = DeclareLaunchArgument(
+        "model",
+        default_value=model_path
     )
-    ld.add_action(rviz_config_arg)
+    ld.add_action(model_arg)
 
-    # Starts with Gazebo
+    # Begin publishing robot state
+    rsp = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            PathJoinSubstitution([
+                FindPackageShare("jetleg_bringup"),
+                "launch/rsp.launch.py"
+            ])
+        )
+    )
+    ld.add_action(rsp)
+
+    # Launch simulation / physical system
     jetleg_sim_name = "jetleg_gazebo.launch.py"
 
     jetleg_launch_path = PathJoinSubstitution([
@@ -27,27 +42,32 @@ def generate_launch_description():
         'launch',
         jetleg_sim_name
     ])
-
-    # Launch Gazebo simulation
     jetleg_gazebo_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(jetleg_launch_path),
     )
     ld.add_action(jetleg_gazebo_launch)
 
-    # Launch motion planning
-    gait_generator = IncludeLaunchDescription(
+    # Spawn ros2_controllers
+    spawn_controls = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            PathJoinSubstitution([jetleg_bringup_share, 'launch/jetleg_gait_generator.launch.py'])
+            PathJoinSubstitution([FindPackageShare('jetleg_bringup'), 'launch/spawn_controllers.launch.py'])
         )
     )
-    ld.add_action(gait_generator)
+    ld.add_action(spawn_controls)
 
-    # Launch vision subsystem
-    jetleg_vision = IncludeLaunchDescription(
+    # Specify RVIZ config
+    rviz_config_arg = DeclareLaunchArgument(
+        'rvizconfig', 
+        default_value=PathJoinSubstitution([jetleg_bringup_share, 'config/jetleg_gazebo.rviz']),
+    )
+    ld.add_action(rviz_config_arg)
+
+    # Optionally show Rviz2 Display
+    rviz = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            PathJoinSubstitution([jetleg_bringup_share, 'launch/jetleg_vision_pipeline.launch.py'])
+            PathJoinSubstitution([FindPackageShare('jetleg_bringup'), 'launch/rviz.launch.py'])
         )
     )
-    ld.add_action(jetleg_vision)
+    ld.add_action(rviz)
 
     return ld
