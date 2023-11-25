@@ -10,6 +10,7 @@ namespace jetleg_system
 CallbackReturn JetlegSystem::on_init(const hardware_interface::HardwareInfo & info)
 {
 
+  // Used to share status of hardware interface
   rclcpp::Logger logger = rclcpp::get_logger("JetlegSystem");
 
   // Delegate to base class to perform initial hardware setup
@@ -40,11 +41,15 @@ CallbackReturn JetlegSystem::on_init(const hardware_interface::HardwareInfo & in
     joint.resize(numStateInterfaces);
   }
 
+  RCLCPP_INFO(logger, "JetlegSystem hardware interface has been initialized.");
   return CallbackReturn::SUCCESS;
 }
 
 std::vector<hardware_interface::StateInterface> JetlegSystem::export_state_interfaces()
 {
+
+  // Used to share status of hardware interface
+  rclcpp::Logger logger = rclcpp::get_logger("JetlegSystem");
 
   // Shares joint states with the rest of ros2_control
   std::vector<hardware_interface::StateInterface> state_interfaces;
@@ -78,7 +83,6 @@ std::vector<hardware_interface::StateInterface> JetlegSystem::export_state_inter
           &mJointStates[jointOffset][interfaceOffset]
         );
       } else {
-        rclcpp::Logger logger = rclcpp::get_logger("JetlegSystem");
         RCLCPP_ERROR(
           logger,
           "State interface <%s> not found. "
@@ -91,11 +95,15 @@ std::vector<hardware_interface::StateInterface> JetlegSystem::export_state_inter
     jointOffset++;
   }
 
+  RCLCPP_INFO(logger, "JetlegSystem hardware interface has exported state interfaces.");
   return state_interfaces;
 }
 
 std::vector<hardware_interface::CommandInterface> JetlegSystem::export_command_interfaces()
 {
+
+  // Used to share status of hardware interface
+  rclcpp::Logger logger = rclcpp::get_logger("JetlegSystem");
 
   // Advertises command interfaces to the rest of ros2_control
   std::vector<hardware_interface::CommandInterface> command_interfaces;
@@ -128,9 +136,11 @@ std::vector<hardware_interface::CommandInterface> JetlegSystem::export_command_i
           &mJointCommands[jointOffset]
         );
       } else {
-        throw std::runtime_error(
-                "State interface " + command_interface.name + "not found. "
-                "Please ensure the hardware is correctly described in URDF."
+        RCLCPP_ERROR(
+          logger,
+          "Command interface <%s> not found. "
+          "Please ensure the hardware is correctly described in URDF.",
+          command_interface.name.c_str()
         );
       }
 
@@ -138,6 +148,7 @@ std::vector<hardware_interface::CommandInterface> JetlegSystem::export_command_i
     }
   }
 
+  RCLCPP_INFO(logger, "JetlegSystem hardware interface has exported command interfaces.");
   return command_interfaces;
 }
 
