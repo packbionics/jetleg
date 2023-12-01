@@ -26,7 +26,7 @@ def glob_recursive(data_files, directory):
             glob_recursive(data_files, dir)
 
 
-data_directories = ['launch', 'config']
+data_directories = ['launch', 'config', 'docs']
 
 for directory in data_directories:
     glob_recursive(data_files, directory)
