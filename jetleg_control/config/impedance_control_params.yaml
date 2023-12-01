@@ -1,5 +1,3 @@
 impedance_controller:
   ros__parameters:
-    joints:
-      - knee_joint
-      - ankle_joint
+    num_joints: 2

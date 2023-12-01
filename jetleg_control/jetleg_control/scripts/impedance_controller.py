@@ -22,6 +22,7 @@
 
 
 import rclpy
+import rclpy.signals
 from rclpy.qos import qos_profile_system_default
 
 from std_msgs.msg import Float64MultiArray
@@ -52,12 +53,12 @@ class ImpedanceController:
         self.node = rclpy.create_node("impedance_controller")
 
         # Access the controllable joints
-        self.node.declare_parameter("joints", [''])
-        self.joints = self.node.get_parameter(
-            "joints").get_parameter_value().string_array_value
+        self.node.declare_parameter("num_joints", 0)
+        self.num_joints = self.node.get_parameter(
+            "num_joints").get_parameter_value().integer_value
 
         self.impedance_params = list()
-        for _ in self.joints:
+        for _ in range(self.num_joints):
             self.impedance_params.append(ImpedanceParams(0.0, 0.0, 0.0))
 
         self.joint_state = None
@@ -86,10 +87,17 @@ class ImpedanceController:
 
         # Ensure the request is properly formatted
         if len(req.stiffness) != len(req.damping) or len(req.stiffness) != len(req.equilibrium):
+            self.node.get_logger().warning("Improper format of impedance update request: "
+                                           f"stiffness count: {len(req.stiffness)}",
+                                           f"damping count: {len(req.damping)}",
+                                           f"equilibrium count: {len(req.equilibrium)}")
             return
 
         # Ensure number of parameters corresponds to number of controllable joints
-        if len(req.stiffness) != len(self.joints):
+        if len(req.stiffness) != len(range(self.num_joints)):
+            self.node.get_logger().warning("Mismatch between number of"
+                                           "joints and impedance parameters: ",
+                                           f"{len(range(self.num_joints))}, {len(req.stiffness)}")
             return
 
         # Use values given in the request
@@ -109,12 +117,10 @@ class ImpedanceController:
             return
 
         # Populate message with command values
-        for joint_idx, _ in enumerate(self.joints):
-            signal = compute_command(
-                self.joint_state.position[joint_idx],
-                self.joint_state.position[joint_idx],
-                self.impedance_params[joint_idx]
-            )
+        for joint_idx in range(self.num_joints):
+            signal = compute_command(self.joint_state.position[joint_idx],
+                                     self.joint_state.position[joint_idx],
+                                     self.impedance_params[joint_idx])
             self.msg.data[joint_idx] = signal
 
         self.publisher.publish(self.msg)
@@ -132,12 +138,12 @@ def main():
     # Create an instance of the controller
     controller = ImpedanceController()
 
-    # Execute the node tasks
-    controller.node.get_logger().info("Spinning ImpedanceController...")
-    rclpy.spin(controller.node)
-
-    # Release ROS 2 resources
-    rclpy.shutdown()
+    # Allow the process to cleanly exit after KeyboardInterrupt
+    try:
+        # Execute the node tasks
+        rclpy.spin(controller.node)
+    except KeyboardInterrupt:
+        pass
 
 
 if __name__ == "__main__":
