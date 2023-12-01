@@ -28,7 +28,7 @@ def test_evaluate():
     rule_list = RuleList()
 
     gait_phase = GaitPhase(0.0, 0.0, 0.0)
-    wrong_phase = GaitPhase(0.0, 0.0, 0.0)
+    wrong_phase = GaitPhase(1.0, 0.0, 0.0)
 
     # Test equality of gait phase
     def same_phase_condition(x, y): return x == gait_phase

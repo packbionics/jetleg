@@ -48,7 +48,7 @@ from typing import List
 class ClassifierNode(Node):
     """
     Reads sensor input to predict the most likely gait mode and gait phase.
-    
+
     The impedance parameters of the corresponding phase is then
     sent to the impedance controller server as a request.
     """
