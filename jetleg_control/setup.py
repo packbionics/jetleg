@@ -2,15 +2,18 @@ import os
 from glob import glob
 
 from setuptools import setup
+from generate_parameter_library_py.setup_helper import generate_parameter_module
+
 
 package_name = 'jetleg_control'
-submodules = []
+submodules = ['jetleg_control.scripts']
 
 data_files = [
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml'])
     ]
+
 
 def glob_recursive(data_files, directory):
     files = glob(directory+'*.*')
@@ -22,18 +25,18 @@ def glob_recursive(data_files, directory):
         for dir in subdirectories:
             glob_recursive(data_files, dir)
 
+
 data_directories = ['launch', 'config']
 
 for directory in data_directories:
     glob_recursive(data_files, directory)
 
 # Generate ROS parameters from YAML description
-from generate_parameter_library_py.setup_helper import generate_parameter_module
-
 generate_parameter_module(
-  "classifier_parameters", # python module name for parameter library
-  "src/classifier_parameters.yaml", # path to input yaml file
+  "classifier_parameters",
+  "src/classifier_parameters.yaml",
 )
+
 
 setup(
     name=package_name,
@@ -49,8 +52,11 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-        		'jetleg_teleop_key = jetleg_control.jetleg_teleop_key:main',
-                'jetleg_gait_generator = jetleg_control.jetleg_gait_generator:main',
+                'jetleg_teleop_key = jetleg_control.scripts.jetleg_teleop_key:main',
+                'jetleg_gait_generator = jetleg_control.scripts.jetleg_gait_generator:main',
+                'forwarder = jetleg_control.scripts.forwarder:main',
+                'impedance_controller = jetleg_control.scripts.impedance_controller:main',
+                'rule_based_classifier = jetleg_control.scripts.rule_based_classifier:main'
         ],
     },
 )
