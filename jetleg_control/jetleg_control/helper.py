@@ -78,8 +78,7 @@ def plot(data_plots, fig, ax):
 
 
 def add_client(node: Node, srv_type, srv_name) -> Client:
-    """Helper function for creating ROS client and waiting for service availability"""
-
+    """Create ROS client and waiting for service availability."""
     client = node.create_client(srv_type, srv_name)
     while not client.wait_for_service(timeout_sec=1.0):
         node.get_logger().info('service not available, waiting again...')

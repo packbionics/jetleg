@@ -9,10 +9,10 @@ package_name = 'jetleg_control'
 submodules = ['jetleg_control.scripts']
 
 data_files = [
-        ('share/ament_index/resource_index/packages',
-            ['resource/' + package_name]),
-        ('share/' + package_name, ['package.xml'])
-    ]
+    ('share/ament_index/resource_index/packages',
+     ['resource/' + package_name]),
+    ('share/' + package_name, ['package.xml'])
+]
 
 
 def glob_recursive(data_files, directory):
@@ -33,8 +33,8 @@ for directory in data_directories:
 
 # Generate ROS parameters from YAML description
 generate_parameter_module(
-  "classifier_parameters",
-  "src/classifier_parameters.yaml",
+    "classifier_parameters",
+    "src/classifier_parameters.yaml",
 )
 
 

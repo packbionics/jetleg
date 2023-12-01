@@ -26,13 +26,13 @@ def generate_launch_description():
     default_rviz_config_path = description_path / 'rviz/odrive.rviz'
 
     joint0_controller_arg = DeclareLaunchArgument(
-                "joint0_controller",
-                default_value="joint0_position_controller",
-            )
+        "joint0_controller",
+        default_value="joint0_position_controller",
+    )
     rviz_arg = DeclareLaunchArgument(
-                name='rvizconfig', default_value=str(default_rviz_config_path),
-                description='Absolute path to rviz config file'
-            )
+        name='rvizconfig', default_value=str(default_rviz_config_path),
+        description='Absolute path to rviz config file'
+    )
 
     joint0_controller = LaunchConfiguration("joint0_controller")
 
@@ -79,7 +79,8 @@ def generate_launch_description():
     joint_state_broadcaster_spawner = Node(
         package="controller_manager",
         executable="spawner.py",
-        arguments=["joint_state_broadcaster", "--controller-manager", "/controller_manager"],
+        arguments=["joint_state_broadcaster",
+                   "--controller-manager", "/controller_manager"],
     )
 
     joint0_controller_spawner = Node(
