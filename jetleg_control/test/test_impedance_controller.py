@@ -46,8 +46,8 @@ def test_impedance_update():
     # Send the request asynchronously
     future = client.call_async(request)
 
-    # Wait for up to 5 seconds until a response is received
-    rclpy.spin_until_future_complete(node, future, timeout_sec=5.0)
+    # Wait for up to 1 seconds until a response is received
+    rclpy.spin_until_future_complete(node, future, timeout_sec=1.0)
 
     # Check if a response was received
     assert future.done()
