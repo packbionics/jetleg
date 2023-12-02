@@ -20,11 +20,10 @@
 
 
 from abc import ABCMeta
-from typing import List
+from typing import Callable
 
 from jetleg_control.data import SensorData
-from jetleg_control.rule_list import RuleList
-from jetleg_control.gait_mode import GaitMode, GaitPhase
+from jetleg_control.gait_phase import GaitPhase
 
 
 class ClassifierInterface(metaclass=ABCMeta):
@@ -41,28 +40,14 @@ class ClassifierInterface(metaclass=ABCMeta):
 class RuleBasedClassifier:
     """Gait classifier which follows pre-programmed rules for determining gait."""
 
-    def __init__(
-        self, initial_gait_phase: GaitPhase,
-        rule_list: RuleList, gait_modes: List[GaitMode]
-    ):
+    TransitionModel = Callable[[GaitPhase, SensorData], GaitPhase]
+
+    def __init__(self, initial_gait_phase: GaitPhase, transitions: TransitionModel):
         """Construct a rule-based classifier."""
         self.gait_phase = initial_gait_phase
-
-        self.rule_list = rule_list
-        self.gait_modes = gait_modes
+        self.transitions = transitions
 
     def classify(self, sensor_data: SensorData) -> GaitPhase:
         """Determine the desired gait phase based on given sensor data."""
-        results = self.rule_list.evaluate(self.gait_phase, sensor_data)
-
-        # Check if a phase could not be classified
-        if results is None:
-            raise ValueError(
-                f"RuleBasedClassifier could not determine "
-                f"the gait phase from given sensor data: {sensor_data}")
-
-        # Otherwise, return the classified phase
-        mode_idx = results[0]
-        phase_idx = results[1]
-
-        return self.gait_modes[mode_idx].get(phase_idx)
+        self.gait_phase = self.transitions(self.gait_phase, sensor_data)
+        return self.gait_phase
