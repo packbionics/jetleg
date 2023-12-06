@@ -27,7 +27,7 @@ from jetleg_control.classifier import RuleBasedClassifier
 
 
 @pytest.fixture
-def make_phases():
+def phases():
     return [GaitPhase([0.0, 0.0], [0.0, 0.0], [0.0, 0.0]),
             GaitPhase([1.0, 0.0], [0.0, 0.0], [0.0, 0.0]),
             GaitPhase([2.0, 0.0], [0.0, 0.0], [0.0, 0.0]),
