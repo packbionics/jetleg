@@ -24,7 +24,8 @@ def generate_launch_description():
     svo_path = LaunchConfiguration('svo_path')
 
     # Configuration variables
-    # Camera name. Can be different from camera model, used to distinguish camera in multi-camera systems
+    # Camera name. Can be different from camera model,
+    # used to distinguish camera in multi-camera systems
     camera_name = 'zed2i'
     node_name = 'zed_node'  # Zed Node name
     publish_urdf = 'true'  # Publish static frames from camera URDF
@@ -93,7 +94,8 @@ def generate_launch_description():
     declare_svo_path_cmd = DeclareLaunchArgument(
         'svo_path',
         default_value='',
-        description='Path to an input SVO file. Note: overrides the parameter `general.svo_file` in `common.yaml`.')
+        description='Path to an input SVO file. '
+                    'Note: overrides the parameter `general.svo_file` in `common.yaml`.')
 
     # Define LaunchDescription variable
     ld = LaunchDescription()
