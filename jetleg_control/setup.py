@@ -6,7 +6,7 @@ from generate_parameter_library_py.setup_helper import generate_parameter_module
 
 
 package_name = 'jetleg_control'
-submodules = ['jetleg_control.scripts']
+submodules = ['jetleg_control.script']
 
 data_files = [
     ('share/ament_index/resource_index/packages',
@@ -52,11 +52,11 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-                'jetleg_teleop_key = jetleg_control.scripts.jetleg_teleop_key:main',
-                'jetleg_gait_generator = jetleg_control.scripts.jetleg_gait_generator:main',
-                'forwarder = jetleg_control.scripts.forwarder:main',
-                'impedance_controller = jetleg_control.scripts.impedance_controller:main',
-                'rule_based_classifier = jetleg_control.scripts.rule_based_classifier:main'
+                'jetleg_teleop_key = jetleg_control.script.jetleg_teleop_key:main',
+                'jetleg_gait_generator = jetleg_control.script.jetleg_gait_generator:main',
+                'forwarder = jetleg_control.script.forwarder:main',
+                'impedance_controller = jetleg_control.script.impedance_controller:main',
+                'rule_based_classifier = jetleg_control.script.rule_based_classifier:main'
         ],
     },
 )
