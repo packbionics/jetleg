@@ -19,61 +19,54 @@
 # THE SOFTWARE.
 
 
+import pytest
+
 from jetleg_control.gait_phase import GaitPhase
 from jetleg_control.data import SensorData
 from jetleg_control.classifier import RuleBasedClassifier
 
 
-# def construct() -> RuleList:
-
-#     num_phases = 4
-#     phases = list()
-
-#     for _ in range(num_phases):
-#         phases.append(GaitPhase())
-
-#     startphase = phases[2]
-
-#     # Define set of rules for making transitions
-#     def rule1(x, y): return x == phases[0] and y.imu_mean > 5
-#     def rule2(x, y): return x == phases[0] and y.imu_mean <= 5
-
-#     def rule3(x, y): return x == phases[1] and y.imu_mean > 7
-#     def rule4(x, y): return x == phases[1] and y.imu_mean <= 5
-#     def rule5(x, y): return x == phases[1] and y.imu_mean <= 7 and y.imu_mean > 5
-
-#     def rule6(x, y): return x == phases[2] and y.imu_mean > 0
-#     def rule7(x, y): return x == phases[2] and y.imu_mean <= 0
-
-#     def rule8(x, y): return x == phases[3] and y.imu_mean < 5
-#     def rule9(x, y): return x == phases[3] and y.imu_mean >= 5
-
-#     simple_rule_list = RuleList()
-
-#     simple_rule_list.add_rule(rule1, (0, 0))
-#     simple_rule_list.add_rule(rule2, (0, 1))
-
-#     simple_rule_list.add_rule(rule3, (0, 1))
-#     simple_rule_list.add_rule(rule4, (0, 2))
-#     simple_rule_list.add_rule(rule5, (0, 0))
-
-#     simple_rule_list.add_rule(rule6, (0, 2))
-#     simple_rule_list.add_rule(rule7, (0, 3))
-
-#     simple_rule_list.add_rule(rule8, (0, 3))
-#     simple_rule_list.add_rule(rule9, (0, 0))
-
-#     return startphase, simple_rule_list, singleton_gait_modes
+@pytest.fixture
+def make_phases():
+    return [GaitPhase([0.0, 0.0], [0.0, 0.0], [0.0, 0.0]),
+            GaitPhase([1.0, 0.0], [0.0, 0.0], [0.0, 0.0]),
+            GaitPhase([2.0, 0.0], [0.0, 0.0], [0.0, 0.0]),
+            GaitPhase([3.0, 0.0], [0.0, 0.0], [0.0, 0.0])]
 
 
-def test_init():
-
-    startphase = GaitPhase([0.0, 0.0], [0.0, 0.0], [0.0, 0.0])
+@pytest.fixture
+def transition_model(phases):
 
     def make_transition(phase: GaitPhase, data: SensorData) -> GaitPhase:
-        return startphase
+        if phase == phases[0]:
+            if data.imu_mean > 5:
+                return phases[0]
+            else:
+                return phases[1]
+        elif phase == phases[1]:
+            if data.imu_mean > 7:
+                return phases[1]
+            elif data.imu_mean < 5:
+                return phases[2]
+            else:
+                return phases[0]
+        elif phase == phases[2]:
+            if data.imu_mean > 0:
+                return phases[2]
+            else:
+                return phases[3]
+        else:
+            if data.imu_mean < 5:
+                return phases[3]
+            else:
+                return phases[0]
 
-    classifier = RuleBasedClassifier(startphase, make_transition)
+    return make_transition
 
-    assert classifier.gait_phase == startphase
-    assert classifier.transitions == make_transition
+
+def test_init(phases, transition_model):
+
+    classifier = RuleBasedClassifier(phases[0], transition_model)
+
+    assert classifier.gait_phase == phases[0]
+    assert classifier.transitions == transition_model

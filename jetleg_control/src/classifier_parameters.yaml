@@ -1,4 +1,4 @@
-rule_based_classifier:
+classifier_params:
   phases: {
     type: string_array,
     default_value: [''],
