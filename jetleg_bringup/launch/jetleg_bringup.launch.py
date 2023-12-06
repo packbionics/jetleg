@@ -33,8 +33,8 @@ def generate_launch_description():
 
     # Specify robot path
     model_path = PathJoinSubstitution([
-        FindPackageShare("jetleg_moveit_config"),
-        "config", "jetleg_wheeled_testrig.urdf.xacro"
+        FindPackageShare("jetleg_description"),
+        "ros2_control", "jetleg_wheeled_testrig.urdf.xacro"
     ])
     model_arg = DeclareLaunchArgument(
         "model",

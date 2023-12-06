@@ -131,7 +131,7 @@
 
     <gazebo>
         <plugin filename="libgazebo_ros2_control.so" name="gazebo_ros2_control">
-            <parameters>$(find jetleg_moveit_config)/config/ros2_controllers.yaml</parameters>
+            <parameters>$(find jetleg_description)/ros2_control/ros2_controllers.yaml</parameters>
 
             <robot_param>robot_description</robot_param>
             <robot_param_node>robot_state_publisher</robot_param_node>
