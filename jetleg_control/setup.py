@@ -6,7 +6,7 @@ from generate_parameter_library_py.setup_helper import generate_parameter_module
 
 
 package_name = 'jetleg_control'
-submodules = ['jetleg_control.script']
+submodules = ['jetleg_control.script', 'jetleg_control.controllers']
 
 data_files = [
     ('share/ament_index/resource_index/packages',
