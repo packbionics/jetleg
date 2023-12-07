@@ -1,4 +1,4 @@
-# Default initial positions for jetleg_wheeled_testrig's ros2_control fake system
+# Default initial positions for jetleg_testrig's ros2_control fake system
 
 initial_positions:
   ankle_joint: 0

@@ -38,12 +38,9 @@ jetleg_controller:
 jetleg_intact_controller:
   ros__parameters:
     joints:
-      - vertical_rail_to_mount_intact
       - knee_joint_intact
       - ankle_joint_intact
     interface_name: effort
-    # command_interfaces:
-    #   - position
     state_interfaces:
       - position
       - velocity

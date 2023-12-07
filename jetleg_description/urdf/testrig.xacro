@@ -1,7 +1,8 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="testrig">
 
-    <xacro:include filename="$(find jetleg_description)/urdf/colors.xacro"/>
+    <xacro:include filename="$(find jetleg_description)/urdf/colors.xacro" />
+    <xacro:include filename="$(find jetleg_description)/urdf/gazebo/testrig_gazebo.xacro" />
 
     <xacro:property name="gantry_height" value="1" />
     <xacro:property name="gantry_width" value="1.6" />
@@ -23,9 +24,6 @@
             <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
         </inertial>
     </link>
-    <gazebo reference="vertical_rail">
-        <material>Gazebo/White</material>
-    </gazebo>
 
     <link name="gantry">
         <visual>
@@ -40,9 +38,6 @@
             <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
         </inertial>
     </link>
-    <gazebo reference="gantry">
-        <material>Gazebo/White</material>
-    </gazebo>
 
     <xacro:macro name="support" params="postfix reflect">
         <link name="support_${postfix}">
@@ -62,9 +57,6 @@
                 <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
             </inertial>
         </link>
-        <gazebo reference="support_${postfix}">
-            <material>Gazebo/Red</material>
-        </gazebo>
 
         <joint name="gantry_to_support_${postfix}" type="fixed">
             <parent link="gantry"/>

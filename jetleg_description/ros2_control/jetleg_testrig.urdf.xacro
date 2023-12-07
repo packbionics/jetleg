@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="jetleg_testrig">
+    <xacro:arg name="initial_positions_file" default="initial_positions.yaml" />
+
+    <!-- Import jetleg_testrig urdf file -->
+    <xacro:include filename="$(find jetleg_description)/urdf/jetleg_testrig.xacro" />
+
+    <!-- Import control_xacro -->
+    <xacro:include filename="jetleg_testrig.ros2_control.xacro" />
+
+
+    <xacro:jetleg_testrig_ros2_control name="WheeledTestrigSystem" initial_positions_file="$(arg initial_positions_file)"/>
+
+</robot>

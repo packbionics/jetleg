@@ -1,28 +1,27 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
-    <xacro:macro name="jetleg_ros2_control" params="name initial_positions_file">
+    <xacro:macro name="jetleg_ros2_control" params="name initial_positions_file identifier plugin">
         <xacro:property name="initial_positions" value="${xacro.load_yaml(initial_positions_file)['initial_positions']}"/>
 
-        <ros2_control name="${name}" type="system">
+        <ros2_control name="${name}_${identifier}" type="system">
             <hardware>
-                <plugin>gazebo_ros2_control/GazeboSystem</plugin>
-                <!-- <plugin>fake_effort_interface/GenericSystem</plugin> -->
+                <plugin>${plugin}</plugin>
             </hardware>
-            <joint name="vertical_rail_to_mount">
+            <joint name="vertical_rail_to_mount${identifier}">
                 <command_interface name="position"/>
                 <state_interface name="position">
                   <param name="initial_value">${initial_positions['vertical_rail_to_mount']}</param>
                 </state_interface>
                 <state_interface name="velocity"/>
             </joint>
-            <joint name="knee_joint">
+            <joint name="knee_joint${identifier}">
                 <command_interface name="effort"/>
                 <state_interface name="position">
                   <param name="initial_value">${initial_positions['knee_joint']}</param>
                 </state_interface>
                 <state_interface name="velocity"/>
             </joint>
-            <joint name="ankle_joint">
+            <joint name="ankle_joint${identifier}">
                 <command_interface name="effort"/>
                 <state_interface name="position">
                   <param name="initial_value">${initial_positions['ankle_joint']}</param>

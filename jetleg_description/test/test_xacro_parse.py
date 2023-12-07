@@ -25,13 +25,13 @@ from xml.parsers.expat import ExpatError
 from ament_index_python.packages import get_package_share_directory
 
 
-def test_parse_jetleg_wheeled_testrig():
+def test_parse_jetleg_testrig():
 
     # Compute the absolute path to the robot description
     jetleg_description_share = get_package_share_directory("jetleg_description")
     robot_description_path = os.path.join(
         jetleg_description_share,
-        "urdf/jetleg_wheeled_testrig.xacro"
+        "urdf/jetleg_testrig.xacro"
     )
 
     # Attempt to parse the file as a XACRO file
