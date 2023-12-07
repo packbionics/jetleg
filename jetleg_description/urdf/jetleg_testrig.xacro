@@ -74,9 +74,6 @@
                 <origin rpy="0 0 0" xyz="0 0 0"/>
         </inertial>
     </link>
-    <gazebo reference="mount">
-        <material>Gazebo/Black</material>
-    </gazebo>
 
     <link name="mount_intact">
         <visual>
@@ -91,9 +88,6 @@
                 <origin rpy="0 0 0" xyz="0 0 0"/>
         </inertial>
     </link>
-    <gazebo reference="mount_intact">
-        <material>Gazebo/Black</material>
-    </gazebo>
 
     <!-- Define the additional joints of the robot -->
 
@@ -128,13 +122,4 @@
         <axis xyz="0 0 -1" />
         <limit effort="100" velocity="10" lower="0" upper="0.6" />
     </joint>
-
-    <gazebo>
-        <plugin filename="libgazebo_ros2_control.so" name="gazebo_ros2_control">
-            <parameters>$(find jetleg_description)/ros2_control/ros2_controllers.yaml</parameters>
-
-            <robot_param>robot_description</robot_param>
-            <robot_param_node>robot_state_publisher</robot_param_node>
-        </plugin>
-    </gazebo>
 </robot>
