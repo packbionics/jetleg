@@ -89,6 +89,10 @@
         </inertial>
     </link>
 
+    <!-- Include components -->
+    <xacro:include filename="$(find jetleg_description)/urdf/components/imu.xacro" />
+    <xacro:jetleg_imu />
+
     <!-- Define the additional joints of the robot -->
 
     <joint name="vertical_rail_to_mount" type="revolute">
