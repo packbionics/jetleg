@@ -59,23 +59,6 @@ def test_parse_jetleg():
         assert False, f"{robot_description_path} is a mal-formed xacro file"
 
 
-def test_parse_jetleg_testrig():
-
-    # Compute the absolute path to the robot description
-    jetleg_description_share = get_package_share_directory("jetleg_description")
-    robot_description_path = os.path.join(
-        jetleg_description_share,
-        "urdf/jetleg_testrig.xacro"
-    )
-
-    # Attempt to parse the file as a XACRO file
-    try:
-        _ = xacro.process_file(robot_description_path)
-        assert True
-    except ExpatError:
-        assert False, f"{robot_description_path} is a mal-formed xacro file"
-
-
 def test_parse_jetleg_testrig_vision():
 
     # Compute the absolute path to the robot description

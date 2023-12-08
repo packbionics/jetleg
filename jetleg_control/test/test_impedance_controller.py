@@ -23,11 +23,16 @@ import rclpy
 
 from packbionics_interfaces.srv import UpdateImpedance
 
+from jetleg_control.controllers.impedance_controller import ImpedanceController
+
 
 def test_impedance_update():
 
     # Initialize the context to utilize ROS 2 features
     rclpy.init()
+
+    # Create the controller to receive the request
+    controller = ImpedanceController()
 
     # Create a node to communicate with the impedance controller node
     node = rclpy.create_node("test_impedance_update_node")
@@ -45,6 +50,8 @@ def test_impedance_update():
 
     # Send the request asynchronously
     future = client.call_async(request)
+
+    rclpy.spin_once(controller.node)
 
     # Wait for up to 1 seconds until a response is received
     rclpy.spin_until_future_complete(node, future, timeout_sec=1.0)

@@ -88,14 +88,14 @@ class ImpedanceController:
                                            f"stiffness count: {len(req.stiffness)}"
                                            f"damping count: {len(req.damping)}"
                                            f"equilibrium count: {len(req.equilibrium)}")
-            return
+            return resp
 
         # Ensure number of parameters corresponds to number of controllable joints
         if len(req.stiffness) != len(range(self.num_joints)):
             self.node.get_logger().warning("Mismatch between number of"
                                            "joints and impedance parameters: "
                                            f"{len(range(self.num_joints))}, {len(req.stiffness)}")
-            return
+            return resp
 
         # Use values given in the request
         for i, _ in enumerate(self.impedance_params):
