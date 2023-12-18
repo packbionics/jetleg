@@ -13,8 +13,7 @@ find_package(std_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
 
 rosidl_generate_interfaces(${PROJECT_NAME}
-  "msg/LinkState.msg"
-  "action/LegAction.action"
+  "srv/UpdateImpedance.srv"
   DEPENDENCIES std_msgs geometry_msgs
 )
 

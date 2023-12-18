@@ -24,7 +24,11 @@ from launch_ros.actions import Node
 def generate_launch_description():
     ld = LaunchDescription()
 
-    controller_list = ['jetleg_controller', 'jetleg_intact_controller', 'joint_state_broadcaster']
+    controller_list = [
+        'jetleg_controller',
+        'jetleg_intact_controller',
+        'joint_state_broadcaster',
+        'hip_controller']
     for controller in controller_list:
         ld.add_action(Node(
             package='controller_manager',

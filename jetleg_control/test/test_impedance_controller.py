@@ -21,7 +21,7 @@
 
 import rclpy
 
-from packbionics_interfaces.srv import UpdateImpedance
+from jetleg_interfaces.srv import UpdateImpedance
 
 from jetleg_control.controllers.impedance_controller import ImpedanceController
 

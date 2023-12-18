@@ -24,7 +24,7 @@ from rclpy.qos import qos_profile_system_default
 
 from std_msgs.msg import Float64MultiArray
 from sensor_msgs.msg import JointState
-from packbionics_interfaces.srv import UpdateImpedance
+from jetleg_interfaces.srv import UpdateImpedance
 
 from dataclasses import dataclass
 

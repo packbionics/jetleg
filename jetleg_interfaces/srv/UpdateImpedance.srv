@@ -1,0 +1,9 @@
+# Each set of impedance parameters specified the desired angle,
+# stiffness of trajectory, and damping of angular velocity
+# All specified values are in the same order as the joint names in the ros2_control parameters
+
+float64[] stiffness
+float64[] damping
+float64[] equilibrium
+---
+std_msgs/Empty success

@@ -35,7 +35,7 @@ from jetleg_control.classifier_parameters import classifier_params
 
 from std_msgs.msg import Float64
 
-from packbionics_interfaces.srv import UpdateImpedance
+from jetleg_interfaces.srv import UpdateImpedance
 
 
 def add_client(node: Node, srv_type, srv_name) -> Client:
