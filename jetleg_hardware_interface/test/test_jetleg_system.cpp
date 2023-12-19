@@ -81,3 +81,112 @@ TEST(TestJetlegSystem, load_jetleg_system_2dof_multiple_cmd_interfaces)
     ros2_control_test_assets::urdf_tail;
   ASSERT_THROW(hardware_interface::ResourceManager rm(urdf), std::runtime_error);
 }
+
+TEST(TestJetlegSystem, load_jetleg_example_interfaces) {
+  std::string hardware_system_2dof =
+    R"(
+    <ros2_control name="JetlegSystem" type="system">
+      <hardware>
+          <plugin>jetleg_system/JetlegSystem</plugin>
+      </hardware>
+      <!-- Passive Joints -->
+
+      <joint name="wheel_hind_left_joint">
+          <state_interface name="position">
+            <param name="initial_value">0.0</param>
+          </state_interface>
+          <state_interface name="velocity">
+            <param name="initial_value">0.0</param>
+          </state_interface>
+      </joint>
+
+      <joint name="wheel_hind_right_joint">
+          <state_interface name="position">
+            <param name="initial_value">0.0</param>
+          </state_interface>
+          <state_interface name="velocity">
+            <param name="initial_value">0.0</param>
+          </state_interface>
+      </joint>
+
+      <joint name="wheel_fore_left_joint">
+          <state_interface name="position">
+            <param name="initial_value">0.0</param>
+          </state_interface>
+          <state_interface name="velocity">
+            <param name="initial_value">0.0</param>
+          </state_interface>
+      </joint>
+
+      <joint name="wheel_fore_right_joint">
+          <state_interface name="position">
+            <param name="initial_value">0.0</param>
+          </state_interface>
+          <state_interface name="velocity">
+            <param name="initial_value">0.0</param>
+          </state_interface>
+      </joint>
+    </ros2_control>
+
+    <ros2_control name="jetleg_main" type="system">
+      <hardware>
+        <plugin>jetleg_system/JetlegSystem</plugin>
+      </hardware>
+      <joint name="vertical_rail_to_mount_main">
+        <command_interface name="position"/>
+        <state_interface name="position">
+          <param name="initial_value">0.0</param>
+        </state_interface>
+        <state_interface name="velocity"/>
+      </joint>
+      <joint name="knee_joint_main">
+        <command_interface name="effort"/>
+        <state_interface name="position">
+          <param name="initial_value">0.0</param>
+        </state_interface>
+        <state_interface name="velocity"/>
+      </joint>
+      <joint name="ankle_joint_main">
+        <command_interface name="effort"/>
+        <state_interface name="position">
+          <param name="initial_value">0.0</param>
+        </state_interface>
+        <state_interface name="velocity"/>
+      </joint>
+    </ros2_control>
+
+    <ros2_control name="jetleg_residual" type="system">
+      <hardware>
+        <plugin>jetleg_system/JetlegSystem</plugin>
+      </hardware>
+      <joint name="vertical_rail_to_mount_residual">
+        <command_interface name="position"/>
+        <state_interface name="position">
+          <param name="initial_value">0.0</param>
+        </state_interface>
+        <state_interface name="velocity"/>
+      </joint>
+      <joint name="knee_joint_residual">
+        <command_interface name="effort"/>
+        <state_interface name="position">
+          <param name="initial_value">0.0</param>
+        </state_interface>
+        <state_interface name="velocity"/>
+      </joint>
+      <joint name="ankle_joint_residual">
+        <command_interface name="effort"/>
+        <state_interface name="position">
+          <param name="initial_value">0.0</param>
+        </state_interface>
+        <state_interface name="velocity"/>
+      </joint>
+    </ros2_control>
+    )";
+
+  auto urdf = ros2_control_test_assets::urdf_head + hardware_system_2dof +
+    ros2_control_test_assets::urdf_tail;
+  hardware_interface::ResourceManager rm(urdf);
+  ASSERT_NO_THROW(hardware_interface::ResourceManager rm(urdf));
+
+  
+}
