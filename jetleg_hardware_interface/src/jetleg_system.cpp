@@ -71,6 +71,7 @@ std::vector<hardware_interface::StateInterface> JetlegSystem::export_state_inter
 
   // Used to share status of hardware interface
   rclcpp::Logger logger = rclcpp::get_logger("JetlegSystem");
+  RCLCPP_INFO(logger, "Exporting JetlegSystem state interfaces...");
 
   // Shares joint states with the rest of ros2_control
   std::vector<hardware_interface::StateInterface> state_interfaces;
@@ -125,6 +126,7 @@ std::vector<hardware_interface::CommandInterface> JetlegSystem::export_command_i
 
   // Used to share status of hardware interface
   rclcpp::Logger logger = rclcpp::get_logger("JetlegSystem");
+  RCLCPP_INFO(logger, "Exporting JetlegSystem command interfaces...");
 
   // Advertises command interfaces to the rest of ros2_control
   std::vector<hardware_interface::CommandInterface> command_interfaces;
@@ -135,7 +137,6 @@ std::vector<hardware_interface::CommandInterface> JetlegSystem::export_command_i
     hardware_interface::HW_IF_POSITION, hardware_interface::HW_IF_VELOCITY,
     hardware_interface::HW_IF_ACCELERATION, hardware_interface::HW_IF_EFFORT
   };
-
 
   int jointOffset = 0;
   for (const auto & joint : info_.joints) {

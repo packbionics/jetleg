@@ -42,8 +42,10 @@ def generate_launch_description() -> LaunchDescription:
         package="controller_manager",
         executable="ros2_control_node",
         parameters=[
-            {"robot_description": robot_urdf},
             controller_manager_params
+        ],
+        remappings=[
+            ('/controller_manager/robot_description', '/robot_description')
         ]
     )
     ld.add_action(controller_manager)
