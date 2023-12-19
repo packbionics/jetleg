@@ -33,8 +33,8 @@ def generate_launch_description() -> LaunchDescription:
     # Generate the urdf format from xacro file
     robot_urdf = Command(['xacro', ' ', model])
     controller_manager_params = PathJoinSubstitution([
-        FindPackageShare("jetleg_moveit_config"),
-        "config", "ros2_controllers.yaml"
+        FindPackageShare("jetleg_description"),
+        "ros2_control", "ros2_controllers.yaml"
     ])
 
     # Start up a standalone controller manager with the generated urdf content
