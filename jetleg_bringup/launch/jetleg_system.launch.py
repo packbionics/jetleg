@@ -18,7 +18,7 @@
 # OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 from launch import LaunchDescription
-from launch.substitutions import PathJoinSubstitution, Command, LaunchConfiguration
+from launch.substitutions import PathJoinSubstitution
 
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
@@ -26,12 +26,9 @@ from launch_ros.substitutions import FindPackageShare
 
 def generate_launch_description() -> LaunchDescription:
 
-    model = LaunchConfiguration("model")
-
     ld = LaunchDescription()
 
     # Generate the urdf format from xacro file
-    robot_urdf = Command(['xacro', ' ', model])
     controller_manager_params = PathJoinSubstitution([
         FindPackageShare("jetleg_description"),
         "ros2_control", "ros2_controllers.yaml"

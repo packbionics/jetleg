@@ -188,5 +188,5 @@ TEST(TestJetlegSystem, load_jetleg_example_interfaces) {
   hardware_interface::ResourceManager rm(urdf);
   ASSERT_NO_THROW(hardware_interface::ResourceManager rm(urdf));
 
-  
+
 }
