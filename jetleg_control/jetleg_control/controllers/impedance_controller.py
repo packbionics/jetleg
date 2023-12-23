@@ -19,26 +19,13 @@
 # THE SOFTWARE.
 
 
+import numpy as np
+
 import rclpy
 from rclpy.qos import qos_profile_system_default
 
 from std_msgs.msg import Float64MultiArray
 from sensor_msgs.msg import JointState
-from jetleg_interfaces.srv import UpdateImpedance
-
-from dataclasses import dataclass
-
-
-@dataclass
-class ImpedanceParams:
-    stiffness: float
-    damping: float
-    equilibrium: float
-
-
-def compute_command(position: float, velocity: float, params: ImpedanceParams) -> float:
-    error = params.equilibrium - position
-    return params.stiffness * error - params.damping * velocity
 
 
 class ImpedanceController:
@@ -49,22 +36,19 @@ class ImpedanceController:
         # Create a ROS 2 node to interface with the rest of ROS 2
         self.node = rclpy.create_node("impedance_controller")
 
-        # Access the controllable joints
-        self.node.declare_parameter("num_joints", 0)
-        self.num_joints = self.node.get_parameter(
-            "num_joints").get_parameter_value().integer_value
-
-        self.impedance_params = list()
-        for _ in range(self.num_joints):
-            self.impedance_params.append(ImpedanceParams(0.0, 0.0, 0.0))
-
+        # Maintain latest joint positions and velocities
         self.joint_state = None
+
+        # Maintain latest impedance parameters
+        self.stiffness = None
+        self.damping = None
+        self.equilibrium = None
 
         # Create a publisher that sends commands to the forward controller
         self.forward_pub = self.node.create_publisher(
             Float64MultiArray, "commands", qos_profile_system_default)
 
-        # Create timer to periodically send commands to the forward controller
+        # Create a timer to periodically send commands to the forward controller
         RATE = 0.01
         self.command_timer = self.node.create_timer(RATE, self.command_callback)
 
@@ -72,56 +56,55 @@ class ImpedanceController:
         self.joint_state_sub = self.node.create_subscription(
             JointState, "joint_states", self.joint_state_callback, qos_profile_system_default)
 
-        # Create an action service that receives requests to change impedance parameters
-        self.impedance_service = self.node.create_service(
-            UpdateImpedance, "update_impedance", self.update_impedance_callback)
+        # Create a subscriber that receives requests to change impedance parameters
+        self.impedance_service = self.node.create_subscription(
+            Float64MultiArray,
+            "impedance_params",
+            self.update_impedance_callback,
+            qos_profile_system_default
+        )
 
-    def update_impedance_callback(self, req: UpdateImpedance.Request,
-                                  resp: UpdateImpedance.Response):
-        # Acknowledge request
-        self.node.get_logger().info("Request received")
-        self.node.get_logger().info(repr(req))
+    def update_impedance_callback(self, msg: Float64MultiArray):
+        """Update the current impedance parameters based on latest received message."""
+        i = msg.layout.dim[0].size
+        j = msg.layout.dim[1].size
+        k = msg.layout.dim[2].size
 
-        # Ensure the request is properly formatted
-        if len(req.stiffness) != len(req.damping) or len(req.stiffness) != len(req.equilibrium):
-            self.node.get_logger().warning("Improper format of impedance update request: "
-                                           f"stiffness count: {len(req.stiffness)}"
-                                           f"damping count: {len(req.damping)}"
-                                           f"equilibrium count: {len(req.equilibrium)}")
-            return resp
+        print("Impedance callback has been called")
 
-        # Ensure number of parameters corresponds to number of controllable joints
-        if len(req.stiffness) != len(range(self.num_joints)):
-            self.node.get_logger().warning("Mismatch between number of"
-                                           "joints and impedance parameters: "
-                                           f"{len(range(self.num_joints))}, {len(req.stiffness)}")
-            return resp
-
-        # Use values given in the request
-        for i, _ in enumerate(self.impedance_params):
-            self.impedance_params[i].stiffness = req.stiffness[i]
-            self.impedance_params[i].damping = req.damping[i]
-            self.impedance_params[i].equilibrium = req.equilibrium[i]
-
-        self.node.get_logger().info("Request handled")
-
-        return resp
+        # Use values given in the message
+        self.stiffness = np.array(msg.data[0: i])
+        self.damping = np.array(msg.data[i: i + j])
+        self.equilibrium = np.array(msg.data[i + j: i + j + k])
 
     def command_callback(self):
         """Update the command inputs to the system."""
+        print("Command callback has been called")
         # Make sure there is an internal representation of the joint state
         if self.joint_state is None:
             return
+        if self.stiffness is None or self.damping is None or self.equilibrium is None:
+            return
+
+        # Compute the input signal
+        signal = ImpedanceController.compute_command(
+            self.joint_state.position,
+            self.joint_state.velocity,
+            self.stiffness,
+            self.damping,
+            self.equilibrium
+        )
 
         # Populate message with command values
-        for joint_idx in range(self.num_joints):
-            signal = compute_command(self.joint_state.position[joint_idx],
-                                     self.joint_state.position[joint_idx],
-                                     self.impedance_params[joint_idx])
-            self.msg.data[joint_idx] = signal
+        msg = Float64MultiArray()
+        msg.data.fromlist(signal)
 
-        self.publisher.publish(self.msg)
+        self.publisher.publish(msg)
 
     def joint_state_callback(self, msg: JointState):
         """Update the internal representation of the joint state."""
         self.joint_state = msg
+
+    def compute_command(x: np.array, x_dot: np.array,
+                        k: np.array, d: np.array, eq: np.array) -> np.array:
+        return k * (eq - x) - d * x_dot

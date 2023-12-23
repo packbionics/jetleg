@@ -19,9 +19,12 @@
 # THE SOFTWARE.
 
 
-import rclpy
+import numpy as np
 
-from jetleg_interfaces.srv import UpdateImpedance
+import rclpy
+from rclpy.qos import qos_profile_system_default
+
+from std_msgs.msg import Float64MultiArray, MultiArrayDimension
 
 from jetleg_control.controllers.impedance_controller import ImpedanceController
 
@@ -38,28 +41,31 @@ def test_impedance_update():
     node = rclpy.create_node("test_impedance_update_node")
 
     # Create a client to send the service request
-    client = node.create_client(UpdateImpedance, "update_impedance")
+    pub = node.create_publisher(Float64MultiArray, "impedance_params", qos_profile_system_default)
 
     # Create a service request to test service behavior
-    request = UpdateImpedance.Request()
+    msg = Float64MultiArray()
 
     # Populate the request with necessary data
-    request.stiffness.fromlist([0.0, 0.0])
-    request.damping.fromlist([0.0, 0.0])
-    request.equilibrium.fromlist([0.0, 0.0])
+    msg.data.fromlist([0.0, 0.0])
+    msg.data.fromlist([0.0, 0.0])
+    msg.data.fromlist([0.0, 0.0])
 
-    # Send the request asynchronously
-    future = client.call_async(request)
+    msg.layout.dim.append(MultiArrayDimension(size=2))
+    msg.layout.dim.append(MultiArrayDimension(size=2))
+    msg.layout.dim.append(MultiArrayDimension(size=2))
 
+    # Send the message
+    pub.publish(msg)
     rclpy.spin_once(controller.node)
 
-    # Wait for up to 1 seconds until a response is received
-    rclpy.spin_until_future_complete(node, future, timeout_sec=1.0)
+    assert controller.stiffness is not None, "Stiffness should be a non-null value"
+    assert controller.damping is not None, "Damping should be a non-null value"
+    assert controller.equilibrium is not None, "Equilibrium should be a non-null value"
 
-    # Check if a response was received
-    assert future.done()
+    assert np.all(controller.stiffness == np.array([0.0, 0.0])), "Expected stiffness: [0.0, 0.0]"
+    assert np.all(controller.damping == np.array([0.0, 0.0])), "Expected damping: [0.0, 0.0]"
+    assert np.all(controller.equilibrium == np.array([0.0, 0.0])), "Expected equilibrium: [0.0, 0.0]"
 
     # Release ROS 2 resources
     rclpy.shutdown()
-
-    pass
