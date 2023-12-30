@@ -1,4 +1,4 @@
-/rule_based_classifier:
+/classifier_node:
   ros__parameters:
     phases:
       - early_stance

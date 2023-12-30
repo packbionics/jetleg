@@ -66,16 +66,13 @@ class ImpedanceController:
 
     def update_impedance_callback(self, msg: Float64MultiArray):
         """Update the current impedance parameters based on latest received message."""
-        i = msg.layout.dim[0].size
-        j = msg.layout.dim[1].size
-        k = msg.layout.dim[2].size
+        # Number of state variables per parameter
+        stride = msg.layout.dim[1].stride
 
-        print("Impedance callback has been called")
-
-        # Use values given in the message
-        self.stiffness = np.array(msg.data[0: i])
-        self.damping = np.array(msg.data[i: i + j])
-        self.equilibrium = np.array(msg.data[i + j: i + j + k])
+        # Extract values for each of the three parameters per state variable
+        self.stiffness = np.array(msg.data[0: stride])
+        self.damping = np.array(msg.data[stride: 2 * stride])
+        self.equilibrium = np.array(msg.data[2 * stride: 3 * stride])
 
     def command_callback(self):
         """Update the command inputs to the system."""

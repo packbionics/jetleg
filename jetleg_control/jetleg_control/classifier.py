@@ -19,25 +19,20 @@
 # THE SOFTWARE.
 
 
-from abc import ABCMeta
 from typing import Callable
 
 from jetleg_control.data import SensorData
 from jetleg_control.gait_phase import GaitPhase
 
 
-class ClassifierInterface(metaclass=ABCMeta):
+class ClassifierInterface:
     """Interface defining the common methods of a gait classifier."""
 
-    @classmethod
-    def __subclasshook__(cls, __subclass: type) -> bool:
-        return (
-            hasattr(__subclass, "classify") and
-            callable(__subclass.classify)
-        )
+    def classify(self, sensor_data: SensorData) -> GaitPhase:
+        pass
 
 
-class RuleBasedClassifier:
+class RuleBasedClassifier(ClassifierInterface):
     """Gait classifier which follows pre-programmed rules for determining gait."""
 
     TransitionModel = Callable[[GaitPhase, SensorData], GaitPhase]

@@ -37,8 +37,9 @@ def generate_launch_description():
 
     rule_based_classifier = Node(
         package="jetleg_control",
-        executable="rule_based_classifier.py",
-        parameters=[impedance_params_file]
+        executable="rule_based_classifier",
+        parameters=[impedance_params_file],
+        output="screen"
     )
     ld.add_action(rule_based_classifier)
 

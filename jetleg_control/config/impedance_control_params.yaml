@@ -1,3 +1,0 @@
-impedance_controller:
-  ros__parameters:
-    num_joints: 2
