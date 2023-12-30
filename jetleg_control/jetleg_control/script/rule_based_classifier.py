@@ -35,6 +35,9 @@ from jetleg_control.classifier_parameters import classifier_params
 # Import ROS 2 message interfaces
 from std_msgs.msg import Float64MultiArray, MultiArrayDimension
 
+# Import utility libraries
+import numpy as np
+
 
 def gen_gait_phases(params: classifier_params.Params):
 
@@ -47,7 +50,7 @@ def gen_gait_phases(params: classifier_params.Params):
         # Access parameters for each phase at a time
         phase_stiffness = params.stiffness[idx: idx + num_joints]
         phase_damping = params.damping[idx: idx + num_joints]
-        phase_equilibrum = params.equilibrium[idx: idx + num_joints]
+        phase_equilibrum = np.radians(params.equilibrium[idx: idx + num_joints])
 
         current_phase = GaitPhase(
             phase_stiffness, phase_damping, phase_equilibrum)

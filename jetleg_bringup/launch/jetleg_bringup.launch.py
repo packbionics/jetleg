@@ -77,6 +77,17 @@ def generate_launch_description():
     )
     ld.add_action(spawn_controls)
 
+    # Start up control law
+    control_behavior = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            PathJoinSubstitution([
+                FindPackageShare("jetleg_control"),
+                "launch", "fsm_impedance_controller.launch.py"
+            ])
+        )
+    )
+    ld.add_action(control_behavior)
+
     # Specify RVIZ config
     rviz_config_arg = DeclareLaunchArgument(
         'rvizconfig',

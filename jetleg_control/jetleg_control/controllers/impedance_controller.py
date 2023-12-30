@@ -82,11 +82,24 @@ class ImpedanceController:
             return
         if self.stiffness is None or self.damping is None or self.equilibrium is None:
             return
+        
+        # TODO: Describe relevant joints with parameters rather than hardcode values
+        mapping = {"knee_joint": 0, "ankle_joint": 1}
 
+        x = np.zeros((2), dtype=np.float64)
+        x_dot = np.zeros((2), dtype=np.float64)
+
+        for i, joint_name in enumerate(self.joint_state.name):
+            if joint_name in mapping:
+                idx = mapping[joint_name]
+
+                x[idx] = self.joint_state.position[i]
+                x_dot[idx] = self.joint_state.velocity[i]
+        
         # Compute the input signal
         signal = ImpedanceController.compute_command(
-            self.joint_state.position,
-            self.joint_state.velocity,
+            x,
+            x_dot,
             self.stiffness,
             self.damping,
             self.equilibrium
@@ -94,9 +107,9 @@ class ImpedanceController:
 
         # Populate message with command values
         msg = Float64MultiArray()
-        msg.data.fromlist(signal)
+        msg.data.fromlist(signal.tolist())
 
-        self.publisher.publish(msg)
+        self.forward_pub.publish(msg)
 
     def joint_state_callback(self, msg: JointState):
         """Update the internal representation of the joint state."""
