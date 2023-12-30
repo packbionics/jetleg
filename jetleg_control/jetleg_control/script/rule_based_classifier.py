@@ -122,7 +122,7 @@ class ClassifierNode(Node):
         self.pub = self.create_publisher(
             Float64MultiArray, 'impedance_params', qos_profile_system_default)
 
-        self.timer = self.create_timer(0.5, self.pub_signal)
+        self.timer = self.create_timer(1.0, self.pub_signal)
 
     def pub_signal(self):
 
