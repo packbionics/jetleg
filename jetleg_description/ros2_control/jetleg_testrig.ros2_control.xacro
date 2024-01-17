@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+    <xacro:arg name="initial_positions_file" default="initial_positions.yaml" />
+    <xacro:arg name="plugin" default="gazebo_ros2_control/GazeboSystem" />
+
+    <!-- Import the JetLeg ros2_control hardware configurations -->
+    <xacro:include filename="$(find jetleg_description)/ros2_control/jetleg.ros2_control.xacro" />
+    
+    <xacro:jetleg_ros2_control name="JetlegSystem" identifier="" initial_positions_file="$(arg initial_positions_file)" plugin="$(arg plugin)" />
+    <xacro:jetleg_ros2_control name="JetlegSystem" identifier="_intact" initial_positions_file="$(arg initial_positions_file)" plugin="$(arg plugin)" />
+
+    <xacro:macro name="jetleg_testrig_ros2_control" params="name initial_positions_file">
+        <xacro:property name="initial_positions" value="${xacro.load_yaml(initial_positions_file)['initial_positions']}"/>
+
+        <ros2_control name="${name}" type="system">
+            <hardware>
+                <plugin>$(arg plugin)</plugin>
+            </hardware>
+            <!-- Passive Joints -->
+
+            <joint name="wheel_hind_left_joint">
+                <state_interface name="position">
+                  <param name="initial_value">0.0</param>
+                </state_interface>
+                <state_interface name="velocity">
+                  <param name="initial_value">0.0</param>
+                </state_interface>
+            </joint>
+
+            <joint name="wheel_hind_right_joint">
+                <state_interface name="position">
+                  <param name="initial_value">0.0</param>
+                </state_interface>
+                <state_interface name="velocity">
+                  <param name="initial_value">0.0</param>
+                </state_interface>
+            </joint>
+
+            <joint name="wheel_fore_left_joint">
+                <state_interface name="position">
+                  <param name="initial_value">0.0</param>
+                </state_interface>
+                <state_interface name="velocity">
+                  <param name="initial_value">0.0</param>
+                </state_interface>
+            </joint>
+
+            <joint name="wheel_fore_right_joint">
+                <state_interface name="position">
+                  <param name="initial_value">0.0</param>
+                </state_interface>
+                <state_interface name="velocity">
+                  <param name="initial_value">0.0</param>
+                </state_interface>
+            </joint>
+        </ros2_control>
+    </xacro:macro>
+</robot>

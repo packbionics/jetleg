@@ -1,51 +1,28 @@
+# Copyright (c) 2023 Pack Bionics
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of this
+# software and associated documentation files (the "Software"), to deal in the Software
+# without restriction, including without limitation the rights to use, copy, modify,
+# merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
+# permit persons to whom the Software is furnished to do so, subject to the following
+# conditions:
+#
+# The above copyright notice and this permission notice shall be included in all copies
+# or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+# INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+# PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+# HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
+# CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
+# OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
 from launch import LaunchDescription
-from launch.conditions import IfCondition
-from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument
-from launch.substitutions import LaunchConfiguration
-from launch.launch_description_sources import PythonLaunchDescriptionSource
 
 from launch_ros.actions import Node
-from launch_ros.substitutions import FindPackageShare
-
-
-def add_launch_argument(name: str, default: str, description: str) -> tuple:
-    launch_config = LaunchConfiguration(name)
-
-    launch_arg = DeclareLaunchArgument(
-        name, 
-        default_value=default,
-        description=description
-    )
-    
-    return launch_config, launch_arg
-
-def add_launch_file(package_name: str, launch_name: str, conditional=None):
-    package = FindPackageShare(package_name)
-
-    launch_condition = None
-    if conditional is not None:
-        launch_condition = IfCondition(
-            conditional
-        )
-
-    launch_file = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource([package, '/launch', '/' + launch_name]),
-        condition=launch_condition
-    )
-
-    return launch_file
 
 
 def generate_launch_description():
-
-    _, use_rviz_arg = add_launch_argument(
-        'use_rviz',
-        default='True',
-        description='Specifies to use RVIZ for visualization'
-    )
-
-    sim_launch = add_launch_file('jetleg_bringup', 'jetleg_bringup.launch.py')
-    rsp = add_launch_file('jetleg_bringup', 'rsp.launch.py')
 
     pointcloud_proc = Node(
         package="jetleg_vision",
@@ -55,9 +32,6 @@ def generate_launch_description():
 
     ld = LaunchDescription()
 
-    ld.add_action(use_rviz_arg)
-    ld.add_action(sim_launch)
-    ld.add_action(rsp)
     ld.add_action(pointcloud_proc)
 
     return ld

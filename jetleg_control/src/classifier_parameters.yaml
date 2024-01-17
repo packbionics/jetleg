@@ -1,0 +1,37 @@
+classifier_params:
+  phases: {
+    type: string_array,
+    default_value: [''],
+    description: "Names of phases used by classifier",
+    read_only: true,
+    validation: {
+      size_gt<>: [0],
+    }
+  }
+  stiffness: {
+    type: double_array,
+    default_value: [0.0],
+    description: "Collection of values used for impedance stiffness",
+    read_only: true,
+    validation: {
+      size_gt<>: [0]
+    }
+  }
+  damping: {
+    type: double_array,
+    default_value: [0.0],
+    description: "Collection of values used for impedance damping",
+    read_only: true,
+    validation: {
+      size_gt<>: [0]
+    }
+  }
+  equilibrium: {
+    type: double_array,
+    default_value: [0.0],
+    description: "Collection of values used for impedance equilibrium",
+    read_only: true,
+    validation: {
+      size_gt<>: [0]
+    }
+  }

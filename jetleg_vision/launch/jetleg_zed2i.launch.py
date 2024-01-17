@@ -1,5 +1,26 @@
 #!/usr/bin/env python3
 
+# Copyright 2023 Pack Bionics
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+# THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+# THE SOFTWARE.
+
+
 import os
 
 from launch import LaunchDescription
@@ -24,7 +45,8 @@ def generate_launch_description():
     svo_path = LaunchConfiguration('svo_path')
 
     # Configuration variables
-    # Camera name. Can be different from camera model, used to distinguish camera in multi-camera systems
+    # Camera name. Can be different from camera model,
+    # used to distinguish camera in multi-camera systems
     camera_name = 'zed2i'
     node_name = 'zed_node'  # Zed Node name
     publish_urdf = 'true'  # Publish static frames from camera URDF
@@ -93,7 +115,8 @@ def generate_launch_description():
     declare_svo_path_cmd = DeclareLaunchArgument(
         'svo_path',
         default_value='',
-        description='Path to an input SVO file. Note: overrides the parameter `general.svo_file` in `common.yaml`.')
+        description='Path to an input SVO file. '
+                    'Note: overrides the parameter `general.svo_file` in `common.yaml`.')
 
     # Define LaunchDescription variable
     ld = LaunchDescription()

@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="jetleg_testrig_gazebo">
+
+    <!-- Use mounts to attach legs to the testrig -->
+    <gazebo reference="mount">
+        <material>Gazebo/Black</material>
+    </gazebo>
+
+    <gazebo reference="mount_intact">
+        <material>Gazebo/Black</material>
+    </gazebo>
+
+    <gazebo>
+        <plugin filename="libgazebo_ros2_control.so" name="gazebo_ros2_control">
+            <parameters>$(find jetleg_description)/ros2_control/ros2_controllers.yaml</parameters>
+
+            <robot_param>robot_description</robot_param>
+            <robot_param_node>robot_state_publisher</robot_param_node>
+        </plugin>
+    </gazebo>
+</robot>

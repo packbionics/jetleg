@@ -16,7 +16,6 @@ from ament_index_python.packages import get_package_share_path
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, RegisterEventHandler
 from launch.event_handlers import OnProcessExit
-from launch.conditions import IfCondition
 from launch.substitutions import Command, FindExecutable, LaunchConfiguration, PathJoinSubstitution
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
@@ -27,13 +26,13 @@ def generate_launch_description():
     default_rviz_config_path = description_path / 'rviz/odrive.rviz'
 
     joint0_controller_arg = DeclareLaunchArgument(
-                "joint0_controller",
-                default_value="joint0_position_controller",
-            )
+        "joint0_controller",
+        default_value="joint0_position_controller",
+    )
     rviz_arg = DeclareLaunchArgument(
-                name='rvizconfig', default_value=str(default_rviz_config_path),
-                description='Absolute path to rviz config file'
-            )
+        name='rvizconfig', default_value=str(default_rviz_config_path),
+        description='Absolute path to rviz config file'
+    )
 
     joint0_controller = LaunchConfiguration("joint0_controller")
 
@@ -80,7 +79,8 @@ def generate_launch_description():
     joint_state_broadcaster_spawner = Node(
         package="controller_manager",
         executable="spawner.py",
-        arguments=["joint_state_broadcaster", "--controller-manager", "/controller_manager"],
+        arguments=["joint_state_broadcaster",
+                   "--controller-manager", "/controller_manager"],
     )
 
     joint0_controller_spawner = Node(

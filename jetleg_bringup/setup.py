@@ -1,8 +1,7 @@
-from glob import glob
 import os
 from setuptools import setup
 from glob import glob
-import os
+
 
 package_name = 'jetleg_bringup'
 
@@ -11,6 +10,7 @@ data_files = [
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml'])
 ]
+
 
 def glob_recursive(data_files, directory):
     files = glob(directory+'*.*')
@@ -22,7 +22,8 @@ def glob_recursive(data_files, directory):
         for dir in subdirectories:
             glob_recursive(data_files, dir)
 
-data_directories = ['launch', 'resource', 'config']
+
+data_directories = ['launch', 'resource', 'config', 'world']
 
 for directory in data_directories:
     glob_recursive(data_files, directory)

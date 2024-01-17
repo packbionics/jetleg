@@ -1,0 +1,9 @@
+# Default initial positions for jetleg_testrig's ros2_control fake system
+
+initial_positions:
+  ankle_joint: 0
+  ankle_joint_intact: 0
+  knee_joint: 0
+  knee_joint_intact: 0
+  vertical_rail_to_mount: 0
+  vertical_rail_to_mount_intact: 0

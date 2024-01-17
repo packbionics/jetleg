@@ -2,15 +2,18 @@ import os
 from glob import glob
 
 from setuptools import setup
+from generate_parameter_library_py.setup_helper import generate_parameter_module
+
 
 package_name = 'jetleg_control'
-submodules = [os.path.join(package_name, sub) for sub in ['machine_learning']]
+submodules = ['jetleg_control.script', 'jetleg_control.controllers']
 
 data_files = [
-        ('share/ament_index/resource_index/packages',
-            ['resource/' + package_name]),
-        ('share/' + package_name, ['package.xml'])
-    ]
+    ('share/ament_index/resource_index/packages',
+     ['resource/' + package_name]),
+    ('share/' + package_name, ['package.xml'])
+]
+
 
 def glob_recursive(data_files, directory):
     files = glob(directory+'*.*')
@@ -22,10 +25,18 @@ def glob_recursive(data_files, directory):
         for dir in subdirectories:
             glob_recursive(data_files, dir)
 
-data_directories = ['launch', 'config']
+
+data_directories = ['launch', 'config', 'docs']
 
 for directory in data_directories:
     glob_recursive(data_files, directory)
+
+# Generate ROS parameters from YAML description
+generate_parameter_module(
+    "classifier_parameters",
+    "src/classifier_parameters.yaml",
+)
+
 
 setup(
     name=package_name,
@@ -41,11 +52,11 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-        		'jetleg_teleop_key = jetleg_control.jetleg_teleop_key:main',
-                'jetleg_gait_generator = jetleg_control.jetleg_gait_generator:main',
-                'jetleg_gazebo_gait_generator = jetleg_control.jetleg_gazebo_gait_generator:main',
-                'train_leg_agent = jetleg_control.train_leg_agent:main',
-                'run_leg_agent = jetleg_control.run_leg_agent:main'
+                'jetleg_teleop_key = jetleg_control.script.jetleg_teleop_key:main',
+                'jetleg_gait_generator = jetleg_control.script.jetleg_gait_generator:main',
+                'forwarder = jetleg_control.script.forwarder:main',
+                'impedance_controller = jetleg_control.script.impedance_controller:main',
+                'rule_based_classifier = jetleg_control.script.rule_based_classifier:main'
         ],
     },
 )

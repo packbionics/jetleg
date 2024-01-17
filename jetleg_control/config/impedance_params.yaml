@@ -1,0 +1,34 @@
+/classifier_node:
+  ros__parameters:
+    phases:
+      - early_stance
+      - late_stance
+      - swing_flexion
+      - swing_extension
+    stiffness:
+      - 40.0
+      - 40.0
+      - 40.0
+      - 40.0
+      - 40.0
+      - 40.0
+      - 40.0
+      - 40.0
+    damping:
+      - 40.0
+      - 40.0
+      - 40.0
+      - 40.0
+      - 40.0
+      - 40.0
+      - 40.0
+      - 40.0
+    equilibrium:
+      - 0.0
+      - 0.0
+      - 0.0
+      - -12.0
+      - 90.0
+      - 2.5
+      - 0.0
+      - 2.5

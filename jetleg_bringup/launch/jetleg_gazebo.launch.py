@@ -1,115 +1,72 @@
-from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
-from launch.substitutions import PathJoinSubstitution
-from launch.launch_description_sources import PythonLaunchDescriptionSource
+# Copyright (c) 2023 Pack Bionics
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of this
+# software and associated documentation files (the "Software"), to deal in the Software
+# without restriction, including without limitation the rights to use, copy, modify,
+# merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
+# permit persons to whom the Software is furnished to do so, subject to the following
+# conditions:
+#
+# The above copyright notice and this permission notice shall be included in all copies
+# or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+# INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+# PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+# HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
+# CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
+# OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-from launch_ros.actions import Node
+from launch import LaunchDescription
+from launch.launch_description_sources import PythonLaunchDescriptionSource
+from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument
+from launch.substitutions import PathJoinSubstitution
+
 from launch_ros.substitutions import FindPackageShare
 
 
-def add_rviz(ld: LaunchDescription):
-    jetleg_bringup_path = FindPackageShare("jetleg_bringup")
-
-    # Specify RVIZ config
-    rviz_config_arg = DeclareLaunchArgument(
-        'rvizconfig', 
-        default_value=PathJoinSubstitution([jetleg_bringup_path, 'config/jetleg_gazebo.rviz']),
-        description='Specifies the absolute path of the RVIZ config used for default RVIZ visualization'
-    )
-    ld.add_action(rviz_config_arg)
-
-    # Launch Rviz2
-    rviz = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            PathJoinSubstitution([FindPackageShare('jetleg_bringup'), 'launch/rviz.launch.py'])
-        ),
-    )
-    ld.add_action(rviz)
-
-def add_rsp(ld: LaunchDescription):
-
-    rsp = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            PathJoinSubstitution([FindPackageShare('jetleg_bringup'), 'launch/rsp.launch.py'])
-        )
-    )
-
-    ld.add_action(rsp)
-
-def add_gazebo_sim(ld: LaunchDescription):
-    gui_toggle_arg = DeclareLaunchArgument(
-        'gui',
-        default_value='false',
-        description='Toggles the Gazebo client'
-    )
-    ld.add_action(gui_toggle_arg)
-
-    gazebo = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            PathJoinSubstitution([FindPackageShare('gazebo_ros'), 'launch/gazebo.launch.py'])
-        )
-    )
-
-    ld.add_action(gazebo)
-
-    # arguments to pass when spawning model
-    model_description = ['-entity', 'jetleg_wheeled_testrig', '-topic', '/robot_description']
-    model_pos = ['-x', '0.0', '-y', '0.0', '-z', '1.0']
-    model_orientation = ['-R', '0.0', '-P', '0.0', '-Y', '0.0']
-
-
-    spawn_params = model_description + model_pos + model_orientation
-
-    spawn_entity = Node(
-        package='gazebo_ros', 
-        executable='spawn_entity.py',
-        arguments=spawn_params,
-        output='screen'
-    )
-    ld.add_action(spawn_entity)
-
-
-def spawn_controllers(ld: LaunchDescription):
-    spawn_controls = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            PathJoinSubstitution([FindPackageShare('jetleg_bringup'), 'launch/spawn_controllers.launch.py'])
-        )
-    )
-
-    ld.add_action(spawn_controls)
-
-
-def generate_launch_description():
+def generate_launch_description() -> LaunchDescription:
 
     ld = LaunchDescription()
 
-    jetleg_description_path = FindPackageShare("jetleg_description")
-    xacro_path = PathJoinSubstitution([jetleg_description_path, 'urdf/jetleg_testrig_vision.xacro'])
-
-    model_arg = DeclareLaunchArgument(
-        'model',
-        default_value=xacro_path,
-        description='Absolute path to xacro file'
-    )
-
-    staircase_obs_world = PathJoinSubstitution([
-        FindPackageShare("gazebo_env"),
+    # Specify world environment in Gazebo
+    world_path = PathJoinSubstitution([
+        FindPackageShare("jetleg_bringup"),
         'world/staircase_obstacle.world'
     ])
-
     world_arg = DeclareLaunchArgument(
         "world",
-        default_value=staircase_obs_world,
-        description="Path to world file to load into Gazebo"
+        default_value=world_path
+    )
+    ld.add_action(world_arg)
+
+    # Toggle Gazebo GUI client
+    gui_arg = DeclareLaunchArgument(
+        "gui",
+        default_value="false"
     )
 
-    ld.add_action(world_arg)
-    ld.add_action(model_arg)
+    ld.add_action(gui_arg)
 
-    add_gazebo_sim(ld=ld)
-    add_rviz(ld=ld)
-    add_rsp(ld=ld)
+    # Add Gazebo to launch step
+    gazebo_launch_path = PathJoinSubstitution([
+        FindPackageShare("gazebo_ros"),
+        "launch/gazebo.launch.py"
+    ])
+    gazebo_ros = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(gazebo_launch_path)
+    )
+    ld.add_action(gazebo_ros)
 
-    spawn_controllers(ld=ld)
+    # Load Jetleg into the world
+    spawn_jetleg = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            PathJoinSubstitution([
+                FindPackageShare("jetleg_bringup"),
+                'launch/spawn_jetleg.launch.py'
+            ])
+        )
+    )
+    ld.add_action(spawn_jetleg)
 
     return ld

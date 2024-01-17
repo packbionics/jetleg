@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="testrig_gazebo">
+
+    <gazebo reference="vertical_rail">
+        <material>Gazebo/White</material>
+    </gazebo>
+
+    <gazebo reference="gantry">
+        <material>Gazebo/White</material>
+    </gazebo>
+
+    <xacro:macro name="support_gazebo" params="postfix reflect">
+        <gazebo reference="support_${postfix}">
+            <material>Gazebo/Red</material>
+        </gazebo>
+    </xacro:macro>
+
+    <xacro:support_gazebo postfix="left" reflect="1" />
+    <xacro:support_gazebo postfix="right" reflect="-1" />
+
+</robot>
