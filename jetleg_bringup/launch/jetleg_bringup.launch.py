@@ -34,7 +34,7 @@ def generate_launch_description():
     # Specify robot path
     model_path = PathJoinSubstitution([
         FindPackageShare("jetleg_description"),
-        "ros2_control", "jetleg_testrig.urdf.xacro"
+        "ros2_control", "jetleg_standalone.urdf.xacro"
     ])
     model_arg = DeclareLaunchArgument(
         "model",
@@ -54,7 +54,7 @@ def generate_launch_description():
     ld.add_action(rsp)
 
     # Launch simulation / physical system
-    jetleg_sim_name = "jetleg_gazebo.launch.py"
+    jetleg_sim_name = "jetleg_system.launch.py"
 
     jetleg_launch_path = PathJoinSubstitution([
         jetleg_bringup_share,

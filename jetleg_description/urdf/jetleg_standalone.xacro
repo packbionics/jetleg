@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="jetleg_testrig">
+
+    <link name="base_link">
+    </link>
+
+    <!-- Include the JetLeg -->
+    <xacro:include filename="$(find jetleg_description)/urdf/jetleg.xacro"/> 
+
+    <!-- Create two JetLegs -->
+    <xacro:jetleg identifier="">
+    </xacro:jetleg>
+
+    <!-- Include components -->
+    <xacro:include filename="$(find jetleg_description)/urdf/components/imu.xacro" />
+    <xacro:jetleg_imu />
+
+    <joint name="base_link_to_jetleg" type="fixed">
+        <parent link="base_link" />
+        <child link="thigh" />
+        <origin xyz="0 0 0" rpy="0 0 0" />
+    </joint>
+
+    <!-- Define the additional joints of the robot -->
+</robot>

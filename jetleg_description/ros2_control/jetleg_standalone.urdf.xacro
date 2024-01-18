@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="jetleg_testrig">
+    <xacro:arg name="initial_positions_file" default="$(find jetleg_description)/config/initial_positions.yaml" />
+
+    <xacro:include filename="$(find jetleg_description)/urdf/colors.xacro" />
+
+    <!-- Import jetleg_testrig urdf file -->
+    <xacro:include filename="$(find jetleg_description)/urdf/jetleg_standalone.xacro" />
+
+    <!-- Import control_xacro -->
+    <xacro:include filename="$(find jetleg_description)/ros2_control/jetleg.ros2_control.xacro" />
+
+    <xacro:jetleg_ros2_control name="JetlegSystem" initial_positions_file="$(arg initial_positions_file)" plugin="jetleg_system/JetlegSystem" identifier="" />
+
+</robot>
