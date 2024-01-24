@@ -53,14 +53,17 @@ CallbackReturn JetlegSystem::on_init(const hardware_interface::HardwareInfo & in
     }
   }
 
-  // A list of interfaces created for each joint
+  // A list of state interfaces created for each joint
   mJointStates.resize(info_.joints.size());
 
   // Each list contains the state information for the corresponding joint
   const int numStateInterfaces = 2;
   for (auto & joint : mJointStates) {
-    joint.resize(numStateInterfaces);
+    joint.resize(numStateInterfaces, 0.0);
   }
+
+  // A list of in command interfaces created for each joint
+  mJointCommands.resize(info_.joints.size(), 0.0);
 
   RCLCPP_INFO(logger, "JetlegSystem hardware interface has been initialized.");
   return CallbackReturn::SUCCESS;
