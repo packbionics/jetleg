@@ -20,7 +20,6 @@ find_package(OpenCV REQUIRED )
 find_package(sensor_msgs REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(cv_bridge REQUIRED)
-find_package(glm REQUIRED)
 
 # Install Python modules
 ament_python_install_package(${PROJECT_NAME})

@@ -18,7 +18,6 @@
   <depend>jetleg_interfaces</depend>
   <depend>rcl_interfaces</depend>
   <depend>generate_parameter_library</depend>
-  <depend>python3-pytorch-pip</depend>
 
   <export>
     <build_type>ament_python</build_type>
