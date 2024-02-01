@@ -24,6 +24,7 @@
 
 #include "hardware_interface/system_interface.hpp"
 #include "jetleg_system/visibility_control.h"
+#include "serial_interface/libserial_bridge.hpp"
 
 namespace jetleg_system
 {
@@ -96,6 +97,9 @@ public:
 private:
   /** Maintains record of current joint states */
   std::vector<std::vector<double>> mJointStates;
+
+  /** Maintains a reference to the interface to the arduino*/
+  std::shared_ptr<serial::LibSerialBridge> serialBridgePointer;
 
   /** Maintains current commands sent to the system */
   std::vector<double> mJointCommands;
