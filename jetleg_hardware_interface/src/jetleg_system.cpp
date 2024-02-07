@@ -25,6 +25,8 @@
 
 #include <rclcpp/rclcpp.hpp>
 #include <rclcpp/logger.hpp>
+#include <libserial/SerialPort.h>
+#include <libserial/SerialStream.h>
 
 namespace jetleg_system
 {
@@ -190,6 +192,33 @@ hardware_interface::return_type JetlegSystem::write(
 {
   return hardware_interface::return_type::OK;
 }
+
+void imuLogger()
+{
+    //instantiate
+    SerialPort serialPort;
+    SerialStream serialStream;
+
+    
+    //set baud rates
+    serialPort.SetBaudRate( BaudRate );
+    serialStream.SetBaudRate( BaudRate );
+    LibSerialBridge::ImuFrame imu = serialBridgePointer->getImu(0);
+    
+    double x = imu->getLinear().getX();
+    double y = imu->getLinear().getY();
+    double z = imu->getLinear().getZ();
+    double roll = imu->getAngular().getRoll();
+    double pitch = imu->getAngular().getPitch();
+    double yaw = imu->getAngular().getYaw();
+    
+    rclcpp::Logger logger = rclcpp::get_logger("TestIMULogger");
+    RCLCPP_INFO(
+        logger, 
+        "X: %lf\nY: %lf\nZ: %lf\nRoll: %lf\nPitch: %lf\nYaw: %lf\n",
+        x, y, z, roll, pitch, yaw);
+}
+
 }
 
 #include "pluginlib/class_list_macros.hpp"

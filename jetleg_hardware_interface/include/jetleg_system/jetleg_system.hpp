@@ -22,6 +22,7 @@
 #ifndef JETLEG_SYSTEM_HPP
 #define JETLEG_SYSTEM_HPP
 
+
 #include "hardware_interface/system_interface.hpp"
 #include "jetleg_system/visibility_control.h"
 #include "serial_interface/libserial_bridge.hpp"
@@ -103,6 +104,10 @@ private:
 
   /** Maintains current commands sent to the system */
   std::vector<double> mJointCommands;
+
+  /** Baud Rate for serial port/stream IO */
+  const int BaudRate = 1;
+  
 
 };
 
