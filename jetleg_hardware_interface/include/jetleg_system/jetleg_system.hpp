@@ -96,6 +96,8 @@ public:
     const rclcpp::Duration & /*period*/) override;
 
 private:
+  void imuLogger();
+
   /** Maintains record of current joint states */
   std::vector<std::vector<double>> mJointStates;
 

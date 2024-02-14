@@ -15,7 +15,10 @@ find_package(rclcpp REQUIRED)
 find_package(rclcpp_lifecycle REQUIRED)
 find_package(serial_interface REQUIRED)
 
-message("includes: ${serial_interface_INCLUDE_DIRS}")
+find_package(PkgConfig REQUIRED)
+
+pkg_check_modules(libserial REQUIRED)
+
 
 # Add compile directive for hardware interface
 add_library(jetleg_system SHARED src/jetleg_system.cpp)

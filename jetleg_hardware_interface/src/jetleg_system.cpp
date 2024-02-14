@@ -67,6 +67,8 @@ CallbackReturn JetlegSystem::on_init(const hardware_interface::HardwareInfo & in
   // A list of in command interfaces created for each joint
   mJointCommands.resize(info_.joints.size(), 0.0);
 
+  serialBridgePointer = std::make_shared<serial::LibSerialBridge>();
+
   RCLCPP_INFO(logger, "JetlegSystem hardware interface has been initialized.");
   return CallbackReturn::SUCCESS;
 }
@@ -183,6 +185,7 @@ hardware_interface::return_type JetlegSystem::read(
   const rclcpp::Time & /*time*/,
   const rclcpp::Duration & /*period*/)
 {
+  imuLogger();
   return hardware_interface::return_type::OK;
 }
 
@@ -193,17 +196,9 @@ hardware_interface::return_type JetlegSystem::write(
   return hardware_interface::return_type::OK;
 }
 
-void imuLogger()
-{
-    //instantiate
-    SerialPort serialPort;
-    SerialStream serialStream;
-
-    
-    //set baud rates
-    serialPort.SetBaudRate( BaudRate );
-    serialStream.SetBaudRate( BaudRate );
-    LibSerialBridge::ImuFrame imu = serialBridgePointer->getImu(0);
+void JetlegSystem::imuLogger()
+{    
+    serial::ImuPtr imu = serialBridgePointer->getImu(0);
     
     double x = imu->getLinear().getX();
     double y = imu->getLinear().getY();
@@ -215,7 +210,7 @@ void imuLogger()
     rclcpp::Logger logger = rclcpp::get_logger("TestIMULogger");
     RCLCPP_INFO(
         logger, 
-        "X: %lf\nY: %lf\nZ: %lf\nRoll: %lf\nPitch: %lf\nYaw: %lf\n",
+        "\nX: %lf\nY: %lf\nZ: %lf\nRoll: %lf\nPitch: %lf\nYaw: %lf\n",
         x, y, z, roll, pitch, yaw);
 }
 
