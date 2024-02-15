@@ -106,8 +106,8 @@ private:
    */
   void updatePose(size_t timePeriod);
 
-  static void trapSum(
-    std::vector<double> & original, const std::vector<double> & vel, size_t timePeriod);
+  // static void trapSum(
+  //   std::vector<double> & original, const std::vector<double> & vel, size_t timePeriod);
 
   /** Maintains record of current joint states */
   std::vector<std::vector<double>> mJointStates;
@@ -134,7 +134,7 @@ private:
   static constexpr size_t ANGULAR_COORDS = 3;
 
   /** Baud Rate for serial port/stream IO */
-  const int BaudRate = 1;
+  static constexpr size_t BAUD_RATE = 1;
 
 
 };

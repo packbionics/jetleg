@@ -30,6 +30,11 @@
 
 namespace jetleg_system
 {
+
+static void trapSum(
+  std::vector<double> & original, const std::vector<double> & vel,
+  size_t timePeriod);
+
 CallbackReturn JetlegSystem::on_init(const hardware_interface::HardwareInfo & info)
 {
 
@@ -189,9 +194,13 @@ std::vector<hardware_interface::CommandInterface> JetlegSystem::export_command_i
 
 hardware_interface::return_type JetlegSystem::read(
   const rclcpp::Time & /*time*/,
-  const rclcpp::Duration & /*period*/)
+  const rclcpp::Duration & period)
 {
+  rclcpp::Logger logger = rclcpp::get_logger("TestIMULogger");
+
   imuLogger();
+  updatePose(period.seconds());
+
   return hardware_interface::return_type::OK;
 }
 
