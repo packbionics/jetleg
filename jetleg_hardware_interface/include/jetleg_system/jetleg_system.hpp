@@ -98,6 +98,17 @@ public:
 private:
   void imuLogger();
 
+  /**
+   * @brief Updates the most current estimate of the cartesion position and
+   *        orientation of the IMU sensor
+   *
+   * @param timePeriod time since last update
+   */
+  void updatePose(size_t timePeriod);
+
+  static void trapSum(
+    std::vector<double> & original, const std::vector<double> & vel, size_t timePeriod);
+
   /** Maintains record of current joint states */
   std::vector<std::vector<double>> mJointStates;
 
@@ -107,9 +118,24 @@ private:
   /** Maintains current commands sent to the system */
   std::vector<double> mJointCommands;
 
+  /** Integrated position of IMU */
+  std::vector<double> mLinearStates;
+
+  /** Integrated velocity */
+  std::vector<double> mLinearSubStates;
+
+  /** Integrated orientation of IMU */
+  std::vector<double> mAngularStates;
+
+  /** Number of linear components of IMU */
+  static constexpr size_t LINEAR_COORDS = 3;
+
+  /** NUmber of angular components of IMU */
+  static constexpr size_t ANGULAR_COORDS = 3;
+
   /** Baud Rate for serial port/stream IO */
   const int BaudRate = 1;
-  
+
 
 };
 

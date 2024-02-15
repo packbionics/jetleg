@@ -55,6 +55,12 @@ CallbackReturn JetlegSystem::on_init(const hardware_interface::HardwareInfo & in
     }
   }
 
+  // Initialize values for integration
+  mLinearStates.resize(LINEAR_COORDS, 0.0);
+  mLinearSubStates.resize(LINEAR_COORDS, 0.0);
+
+  mAngularStates.resize(ANGULAR_COORDS, 0.0);
+
   // A list of state interfaces created for each joint
   mJointStates.resize(info_.joints.size());
 
@@ -197,21 +203,49 @@ hardware_interface::return_type JetlegSystem::write(
 }
 
 void JetlegSystem::imuLogger()
-{    
-    serial::ImuPtr imu = serialBridgePointer->getImu(0);
-    
-    double x = imu->getLinear().getX();
-    double y = imu->getLinear().getY();
-    double z = imu->getLinear().getZ();
-    double roll = imu->getAngular().getRoll();
-    double pitch = imu->getAngular().getPitch();
-    double yaw = imu->getAngular().getYaw();
-    
-    rclcpp::Logger logger = rclcpp::get_logger("TestIMULogger");
-    RCLCPP_INFO(
-        logger, 
-        "\nX: %lf\nY: %lf\nZ: %lf\nRoll: %lf\nPitch: %lf\nYaw: %lf\n",
-        x, y, z, roll, pitch, yaw);
+{
+  serial::ImuPtr imu = serialBridgePointer->getImu(0);
+
+  double x = imu->getLinear().getX();
+  double y = imu->getLinear().getY();
+  double z = imu->getLinear().getZ();
+  double roll = imu->getAngular().getRoll();
+  double pitch = imu->getAngular().getPitch();
+  double yaw = imu->getAngular().getYaw();
+
+  rclcpp::Logger logger = rclcpp::get_logger("TestIMULogger");
+  RCLCPP_INFO(
+    logger,
+    "\nX: %lf\nY: %lf\nZ: %lf\nRoll: %lf\nPitch: %lf\nYaw: %lf\n",
+    x, y, z, roll, pitch, yaw);
+}
+
+void JetlegSystem::updatePose(size_t timePeriod)
+{
+  serial::ImuPtr imu = serialBridgePointer->getImu(0);
+
+  double x = imu->getLinear().getX();
+  double y = imu->getLinear().getY();
+  double z = imu->getLinear().getZ();
+  double roll = imu->getAngular().getRoll();
+  double pitch = imu->getAngular().getPitch();
+  double yaw = imu->getAngular().getYaw();
+
+  trapSum(mLinearSubStates, {x, y, z}, timePeriod);
+  trapSum(mLinearStates, mLinearSubStates, timePeriod);
+
+  trapSum(mAngularStates, {roll, pitch, yaw}, timePeriod);
+}
+
+void trapSum(std::vector<double> & original, const std::vector<double> & vel, size_t timePeriod)
+{
+  if (original.size() != vel.size()) {
+    throw std::runtime_error("`original` and `vel` must have matching dimensions.");
+  }
+
+  for (size_t i = 0; i < original.size(); i++) {
+    original[i] = original[i] + vel[i] * timePeriod;
+  }
 }
 
 }

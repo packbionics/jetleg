@@ -82,7 +82,7 @@ class ImpedanceController:
             return
         if self.stiffness is None or self.damping is None or self.equilibrium is None:
             return
-        
+
         # TODO: Describe relevant joints with parameters rather than hardcode values
         mapping = {"knee_joint": 0, "ankle_joint": 1}
 
@@ -95,7 +95,7 @@ class ImpedanceController:
 
                 x[idx] = self.joint_state.position[i]
                 x_dot[idx] = self.joint_state.velocity[i]
-        
+
         # Compute the input signal
         signal = ImpedanceController.compute_command(
             x,
