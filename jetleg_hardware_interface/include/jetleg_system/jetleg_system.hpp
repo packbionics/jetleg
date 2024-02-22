@@ -104,7 +104,7 @@ private:
    *
    * @param timePeriod time since last update
    */
-  void updatePose(size_t timePeriod);
+  void updatePose(double timePeriod);
 
   // static void trapSum(
   //   std::vector<double> & original, const std::vector<double> & vel, size_t timePeriod);

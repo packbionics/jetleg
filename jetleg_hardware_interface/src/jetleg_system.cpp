@@ -33,7 +33,7 @@ namespace jetleg_system
 
 static void trapSum(
   std::vector<double> & original, const std::vector<double> & vel,
-  size_t timePeriod);
+  double timePeriod);
 
 CallbackReturn JetlegSystem::on_init(const hardware_interface::HardwareInfo & info)
 {
@@ -62,7 +62,7 @@ CallbackReturn JetlegSystem::on_init(const hardware_interface::HardwareInfo & in
 
   // Initialize values for integration
   mLinearStates.resize(LINEAR_COORDS, 0.0);
-  mLinearSubStates.resize(LINEAR_COORDS, 0.0);
+  mLinearSubStates.resize(LINEAR_COORDS, 1.0);
 
   mAngularStates.resize(ANGULAR_COORDS, 0.0);
 
@@ -226,10 +226,11 @@ void JetlegSystem::imuLogger()
   RCLCPP_INFO(
     logger,
     "\nX: %lf\nY: %lf\nZ: %lf\nRoll: %lf\nPitch: %lf\nYaw: %lf\n",
-    x, y, z, roll, pitch, yaw);
+    mLinearStates[0], mLinearStates[1], mLinearStates[2], mAngularStates[0], mAngularStates[1], mAngularStates[2]);
+    //x, y, z, roll, pitch, yaw);
 }
 
-void JetlegSystem::updatePose(size_t timePeriod)
+void JetlegSystem::updatePose(double timePeriod)
 {
   serial::ImuPtr imu = serialBridgePointer->getImu(0);
 
@@ -246,8 +247,10 @@ void JetlegSystem::updatePose(size_t timePeriod)
   trapSum(mAngularStates, {roll, pitch, yaw}, timePeriod);
 }
 
-void trapSum(std::vector<double> & original, const std::vector<double> & vel, size_t timePeriod)
+void trapSum(std::vector<double> & original, const std::vector<double> & vel, double timePeriod)
 {
+  rclcpp::Logger logger = rclcpp::get_logger("TestIMULogger");
+
   if (original.size() != vel.size()) {
     throw std::runtime_error("`original` and `vel` must have matching dimensions.");
   }
