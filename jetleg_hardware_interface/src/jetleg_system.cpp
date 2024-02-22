@@ -135,6 +135,17 @@ std::vector<hardware_interface::StateInterface> JetlegSystem::export_state_inter
     jointOffset++;
   }
 
+  // RCLCPP_INFO(logger, "%s", standard_interfaces[0].c_str());
+
+  // Add the state interfaces for position and orientation of IMU
+  std::vector<std::string> linearStateInterfaceNames = {"IMU_X", "IMU_Y", "IMU_Z"};
+
+  for (int i = 0; i < linearStateInterfaceNames.size(); i++) {
+    state_interfaces.emplace_back(
+      linearStateInterfaceNames[i], "worldPosition", &mLinearStates[i]
+    );
+  }
+
   RCLCPP_INFO(logger, "JetlegSystem hardware interface has exported state interfaces.");
   return state_interfaces;
 }
@@ -196,9 +207,7 @@ hardware_interface::return_type JetlegSystem::read(
   const rclcpp::Time & /*time*/,
   const rclcpp::Duration & period)
 {
-  rclcpp::Logger logger = rclcpp::get_logger("TestIMULogger");
-
-  imuLogger();
+  // imuLogger();
   updatePose(period.seconds());
 
   return hardware_interface::return_type::OK;
@@ -226,8 +235,9 @@ void JetlegSystem::imuLogger()
   RCLCPP_INFO(
     logger,
     "\nX: %lf\nY: %lf\nZ: %lf\nRoll: %lf\nPitch: %lf\nYaw: %lf\n",
-    mLinearStates[0], mLinearStates[1], mLinearStates[2], mAngularStates[0], mAngularStates[1], mAngularStates[2]);
-    //x, y, z, roll, pitch, yaw);
+    mLinearStates[0], mLinearStates[1], mLinearStates[2], mAngularStates[0], mAngularStates[1],
+    mAngularStates[2]);
+  //x, y, z, roll, pitch, yaw);
 }
 
 void JetlegSystem::updatePose(double timePeriod)
@@ -249,8 +259,6 @@ void JetlegSystem::updatePose(double timePeriod)
 
 void trapSum(std::vector<double> & original, const std::vector<double> & vel, double timePeriod)
 {
-  rclcpp::Logger logger = rclcpp::get_logger("TestIMULogger");
-
   if (original.size() != vel.size()) {
     throw std::runtime_error("`original` and `vel` must have matching dimensions.");
   }
