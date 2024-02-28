@@ -9,6 +9,9 @@ controller_manager:
     joint_state_broadcaster:
       type: joint_state_broadcaster/JointStateBroadcaster
 
+    imu_sensor_broadcaster:
+      type: imu_sensor_broadcaster/IMUSensorBroadcaster
+
 jetleg_controller:
   ros__parameters:
     joints:
@@ -18,3 +21,8 @@ jetleg_controller:
     state_interfaces:
       - position
       - velocity
+
+imu_sensor_broadcaster:
+  ros__parameters:
+    sensor_name: imu0
+    frame_id: imu0_frame

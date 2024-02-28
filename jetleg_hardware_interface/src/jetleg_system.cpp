@@ -138,13 +138,34 @@ std::vector<hardware_interface::StateInterface> JetlegSystem::export_state_inter
   // RCLCPP_INFO(logger, "%s", standard_interfaces[0].c_str());
 
   // Add the state interfaces for position and orientation of IMU
-  std::vector<std::string> linearStateInterfaceNames = {"IMU_X", "IMU_Y", "IMU_Z"};
+  std::vector<std::string> linearStateInterfaceNames = {};
 
-  for (int i = 0; i < linearStateInterfaceNames.size(); i++) {
+  for (size_t i = 0; i < linearStateInterfaceNames.size(); i++) {
     state_interfaces.emplace_back(
       linearStateInterfaceNames[i], "worldPosition", &mLinearStates[i]
     );
   }
+
+  for(size_t sensorIdx = 0; sensorIdx < info_.sensors.size(); sensorIdx++) {
+    for(size_t sensorInterfaceIdx = 0; sensorInterfaceIdx < info_.sensors[sensorIdx].state_interfaces.size(); sensorInterfaceIdx++) {
+      state_interfaces.emplace_back(
+        info_.sensors[sensorIdx].name,
+        info_.sensors[sensorIdx].state_interfaces[sensorInterfaceIdx].name,
+        &mLinearStates[0]
+      );
+    }
+  }
+
+  std::vector<std::string> imuNames = {"imu0"};
+
+  std::vector<std::string> imuFields = {"orientation", "angular_velocity", "linear_acceleration"};
+
+  std::vector<std::string> coords = {"x", "y", "z"};
+
+  for(size_t i = 0; i < info_.sensors.size(); i++) {
+    RCLCPP_INFO(logger, "%s, %s", info_.sensors[i].name.c_str(), info_.sensors[i].type.c_str());
+  }
+  RCLCPP_INFO(logger, "Num sensors: %ld", info_.sensors.size());
 
   RCLCPP_INFO(logger, "JetlegSystem hardware interface has exported state interfaces.");
   return state_interfaces;

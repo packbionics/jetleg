@@ -28,7 +28,8 @@ def generate_launch_description():
         'jetleg_controller',
         # 'jetleg_intact_controller',
         'joint_state_broadcaster',
-        # 'hip_controller'
+        # 'hip_controller',
+        'imu_sensor_broadcaster'
     ]
     for controller in controller_list:
         ld.add_action(Node(
