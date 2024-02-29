@@ -106,6 +106,21 @@ private:
    */
   void updatePose(double timePeriod);
 
+  /**
+   * @brief Reads data from the IMU and assigns the recorded values as visible sensor data
+   * 
+   */
+  void updateSensorData();
+
+  /**
+   * @brief Updates the current values of the IMU sensor data fields
+   * 
+   * @param interfaceNames names of interfaces to corresponding data field
+   * @param sensorValues values with which to update
+   */
+  void updateField(std::vector<std::string> interfaceNames, std::vector<double> sensorValues);
+
+
   // static void trapSum(
   //   std::vector<double> & original, const std::vector<double> & vel, size_t timePeriod);
 
@@ -126,6 +141,9 @@ private:
 
   /** Integrated orientation of IMU */
   std::vector<double> mAngularStates;
+
+  /** Stores the most current data recorded from sensors */
+  std::vector<std::map<std::string, double>> mSensorData;
 
   /** Number of linear components of IMU */
   static constexpr size_t LINEAR_COORDS = 3;

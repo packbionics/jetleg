@@ -78,6 +78,8 @@ CallbackReturn JetlegSystem::on_init(const hardware_interface::HardwareInfo & in
   // A list of in command interfaces created for each joint
   mJointCommands.resize(info_.joints.size(), 0.0);
 
+  mSensorData.resize(info_.sensors.size());
+
   serialBridgePointer = std::make_shared<serial::LibSerialBridge>();
 
   RCLCPP_INFO(logger, "JetlegSystem hardware interface has been initialized.");
@@ -134,38 +136,21 @@ std::vector<hardware_interface::StateInterface> JetlegSystem::export_state_inter
 
     jointOffset++;
   }
-
-  // RCLCPP_INFO(logger, "%s", standard_interfaces[0].c_str());
-
-  // Add the state interfaces for position and orientation of IMU
-  std::vector<std::string> linearStateInterfaceNames = {};
-
-  for (size_t i = 0; i < linearStateInterfaceNames.size(); i++) {
-    state_interfaces.emplace_back(
-      linearStateInterfaceNames[i], "worldPosition", &mLinearStates[i]
-    );
-  }
-
+  
+  // Add the state interfaces for IMU sensor data
   for(size_t sensorIdx = 0; sensorIdx < info_.sensors.size(); sensorIdx++) {
-    for(size_t sensorInterfaceIdx = 0; sensorInterfaceIdx < info_.sensors[sensorIdx].state_interfaces.size(); sensorInterfaceIdx++) {
+
+    // For each sensor, add the declared state interfaces
+    for(size_t interfaceIdx = 0; interfaceIdx < info_.sensors[sensorIdx].state_interfaces.size(); interfaceIdx++) {
+      auto it = mSensorData[sensorIdx].insert({info_.sensors[sensorIdx].state_interfaces[interfaceIdx].name, 0.0});
+      
       state_interfaces.emplace_back(
         info_.sensors[sensorIdx].name,
-        info_.sensors[sensorIdx].state_interfaces[sensorInterfaceIdx].name,
-        &mLinearStates[0]
+        it.first->first,
+        &it.first->second
       );
     }
   }
-
-  std::vector<std::string> imuNames = {"imu0"};
-
-  std::vector<std::string> imuFields = {"orientation", "angular_velocity", "linear_acceleration"};
-
-  std::vector<std::string> coords = {"x", "y", "z"};
-
-  for(size_t i = 0; i < info_.sensors.size(); i++) {
-    RCLCPP_INFO(logger, "%s, %s", info_.sensors[i].name.c_str(), info_.sensors[i].type.c_str());
-  }
-  RCLCPP_INFO(logger, "Num sensors: %ld", info_.sensors.size());
 
   RCLCPP_INFO(logger, "JetlegSystem hardware interface has exported state interfaces.");
   return state_interfaces;
@@ -238,19 +223,14 @@ hardware_interface::return_type JetlegSystem::write(
   const rclcpp::Time & /*time*/,
   const rclcpp::Duration & /*period*/)
 {
+  updateSensorData();
+
   return hardware_interface::return_type::OK;
 }
 
 void JetlegSystem::imuLogger()
 {
   serial::ImuPtr imu = serialBridgePointer->getImu(0);
-
-  double x = imu->getLinear().getX();
-  double y = imu->getLinear().getY();
-  double z = imu->getLinear().getZ();
-  double roll = imu->getAngular().getRoll();
-  double pitch = imu->getAngular().getPitch();
-  double yaw = imu->getAngular().getYaw();
 
   rclcpp::Logger logger = rclcpp::get_logger("TestIMULogger");
   RCLCPP_INFO(
@@ -265,17 +245,10 @@ void JetlegSystem::updatePose(double timePeriod)
 {
   serial::ImuPtr imu = serialBridgePointer->getImu(0);
 
-  double x = imu->getLinear().getX();
-  double y = imu->getLinear().getY();
-  double z = imu->getLinear().getZ();
-  double roll = imu->getAngular().getRoll();
-  double pitch = imu->getAngular().getPitch();
-  double yaw = imu->getAngular().getYaw();
-
-  trapSum(mLinearSubStates, {x, y, z}, timePeriod);
+  trapSum(mLinearSubStates, imu->getLinear(), timePeriod);
   trapSum(mLinearStates, mLinearSubStates, timePeriod);
 
-  trapSum(mAngularStates, {roll, pitch, yaw}, timePeriod);
+  trapSum(mAngularStates, imu->getAngular(), timePeriod);
 }
 
 void trapSum(std::vector<double> & original, const std::vector<double> & vel, double timePeriod)
@@ -286,6 +259,41 @@ void trapSum(std::vector<double> & original, const std::vector<double> & vel, do
 
   for (size_t i = 0; i < original.size(); i++) {
     original[i] = original[i] + vel[i] * timePeriod;
+  }
+}
+
+void JetlegSystem::updateSensorData()
+{
+  if(info_.sensors.size() < 1) {
+    throw std::runtime_error("There must exist at least 1 sensor.");
+  }
+
+  serial::ImuPtr imu = serialBridgePointer->getImu(0);
+
+  // Update orientation
+  std::vector<std::string> orientationInterface = {"orientation.x", "orientation.y", "orientation.z", "orientation.w"};
+  std::vector<double> orientation = imu->getOrientation();
+
+  updateField(orientationInterface, orientation);
+
+  // Update angular velocity
+  std::vector<std::string> angularInterface = {"angular_velocity.x", "angular_velocity.y", "angular_velocity.z"};
+  std::vector<double> angular = imu->getAngular();
+  
+  updateField(angularInterface, angular);
+
+  // Update linear acceleration
+  std::vector<std::string> linearInterface = {"linear_acceleration.x", "linear_acceleration.y", "linear_acceleration.z"};
+  std::vector<double> linear = imu->getLinear();
+  
+  updateField(linearInterface, linear);
+
+}
+
+void JetlegSystem::updateField(std::vector<std::string> interfaceNames, std::vector<double> sensorValues)
+{
+  for(size_t i = 0; i < interfaceNames.size(); i++) {
+    mSensorData[0][interfaceNames[i]] = sensorValues[i];
   }
 }
 
