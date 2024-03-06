@@ -136,14 +136,18 @@ std::vector<hardware_interface::StateInterface> JetlegSystem::export_state_inter
 
     jointOffset++;
   }
-  
+
   // Add the state interfaces for IMU sensor data
-  for(size_t sensorIdx = 0; sensorIdx < info_.sensors.size(); sensorIdx++) {
+  for (size_t sensorIdx = 0; sensorIdx < info_.sensors.size(); sensorIdx++) {
 
     // For each sensor, add the declared state interfaces
-    for(size_t interfaceIdx = 0; interfaceIdx < info_.sensors[sensorIdx].state_interfaces.size(); interfaceIdx++) {
-      auto it = mSensorData[sensorIdx].insert({info_.sensors[sensorIdx].state_interfaces[interfaceIdx].name, 0.0});
-      
+    for (size_t interfaceIdx = 0; interfaceIdx < info_.sensors[sensorIdx].state_interfaces.size();
+      interfaceIdx++)
+    {
+      auto it =
+        mSensorData[sensorIdx].insert(
+        {info_.sensors[sensorIdx].state_interfaces[interfaceIdx].name, 0.0});
+
       state_interfaces.emplace_back(
         info_.sensors[sensorIdx].name,
         it.first->first,
@@ -264,35 +268,40 @@ void trapSum(std::vector<double> & original, const std::vector<double> & vel, do
 
 void JetlegSystem::updateSensorData()
 {
-  if(info_.sensors.size() < 1) {
+  if (info_.sensors.size() < 1) {
     throw std::runtime_error("There must exist at least 1 sensor.");
   }
 
   serial::ImuPtr imu = serialBridgePointer->getImu(0);
 
   // Update orientation
-  std::vector<std::string> orientationInterface = {"orientation.x", "orientation.y", "orientation.z", "orientation.w"};
+  std::vector<std::string> orientationInterface =
+  {"orientation.x", "orientation.y", "orientation.z", "orientation.w"};
   std::vector<double> orientation = imu->getOrientation();
 
   updateField(orientationInterface, orientation);
 
   // Update angular velocity
-  std::vector<std::string> angularInterface = {"angular_velocity.x", "angular_velocity.y", "angular_velocity.z"};
+  std::vector<std::string> angularInterface =
+  {"angular_velocity.x", "angular_velocity.y", "angular_velocity.z"};
   std::vector<double> angular = imu->getAngular();
-  
+
   updateField(angularInterface, angular);
 
   // Update linear acceleration
-  std::vector<std::string> linearInterface = {"linear_acceleration.x", "linear_acceleration.y", "linear_acceleration.z"};
+  std::vector<std::string> linearInterface =
+  {"linear_acceleration.x", "linear_acceleration.y", "linear_acceleration.z"};
   std::vector<double> linear = imu->getLinear();
-  
+
   updateField(linearInterface, linear);
 
 }
 
-void JetlegSystem::updateField(std::vector<std::string> interfaceNames, std::vector<double> sensorValues)
+void JetlegSystem::updateField(
+  std::vector<std::string> interfaceNames,
+  std::vector<double> sensorValues)
 {
-  for(size_t i = 0; i < interfaceNames.size(); i++) {
+  for (size_t i = 0; i < interfaceNames.size(); i++) {
     mSensorData[0][interfaceNames[i]] = sensorValues[i];
   }
 }

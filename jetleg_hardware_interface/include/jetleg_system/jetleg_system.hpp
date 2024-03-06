@@ -108,13 +108,13 @@ private:
 
   /**
    * @brief Reads data from the IMU and assigns the recorded values as visible sensor data
-   * 
+   *
    */
   void updateSensorData();
 
   /**
    * @brief Updates the current values of the IMU sensor data fields
-   * 
+   *
    * @param interfaceNames names of interfaces to corresponding data field
    * @param sensorValues values with which to update
    */

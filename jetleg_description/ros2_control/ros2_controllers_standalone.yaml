@@ -25,4 +25,4 @@ jetleg_controller:
 imu_sensor_broadcaster:
   ros__parameters:
     sensor_name: imu0
-    frame_id: imu0_frame
+    frame_id: shank_imu
