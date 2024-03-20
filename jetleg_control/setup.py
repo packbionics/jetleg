@@ -56,7 +56,8 @@ setup(
                 'jetleg_gait_generator = jetleg_control.script.jetleg_gait_generator:main',
                 'forwarder = jetleg_control.script.forwarder:main',
                 'impedance_controller = jetleg_control.script.impedance_controller:main',
-                'rule_based_classifier = jetleg_control.script.rule_based_classifier:main'
+                'rule_based_classifier = jetleg_control.script.rule_based_classifier:main',
+                'imu_pose_estimator = jetleg_control.script.estimate_imu_pose:main'
         ],
     },
 )

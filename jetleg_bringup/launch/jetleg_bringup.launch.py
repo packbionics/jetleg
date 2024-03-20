@@ -66,6 +66,17 @@ def generate_launch_description():
     )
     ld.add_action(jetleg_gazebo_launch)
 
+    # Launch sensor processing procedures
+    sensor_processors = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            PathJoinSubstitution([
+                FindPackageShare('jetleg_control'),
+                'launch', 'sensor_processing.launch.py'
+            ])
+        )
+    )
+    ld.add_action(sensor_processors)
+
     # Spawn ros2_controllers
     spawn_controls = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(

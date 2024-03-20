@@ -35,4 +35,11 @@ def generate_launch_description():
     )
     ld.add_action(impedance_controller)
 
+    imu_pose_estimator = Node(
+        package="jetleg_control",
+        executable="imu_pose_estimator",
+        remappings=[("/imu_data", "/imu_sensor_broadcaster/imu")]
+    )
+    ld.add_action(imu_pose_estimator)
+
     return ld

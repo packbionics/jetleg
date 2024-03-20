@@ -217,7 +217,7 @@ hardware_interface::return_type JetlegSystem::read(
   const rclcpp::Time & /*time*/,
   const rclcpp::Duration & period)
 {
-  // imuLogger();
+  updateSensorData();
   updatePose(period.seconds());
 
   return hardware_interface::return_type::OK;
@@ -227,7 +227,7 @@ hardware_interface::return_type JetlegSystem::write(
   const rclcpp::Time & /*time*/,
   const rclcpp::Duration & /*period*/)
 {
-  updateSensorData();
+  serialBridgePointer->updateInput(mJointCommands);
 
   return hardware_interface::return_type::OK;
 }
