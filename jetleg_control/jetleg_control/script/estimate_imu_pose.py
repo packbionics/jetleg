@@ -33,7 +33,7 @@ from geometry_msgs.msg import PoseStamped
 class ImuPoseEstimator(Node):
     def __init__(self):
         super().__init__("imu_pose_estimator")
-        self.get_logger().info("Node constructed")
+        self.get_logger().info("Constructing node...")
 
         self.position = np.zeros((3), dtype=np.float64)
         self.velocity = np.zeros((3), dtype=np.float64)
