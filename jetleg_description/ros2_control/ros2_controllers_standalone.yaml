@@ -15,6 +15,7 @@ controller_manager:
 jetleg_controller:
   ros__parameters:
     joints:
+      - base_link_to_jetleg
       - knee_joint
       - ankle_joint
     interface_name: effort

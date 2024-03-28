@@ -35,6 +35,16 @@
                 <state_interface name="linear_acceleration.y" />
                 <state_interface name="linear_acceleration.z" />
             </sensor>
+
+            <!-- Use if modelling the movement of the thigh -->
+            <joint name="base_link_to_jetleg">
+                <command_interface name="effort"/>
+                <state_interface name="position">
+                    <param name="initial_value">0.0</param>
+                </state_interface>
+                <state_interface name="velocity"/>
+            </joint>
+            
         </ros2_control>
     </xacro:macro>
 </robot>

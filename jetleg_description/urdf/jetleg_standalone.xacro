@@ -15,10 +15,12 @@
     <xacro:include filename="$(find jetleg_description)/urdf/components/imu.xacro" />
     <xacro:jetleg_imu />
 
-    <joint name="base_link_to_jetleg" type="fixed">
+    <joint name="base_link_to_jetleg" type="revolute">
         <parent link="base_link" />
         <child link="thigh" />
+        <axis xyz="0 1 0"/>
         <origin xyz="0 0 0" rpy="0 0 0" />
+        <limit effort="100" lower="0.0" upper="0.5" velocity="10"/>
     </joint>
 
     <!-- Define the additional joints of the robot -->

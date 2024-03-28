@@ -25,6 +25,7 @@
 
 #include <rclcpp/rclcpp.hpp>
 #include <rclcpp/logger.hpp>
+#include <tf2/LinearMath/Quaternion.h>
 #include <libserial/SerialPort.h>
 #include <libserial/SerialStream.h>
 
@@ -269,7 +270,7 @@ void trapSum(std::vector<double> & original, const std::vector<double> & vel, do
 void JetlegSystem::updateSensorData()
 {
   if (info_.sensors.size() < 1) {
-    throw std::runtime_error("There must exist at least 1 sensor.");
+    throw std::runtime_error("There must exist at least 1 sensor. Found: " + std::to_string(info_.sensors.size()));
   }
 
   serial::ImuPtr imu = serialBridgePointer->getImu(0);
@@ -295,6 +296,16 @@ void JetlegSystem::updateSensorData()
 
   updateField(linearInterface, linear);
 
+  // Update knee position
+  mJointStates[0][0] = serialBridgePointer->getKneeAngle();
+
+  // Update hip position
+  tf2::Quaternion structuredOrientation(orientation[0], orientation[1], orientation[2], orientation[3]);
+  
+  tf2::Vector3 rotationAxis = structuredOrientation.getAxis();
+  double rotationAngle = structuredOrientation.getAngle();
+
+  mJointStates[2][0] = rotationAxis[1] * rotationAngle;
 }
 
 void JetlegSystem::updateField(
