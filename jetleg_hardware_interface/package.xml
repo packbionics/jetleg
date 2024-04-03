@@ -16,7 +16,7 @@
   <depend>joint_trajectory_controller</depend>
   <depend>forward_command_controller</depend>
 
-  <depend>serial_interface</depend>
+  <build_depend>serial_interface</build_depend>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
