@@ -38,7 +38,6 @@
 
             <!-- Use if modelling the movement of the thigh -->
             <joint name="base_link_to_jetleg">
-                <command_interface name="effort"/>
                 <state_interface name="position">
                     <param name="initial_value">0.0</param>
                 </state_interface>
