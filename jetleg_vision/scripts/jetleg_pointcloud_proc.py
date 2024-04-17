@@ -183,8 +183,11 @@ class PointCloudProcessing(Node):
             [1, 1, 1, 1, 1],
             [0, 0, 1, 0, 0]], dtype=np.uint8)
 
+        heightmap_in_bytes = (heightmap*255).astype(np.uint8)
+
         # floor detection
         heightmap[np.where(heightmap == 0)] = np.infty
+
         heights = heightmap.flatten()
         k = 10
         small_idx = np.argpartition(heights, k)
@@ -195,8 +198,6 @@ class PointCloudProcessing(Node):
 
         heightmap = cv2.dilate(heightmap, kernel, iterations=2)
         heightmap[np.where(heightmap == -10)] = np.infty
-
-        heightmap_in_bytes = (heightmap*255).astype(np.uint8)
 
         imgmsg = self.bridge.cv2_to_imgmsg(heightmap_in_bytes)
         imgmsg.header.frame_id = 'odom'

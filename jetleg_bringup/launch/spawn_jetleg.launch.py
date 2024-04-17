@@ -32,7 +32,7 @@ def generate_launch_description() -> LaunchDescription:
 
     # Arguments describing how to spawn model
     model_description = ['-entity', model_name, '-topic', '/robot_description']
-    model_pos = ['-x', '0.0', '-y', '0.0', '-z', '1.0']
+    model_pos = ['-x', '0.0', '-y', '0.0', '-z', '0.85']
     model_orientation = ['-R', '0.0', '-P', '0.0', '-Y', '0.0']
 
     spawn_params = model_description + model_pos + model_orientation
