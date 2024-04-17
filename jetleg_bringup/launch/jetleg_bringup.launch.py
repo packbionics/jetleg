@@ -42,6 +42,13 @@ def generate_launch_description():
     )
     ld.add_action(model_arg)
 
+    # Specify model name (used for loading into Gazebo
+    model_name_arg = DeclareLaunchArgument(
+        "model_name",
+        default_value="jetleg_ros2_control_standalone"
+    )
+    ld.add_action(model_name_arg)
+
     # Begin publishing robot state
     rsp = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(

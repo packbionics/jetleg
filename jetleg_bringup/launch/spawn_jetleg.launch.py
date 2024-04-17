@@ -18,6 +18,7 @@
 # OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 from launch import LaunchDescription
+from launch.substitutions import LaunchConfiguration
 
 from launch_ros.actions import Node
 
@@ -26,8 +27,11 @@ def generate_launch_description() -> LaunchDescription:
 
     ld = LaunchDescription()
 
+    # Retrieve the name of the model
+    model_name = LaunchConfiguration("model_name")
+
     # Arguments describing how to spawn model
-    model_description = ['-entity', 'jetleg_wheeled_testrig', '-topic', '/robot_description']
+    model_description = ['-entity', model_name, '-topic', '/robot_description']
     model_pos = ['-x', '0.0', '-y', '0.0', '-z', '1.0']
     model_orientation = ['-R', '0.0', '-P', '0.0', '-Y', '0.0']
 
