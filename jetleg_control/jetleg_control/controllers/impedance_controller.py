@@ -118,3 +118,18 @@ class ImpedanceController:
     def compute_command(x: np.array, x_dot: np.array,
                         k: np.array, d: np.array, eq: np.array) -> np.array:
         return k * (eq - x) - d * x_dot
+
+def main():
+
+    # Initialize ROS 2
+    rclpy.init()
+
+    # Create an instance of the controller
+    controller = ImpedanceController()
+
+    # Allow the process to cleanly exit after KeyboardInterrupt
+    try:
+        # Execute the node tasks
+        rclpy.spin(controller.node)
+    except KeyboardInterrupt:
+        pass

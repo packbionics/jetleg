@@ -35,6 +35,8 @@ install(DIRECTORY config
 # Install Python executables
 install(PROGRAMS
   scripts/jetleg_pointcloud_proc.py
+  scripts/jetleg_pointcloud_restrictor.py
+  scripts/pointcloud_frame_bypass.py
 
   DESTINATION lib/${PROJECT_NAME}
 )

@@ -24,13 +24,14 @@ from launch.actions import IncludeLaunchDescription
 from launch.substitutions import PathJoinSubstitution
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 
+from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 
 
 def generate_launch_description():
     ld = LaunchDescription()
 
-    # Find impedance controller launch path
+    # Start impedance controller
     impedance_controller_path = PathJoinSubstitution([
         FindPackageShare("jetleg_control"),
         "launch", "impedance_control.launch.py"
@@ -40,13 +41,16 @@ def generate_launch_description():
     )
     ld.add_action(impedance_controller)
 
-    # Find ruled-based classifier launch path
-    rule_based_classifier_path = PathJoinSubstitution([
+    # Start up impedance controller
+    impedance_params_file = PathJoinSubstitution([
         FindPackageShare("jetleg_control"),
-        "launch", "rule_based_classifier.launch.py"
+        "config", "impedance_params.yaml"
     ])
-    rule_based_classifier = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(rule_based_classifier_path)
+    rule_based_classifier = Node(
+        package="jetleg_control",
+        executable="simple_reflex_node",
+        parameters=[impedance_params_file],
+        output="screen"
     )
     ld.add_action(rule_based_classifier)
 

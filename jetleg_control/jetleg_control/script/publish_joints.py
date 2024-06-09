@@ -47,12 +47,13 @@ class JetlegJointPublisher(Node):
 
         # Create subscriber to read pose data estimated from the IMU
         self.subscriber = self.create_subscription(
-            PoseStamped, "estimated_imu_pose", self.estimate_joint_state, qos_profile_system_default)
-
+            PoseStamped, "estimated_imu_pose",
+            self.estimate_joint_state, qos_profile_system_default)
 
         # Create publisher to output estimated joint positions ( and/or velocities )
         self.publisher = self.create_publisher(
-            JointState, "joint_states", self.estimate_pose, qos_profile_system_default)
+            JointState, "joint_states",
+            self.estimate_pose, qos_profile_system_default)
 
     def estimate_joint_state(self, msg: PoseStamped):
 

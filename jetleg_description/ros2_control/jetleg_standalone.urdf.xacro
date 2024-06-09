@@ -10,6 +10,27 @@
     <!-- Import control_xacro -->
     <xacro:include filename="$(find jetleg_description)/ros2_control/jetleg.ros2_control.xacro" />
 
+    <!-- Import camera model -->
+    <xacro:include filename="$(find jetleg_description)/urdf/components/stereo_camera.xacro" />
+
     <xacro:jetleg_ros2_control name="JetlegSystem" initial_positions_file="$(arg initial_positions_file)" plugin="jetleg_system/JetlegSystem" identifier="" />
+
+    <gazebo>
+        <plugin filename="libgazebo_ros2_control.so" name="gazebo_ros2_control">
+            <parameters>$(find jetleg_description)/ros2_control/ros2_controllers.yaml</parameters>
+
+            <robot_param>robot_description</robot_param>
+            <robot_param_node>robot_state_publisher</robot_param_node>
+        </plugin>
+    </gazebo>
+
+    <!-- Add camera -->
+    <xacro:stereo_camera baseline="0.1">
+      <joint name="base_link_to_camera_base" type="fixed">
+          <parent link="base_link" />
+          <child link="camera_base" />
+          <origin xyz="0.1 0 0" rpy="0 ${20*pi/180} 0" />
+      </joint>
+  </xacro:stereo_camera>
 
 </robot>

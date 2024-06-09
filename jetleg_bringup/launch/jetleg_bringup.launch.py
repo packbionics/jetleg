@@ -104,7 +104,18 @@ def generate_launch_description():
             ])
         )
     )
-    ld.add_action(control_behavior)
+    # ld.add_action(control_behavior)
+
+    # Start up vision pipeline
+    vision_pipeline = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            PathJoinSubstitution([
+                FindPackageShare("jetleg_vision"),
+                "launch", "jetleg_vision.launch.py"
+            ])
+        )
+    )
+    ld.add_action(vision_pipeline)
 
     # Specify RVIZ config
     rviz_config_arg = DeclareLaunchArgument(
