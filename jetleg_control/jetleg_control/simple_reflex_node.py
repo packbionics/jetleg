@@ -27,8 +27,8 @@ from rclpy.qos import qos_profile_system_default
 from rclpy.node import Node
 
 # Import jetleg_control modules
-from jetleg_control.simple_reflex_agent import SimpleReflexAgent
-from jetleg_control.gait_phase import GaitPhase
+from jetleg_control.model.simple_reflex_agent import SimpleReflexAgent
+from jetleg_control.model.data import GaitPhase
 from jetleg_control.classifier_parameters import classifier_params
 
 # Import ROS 2 message interfaces

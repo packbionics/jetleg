@@ -21,8 +21,8 @@
 
 from typing import Iterable
 
-from jetleg_control.data import Action, Percept
-from jetleg_control.gait_phase import GaitPhase
+from jetleg_control.model.data import Action, Percept
+from jetleg_control.model.data import GaitPhase
 
 
 class SimpleReflexAgent:
