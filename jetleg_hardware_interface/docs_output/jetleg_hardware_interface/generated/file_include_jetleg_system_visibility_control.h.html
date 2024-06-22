@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>File visibility_control.h &mdash; jetleg_hardware_interface 0.0.1 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/collapsible-lists/css/tree_view.css" type="text/css" />
+  
+        <script src="../_static/documentation_options.js?v=d45e8c67"></script>
+        <script src="../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../_static/collapsible-lists/js/CollapsibleLists.compressed.js?v=73120307"></script>
+        <script src="../_static/collapsible-lists/js/apply-collapsible-lists.js?v=660e4f45"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Program Listing for File visibility_control.h" href="program_listing_file_include_jetleg_system_visibility_control.h.html" />
+    <link rel="prev" title="Program Listing for File jetleg_system.hpp" href="program_listing_file_include_jetleg_system_jetleg_system.hpp.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> jetleg_hardware_interface
+          </a>
+              <div class="version">
+                0.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">C++ API</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="index.html#class-hierarchy">Class Hierarchy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#file-hierarchy">File Hierarchy</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html#full-c-api">Full C++ API</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="index.html#namespaces">Namespaces</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="namespace_hardware_interface.html">Namespace hardware_interface</a></li>
+<li class="toctree-l4"><a class="reference internal" href="namespace_jetleg_system.html">Namespace jetleg_system</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="index.html#classes-and-structs">Classes and Structs</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="classjetleg__system_1_1JetlegSystem.html">Class JetlegSystem</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="index.html#defines">Defines</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="define_visibility__control_8h_1a47f1c104fd3f7e3b2c5037b485111cfc.html">Define JETLEG_SYSTEM_EXPORT</a></li>
+<li class="toctree-l4"><a class="reference internal" href="define_visibility__control_8h_1a1a460539e61effd1809a7fc8ca5a07a9.html">Define JETLEG_SYSTEM_IMPORT</a></li>
+<li class="toctree-l4"><a class="reference internal" href="define_visibility__control_8h_1a45967b34f7871a636a749cd9e9945b17.html">Define JETLEG_SYSTEM_LOCAL</a></li>
+<li class="toctree-l4"><a class="reference internal" href="define_visibility__control_8h_1a41ba9d86df86b13e7ddb3652eeba389c.html">Define JETLEG_SYSTEM_PUBLIC</a></li>
+<li class="toctree-l4"><a class="reference internal" href="define_visibility__control_8h_1a8afcb1a6456c888d289a0567d221102e.html">Define JETLEG_SYSTEM_PUBLIC_TYPE</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="index.html#typedefs">Typedefs</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="typedef_jetleg__system_8hpp_1a5a3006e19730d7adffbcae95a219ad58.html">Typedef jetleg_system::CallbackReturn</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="index.html#directories">Directories</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dir_include.html">Directory include</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dir_include_jetleg_system.html">Directory jetleg_system</a></li>
+</ul>
+</li>
+<li class="toctree-l3 current"><a class="reference internal" href="index.html#files">Files</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="file_include_jetleg_system_jetleg_system.hpp.html">File jetleg_system.hpp</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">File visibility_control.h</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../standards.html">Standard Documents</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../standard_docs/LICENSE.html">LICENSE</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../standard_docs/PACKAGE.html">PACKAGE</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../genindex.html">Index</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">jetleg_hardware_interface</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="index.html">C++ API</a> &raquo;</li>
+      <li>File visibility_control.h</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/generated/file_include_jetleg_system_visibility_control.h.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="file-visibility-control-h">
+<span id="file-include-jetleg-system-visibility-control-h"></span><h1>File visibility_control.h<a class="headerlink" href="#file-visibility-control-h" title="Link to this heading"></a></h1>
+<p>↰ <a class="reference internal" href="dir_include_jetleg_system.html#dir-include-jetleg-system"><span class="std std-ref">Parent directory</span></a> (<code class="docutils literal notranslate"><span class="pre">include/jetleg_system</span></code>)</p>
+<nav class="contents local" id="contents">
+<p class="topic-title">Contents</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#definition-include-jetleg-system-visibility-control-h" id="id1">Definition (<code class="docutils literal notranslate"><span class="pre">include/jetleg_system/visibility_control.h</span></code>)</a></p></li>
+<li><p><a class="reference internal" href="#included-by" id="id2">Included By</a></p></li>
+<li><p><a class="reference internal" href="#defines" id="id3">Defines</a></p></li>
+</ul>
+</nav>
+<section id="definition-include-jetleg-system-visibility-control-h">
+<h2>Definition (<code class="docutils literal notranslate"><span class="pre">include/jetleg_system/visibility_control.h</span></code>)<a class="headerlink" href="#definition-include-jetleg-system-visibility-control-h" title="Link to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="program_listing_file_include_jetleg_system_visibility_control.h.html">Program Listing for File visibility_control.h</a></li>
+</ul>
+</div>
+</section>
+<section id="included-by">
+<h2>Included By<a class="headerlink" href="#included-by" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="file_include_jetleg_system_jetleg_system.hpp.html#file-include-jetleg-system-jetleg-system-hpp"><span class="std std-ref">File jetleg_system.hpp</span></a></p></li>
+</ul>
+</section>
+<section id="defines">
+<h2>Defines<a class="headerlink" href="#defines" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="define_visibility__control_8h_1a47f1c104fd3f7e3b2c5037b485111cfc.html#exhale-define-visibility-control-8h-1a47f1c104fd3f7e3b2c5037b485111cfc"><span class="std std-ref">Define JETLEG_SYSTEM_EXPORT</span></a></p></li>
+<li><p><a class="reference internal" href="define_visibility__control_8h_1a1a460539e61effd1809a7fc8ca5a07a9.html#exhale-define-visibility-control-8h-1a1a460539e61effd1809a7fc8ca5a07a9"><span class="std std-ref">Define JETLEG_SYSTEM_IMPORT</span></a></p></li>
+<li><p><a class="reference internal" href="define_visibility__control_8h_1a45967b34f7871a636a749cd9e9945b17.html#exhale-define-visibility-control-8h-1a45967b34f7871a636a749cd9e9945b17"><span class="std std-ref">Define JETLEG_SYSTEM_LOCAL</span></a></p></li>
+<li><p><a class="reference internal" href="define_visibility__control_8h_1a41ba9d86df86b13e7ddb3652eeba389c.html#exhale-define-visibility-control-8h-1a41ba9d86df86b13e7ddb3652eeba389c"><span class="std std-ref">Define JETLEG_SYSTEM_PUBLIC</span></a></p></li>
+<li><p><a class="reference internal" href="define_visibility__control_8h_1a8afcb1a6456c888d289a0567d221102e.html#exhale-define-visibility-control-8h-1a8afcb1a6456c888d289a0567d221102e"><span class="std std-ref">Define JETLEG_SYSTEM_PUBLIC_TYPE</span></a></p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="program_listing_file_include_jetleg_system_jetleg_system.hpp.html" class="btn btn-neutral float-left" title="Program Listing for File jetleg_system.hpp" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="program_listing_file_include_jetleg_system_visibility_control.h.html" class="btn btn-neutral float-right" title="Program Listing for File visibility_control.h" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright The &lt;jetleg_hardware_interface&gt; Contributors. License: MIT.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

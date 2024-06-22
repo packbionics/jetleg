@@ -1,0 +1,42 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygenindex xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="index.xsd" version="1.9.1" xml:lang="en-US">
+  <compound refid="classjetleg__system_1_1JetlegSystem" kind="class"><name>jetleg_system::JetlegSystem</name>
+    <member refid="classjetleg__system_1_1JetlegSystem_1a75da7349d17370c6ad0542501e46ce2d" kind="variable"><name>mJointStates</name></member>
+    <member refid="classjetleg__system_1_1JetlegSystem_1afba24553244d675cd46cca8af1504a21" kind="variable"><name>serialBridgePointer</name></member>
+    <member refid="classjetleg__system_1_1JetlegSystem_1a26bebeddb08e952f7ea4c75c9def04f6" kind="variable"><name>mJointCommands</name></member>
+    <member refid="classjetleg__system_1_1JetlegSystem_1a792fc6b78431438a93e5df52b86d8779" kind="variable"><name>mLinearStates</name></member>
+    <member refid="classjetleg__system_1_1JetlegSystem_1a2cedaa9168a7bad50438f52bfe53d56f" kind="variable"><name>mLinearSubStates</name></member>
+    <member refid="classjetleg__system_1_1JetlegSystem_1a2d41cd33ca08689ec749c3b99c10ed89" kind="variable"><name>mAngularStates</name></member>
+    <member refid="classjetleg__system_1_1JetlegSystem_1a4e4b67404cea6c43157561e7824b2d6d" kind="variable"><name>mSensorData</name></member>
+    <member refid="classjetleg__system_1_1JetlegSystem_1ad88534e87e6de70dbeabd7f730247cc0" kind="variable"><name>LINEAR_COORDS</name></member>
+    <member refid="classjetleg__system_1_1JetlegSystem_1ae26b60827c59824a24f4d0f0159f9aec" kind="variable"><name>ANGULAR_COORDS</name></member>
+    <member refid="classjetleg__system_1_1JetlegSystem_1a380caf2fd2f65362614257160250e9c7" kind="variable"><name>BAUD_RATE</name></member>
+    <member refid="classjetleg__system_1_1JetlegSystem_1aa89602fb1038dbbcd624b98235a882bc" kind="function"><name>on_init</name></member>
+    <member refid="classjetleg__system_1_1JetlegSystem_1a0e5d4c9dbd146f96ababbb67e4ad08bc" kind="function"><name>export_state_interfaces</name></member>
+    <member refid="classjetleg__system_1_1JetlegSystem_1ab230b4a577e2b3bfb40ea5c501cdfb1c" kind="function"><name>export_command_interfaces</name></member>
+    <member refid="classjetleg__system_1_1JetlegSystem_1a4625d35ae677cc38bf735fd885615bd7" kind="function"><name>read</name></member>
+    <member refid="classjetleg__system_1_1JetlegSystem_1a806fe995c7fd3b5e3b9bdcb1c223bd6a" kind="function"><name>write</name></member>
+    <member refid="classjetleg__system_1_1JetlegSystem_1a0650b7ca5c272c4e46b0ad291bd2fa2a" kind="function"><name>imuLogger</name></member>
+    <member refid="classjetleg__system_1_1JetlegSystem_1a2655ed092ba728427bece1cd6ae35119" kind="function"><name>updatePose</name></member>
+    <member refid="classjetleg__system_1_1JetlegSystem_1aaa22eb3615f4867a243613041caef58a" kind="function"><name>updateSensorData</name></member>
+    <member refid="classjetleg__system_1_1JetlegSystem_1aa913d2257e30e9fced917105b530b5c8" kind="function"><name>updateField</name></member>
+  </compound>
+  <compound refid="namespacehardware__interface" kind="namespace"><name>hardware_interface</name>
+  </compound>
+  <compound refid="namespacejetleg__system" kind="namespace"><name>jetleg_system</name>
+    <member refid="jetleg__system_8hpp_1a5a3006e19730d7adffbcae95a219ad58" kind="typedef"><name>CallbackReturn</name></member>
+  </compound>
+  <compound refid="jetleg__system_8hpp" kind="file"><name>jetleg_system.hpp</name>
+  </compound>
+  <compound refid="visibility__control_8h" kind="file"><name>visibility_control.h</name>
+    <member refid="visibility__control_8h_1a47f1c104fd3f7e3b2c5037b485111cfc" kind="define"><name>JETLEG_SYSTEM_EXPORT</name></member>
+    <member refid="visibility__control_8h_1a1a460539e61effd1809a7fc8ca5a07a9" kind="define"><name>JETLEG_SYSTEM_IMPORT</name></member>
+    <member refid="visibility__control_8h_1a41ba9d86df86b13e7ddb3652eeba389c" kind="define"><name>JETLEG_SYSTEM_PUBLIC</name></member>
+    <member refid="visibility__control_8h_1a45967b34f7871a636a749cd9e9945b17" kind="define"><name>JETLEG_SYSTEM_LOCAL</name></member>
+    <member refid="visibility__control_8h_1a8afcb1a6456c888d289a0567d221102e" kind="define"><name>JETLEG_SYSTEM_PUBLIC_TYPE</name></member>
+  </compound>
+  <compound refid="dir_d44c64559bbebec7f509842c48db8b23" kind="dir"><name>include</name>
+  </compound>
+  <compound refid="dir_ac297052b195876e5cfecda4b0d63ea0" kind="dir"><name>include/jetleg_system</name>
+  </compound>
+</doxygenindex>

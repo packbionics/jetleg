@@ -22,8 +22,10 @@
 #ifndef JETLEG_SYSTEM_HPP
 #define JETLEG_SYSTEM_HPP
 
+
 #include "hardware_interface/system_interface.hpp"
 #include "jetleg_system/visibility_control.h"
+#include "serial_interface/libserial_bridge.hpp"
 
 namespace jetleg_system
 {
@@ -94,11 +96,64 @@ public:
     const rclcpp::Duration & /*period*/) override;
 
 private:
+  void imuLogger();
+
+  /**
+   * @brief Updates the most current estimate of the cartesion position and
+   *        orientation of the IMU sensor
+   *
+   * @param timePeriod time since last update
+   */
+  void updatePose(double timePeriod);
+
+  /**
+   * @brief Reads data from the IMU and assigns the recorded values as visible sensor data
+   *
+   */
+  void updateSensorData();
+
+  /**
+   * @brief Updates the current values of the IMU sensor data fields
+   *
+   * @param interfaceNames names of interfaces to corresponding data field
+   * @param sensorValues values with which to update
+   */
+  void updateField(std::vector<std::string> interfaceNames, std::vector<double> sensorValues);
+
+
+  // static void trapSum(
+  //   std::vector<double> & original, const std::vector<double> & vel, size_t timePeriod);
+
   /** Maintains record of current joint states */
   std::vector<std::vector<double>> mJointStates;
 
+  /** Maintains a reference to the interface to the arduino*/
+  std::shared_ptr<serial::LibSerialBridge> serialBridgePointer;
+
   /** Maintains current commands sent to the system */
   std::vector<double> mJointCommands;
+
+  /** Integrated position of IMU */
+  std::vector<double> mLinearStates;
+
+  /** Integrated velocity */
+  std::vector<double> mLinearSubStates;
+
+  /** Integrated orientation of IMU */
+  std::vector<double> mAngularStates;
+
+  /** Stores the most current data recorded from sensors */
+  std::vector<std::map<std::string, double>> mSensorData;
+
+  /** Number of linear components of IMU */
+  static constexpr size_t LINEAR_COORDS = 3;
+
+  /** NUmber of angular components of IMU */
+  static constexpr size_t ANGULAR_COORDS = 3;
+
+  /** Baud Rate for serial port/stream IO */
+  static constexpr size_t BAUD_RATE = 1;
+
 
 };
 

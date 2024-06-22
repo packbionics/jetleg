@@ -1,0 +1,27 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="namespacejetleg__system" kind="namespace" language="C++">
+    <compoundname>jetleg_system</compoundname>
+    <innerclass refid="classjetleg__system_1_1JetlegSystem" prot="public">jetleg_system::JetlegSystem</innerclass>
+      <sectiondef kind="typedef">
+      <memberdef kind="typedef" id="jetleg__system_8hpp_1a5a3006e19730d7adffbcae95a219ad58" prot="public" static="no">
+        <type>rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn</type>
+        <definition>using jetleg_system::CallbackReturn = typedef rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn</definition>
+        <argsstring></argsstring>
+        <name>CallbackReturn</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/jetleg_system/jetleg_system.hpp" line="33" column="1" bodyfile="include/jetleg_system/jetleg_system.hpp" bodystart="33" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="include/jetleg_system/jetleg_system.hpp" line="30" column="1"/>
+  </compounddef>
+</doxygen>

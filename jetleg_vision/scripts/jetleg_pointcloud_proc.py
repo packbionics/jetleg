@@ -116,7 +116,7 @@ class PointCloudProcessing(Node):
             return
 
         cloud_array = cloud_array[:, :3]
-        cloud_array[:, [0, 1]] = cloud_array[:, [1, 0]]
+        # cloud_array[:, [0, 1]] = cloud_array[:, [1, 0]]
 
         cloud_array = cloud_array[np.isfinite(cloud_array).any(axis=1)]
         cloud_array = cloud_array[~np.isnan(cloud_array).any(axis=1)]
@@ -132,9 +132,12 @@ class PointCloudProcessing(Node):
         # sort by x,y coordinates into heightmap image pixels
 
         # clip point cloud according to current position
-        x_minimum = 0.0
+
+        ## Forward direction
+        x_minimum = -1.5
         x_maximum = 1.5
 
+        ## Lateral (left/right) direction
         y_minimum = -0.4
         y_maximum = 0.4
 
@@ -175,6 +178,9 @@ class PointCloudProcessing(Node):
                 heightmap[idx_x, idx_y] = point[2]
             else:
                 heightmap[idx_x, idx_y] = max(point[2], heightmap[idx_x, idx_y])
+        
+        # Switch the row and column pixels after creating the raw map
+        heightmap = cv2.transpose(heightmap)
 
         kernel = np.array([
             [0, 0, 1, 0, 0],
@@ -183,8 +189,12 @@ class PointCloudProcessing(Node):
             [1, 1, 1, 1, 1],
             [0, 0, 1, 0, 0]], dtype=np.uint8)
 
+        heightmap_in_bytes = heightmap / np.max(heightmap)
+        heightmap_in_bytes = (heightmap_in_bytes*255).astype(np.uint8)
+
         # floor detection
         heightmap[np.where(heightmap == 0)] = np.infty
+
         heights = heightmap.flatten()
         k = 10
         small_idx = np.argpartition(heights, k)
@@ -195,8 +205,6 @@ class PointCloudProcessing(Node):
 
         heightmap = cv2.dilate(heightmap, kernel, iterations=2)
         heightmap[np.where(heightmap == -10)] = np.infty
-
-        heightmap_in_bytes = (heightmap*255).astype(np.uint8)
 
         imgmsg = self.bridge.cv2_to_imgmsg(heightmap_in_bytes)
         imgmsg.header.frame_id = 'odom'

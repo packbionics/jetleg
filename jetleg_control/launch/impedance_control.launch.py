@@ -20,10 +20,8 @@
 
 
 from launch import LaunchDescription
-from launch.substitutions import PathJoinSubstitution
 
 from launch_ros.actions import Node
-from launch_ros.substitutions import FindPackageShare
 
 
 def generate_launch_description():
@@ -36,5 +34,12 @@ def generate_launch_description():
         remappings=[("commands", "jetleg_controller/commands")]
     )
     ld.add_action(impedance_controller)
+
+    imu_pose_estimator = Node(
+        package="jetleg_control",
+        executable="imu_pose_estimator",
+        remappings=[("/imu_data", "/imu_sensor_broadcaster/imu")]
+    )
+    ld.add_action(imu_pose_estimator)
 
     return ld

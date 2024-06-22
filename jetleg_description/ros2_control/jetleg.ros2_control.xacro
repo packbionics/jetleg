@@ -7,13 +7,6 @@
             <hardware>
                 <plugin>${plugin}</plugin>
             </hardware>
-            <joint name="vertical_rail_to_mount${identifier}">
-                <command_interface name="position"/>
-                <state_interface name="position">
-                  <param name="initial_value">${initial_positions['vertical_rail_to_mount']}</param>
-                </state_interface>
-                <state_interface name="velocity"/>
-            </joint>
             <joint name="knee_joint${identifier}">
                 <command_interface name="effort"/>
                 <state_interface name="position">
@@ -28,6 +21,29 @@
                 </state_interface>
                 <state_interface name="velocity"/>
             </joint>
+            <sensor name="imu0">
+                <state_interface name="orientation.x" />
+                <state_interface name="orientation.y" />
+                <state_interface name="orientation.z" />
+                <state_interface name="orientation.w" />
+
+                <state_interface name="angular_velocity.x" />
+                <state_interface name="angular_velocity.y" />
+                <state_interface name="angular_velocity.z" />
+
+                <state_interface name="linear_acceleration.x" />
+                <state_interface name="linear_acceleration.y" />
+                <state_interface name="linear_acceleration.z" />
+            </sensor>
+
+            <!-- Use if modelling the movement of the thigh -->
+            <joint name="base_link_to_jetleg">
+                <state_interface name="position">
+                    <param name="initial_value">0.0</param>
+                </state_interface>
+                <state_interface name="velocity"/>
+            </joint>
+            
         </ros2_control>
     </xacro:macro>
 </robot>
