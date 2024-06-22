@@ -270,7 +270,9 @@ void trapSum(std::vector<double> & original, const std::vector<double> & vel, do
 void JetlegSystem::updateSensorData()
 {
   if (info_.sensors.size() < 1) {
-    throw std::runtime_error("There must exist at least 1 sensor. Found: " + std::to_string(info_.sensors.size()));
+    throw std::runtime_error(
+            "There must exist at least 1 sensor. Found: " +
+            std::to_string(info_.sensors.size()));
   }
 
   serial::ImuPtr imu = serialBridgePointer->getImu(0);
@@ -300,8 +302,9 @@ void JetlegSystem::updateSensorData()
   mJointStates[0][0] = serialBridgePointer->getKneeAngle();
 
   // Update hip position
-  tf2::Quaternion structuredOrientation(orientation[0], orientation[1], orientation[2], orientation[3]);
-  
+  tf2::Quaternion structuredOrientation(orientation[0], orientation[1], orientation[2],
+    orientation[3]);
+
   tf2::Vector3 rotationAxis = structuredOrientation.getAxis();
   double rotationAngle = structuredOrientation.getAngle();
 

@@ -119,6 +119,7 @@ class ImpedanceController:
                         k: np.array, d: np.array, eq: np.array) -> np.array:
         return k * (eq - x) - d * x_dot
 
+
 def main():
 
     # Initialize ROS 2
