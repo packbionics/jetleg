@@ -6,7 +6,7 @@ from generate_parameter_library_py.setup_helper import generate_parameter_module
 
 
 package_name = 'jetleg_control'
-submodules = ['jetleg_control.script', 'jetleg_control.controllers']
+submodules = ['jetleg_control.script', 'jetleg_control.controllers', 'jetleg_control.model']
 
 data_files = [
     ('share/ament_index/resource_index/packages',
@@ -26,7 +26,7 @@ def glob_recursive(data_files, directory):
             glob_recursive(data_files, dir)
 
 
-data_directories = ['launch', 'config', 'docs']
+data_directories = ['launch', 'config', 'docs', 'src']
 
 for directory in data_directories:
     glob_recursive(data_files, directory)
@@ -55,8 +55,9 @@ setup(
                 'jetleg_teleop_key = jetleg_control.script.jetleg_teleop_key:main',
                 'jetleg_gait_generator = jetleg_control.script.jetleg_gait_generator:main',
                 'forwarder = jetleg_control.script.forwarder:main',
-                'impedance_controller = jetleg_control.script.impedance_controller:main',
-                'rule_based_classifier = jetleg_control.script.rule_based_classifier:main'
+                'impedance_controller = jetleg_control.controller.impedance_controller:main',
+                'simple_reflex_node = jetleg_control.simple_reflex_node:main',
+                'imu_pose_estimator = jetleg_control.script.estimate_imu_pose:main'
         ],
     },
 )

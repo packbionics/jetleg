@@ -27,6 +27,8 @@ from launch import LaunchDescription
 
 def generate_launch_description():
 
+    ld = LaunchDescription()
+
     # launch plugin through rclcpp_components container
     pointcloud_xyz_node = ComposableNodeContainer(
             name='container',
@@ -46,19 +48,35 @@ def generate_launch_description():
             ],
             output='screen',
     )
+    # ld.add_action(pointcloud_xyz_node)
+
+    # pointcloud processing node
+    jetleg_pointcloud_restrictor = Node(
+        package='jetleg_vision',
+        executable='jetleg_pointcloud_restrictor.py',
+        remappings=[('pointcloud/input', '/camera/points')],
+        output="screen"
+    )
+    ld.add_action(jetleg_pointcloud_restrictor)
+
+    # pointcloud processing node
+    pointcloud_frame_bypass = Node(
+        package='jetleg_vision',
+        executable='pointcloud_frame_bypass.py',
+        remappings=[('camera/input', '/camera/points'),
+                    ('camera/output', '/reframed_points')],
+        output="screen"
+    )
+    ld.add_action(pointcloud_frame_bypass)
 
     # pointcloud processing node
     jetleg_pointcloud_proc = Node(
         package='jetleg_vision',
         executable='jetleg_pointcloud_proc.py',
-        remappings=[('/zed2i/zed_node/point_cloud/cloud_registered', '/points'),
+        remappings=[('/zed2i/zed_node/point_cloud/cloud_registered', '/reframed_points'),
                     ('camera_state', 'camera/state')],
         output="screen"
     )
-
-    ld = LaunchDescription()
-
-    ld.add_action(pointcloud_xyz_node)
     ld.add_action(jetleg_pointcloud_proc)
 
     return ld

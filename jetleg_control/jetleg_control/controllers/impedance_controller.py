@@ -82,7 +82,7 @@ class ImpedanceController:
             return
         if self.stiffness is None or self.damping is None or self.equilibrium is None:
             return
-        
+
         # TODO: Describe relevant joints with parameters rather than hardcode values
         mapping = {"knee_joint": 0, "ankle_joint": 1}
 
@@ -95,7 +95,7 @@ class ImpedanceController:
 
                 x[idx] = self.joint_state.position[i]
                 x_dot[idx] = self.joint_state.velocity[i]
-        
+
         # Compute the input signal
         signal = ImpedanceController.compute_command(
             x,
@@ -118,3 +118,19 @@ class ImpedanceController:
     def compute_command(x: np.array, x_dot: np.array,
                         k: np.array, d: np.array, eq: np.array) -> np.array:
         return k * (eq - x) - d * x_dot
+
+
+def main():
+
+    # Initialize ROS 2
+    rclpy.init()
+
+    # Create an instance of the controller
+    controller = ImpedanceController()
+
+    # Allow the process to cleanly exit after KeyboardInterrupt
+    try:
+        # Execute the node tasks
+        rclpy.spin(controller.node)
+    except KeyboardInterrupt:
+        pass
