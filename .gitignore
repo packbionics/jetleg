@@ -27,6 +27,9 @@ jetleg_vision/config/ORBvoc.txt
 # Ignore generated docs
 *.dox
 *.wikidoc
+docs_build/
+docs_output/
+cross_reference/
 
 # eclipse stuff
 .project
