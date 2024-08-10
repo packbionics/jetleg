@@ -19,10 +19,13 @@
 // THE SOFTWARE.
 
 
-#ifndef JETLEG_SYSTEM_HPP
-#define JETLEG_SYSTEM_HPP
+#ifndef JETLEG_SYSTEM__JETLEG_SYSTEM_HPP_
+#define JETLEG_SYSTEM__JETLEG_SYSTEM_HPP_
 
 #include <map>
+#include <memory>
+#include <vector>
+#include <string>
 
 #include "hardware_interface/system_interface.hpp"
 #include "jetleg_system/visibility_control.h"
@@ -97,7 +100,6 @@ public:
     const rclcpp::Duration & /*period*/) override;
 
 private:
-
   /**
    * @brief Reads data from the IMU and assigns the recorded values as visible sensor data
    *
@@ -128,6 +130,6 @@ private:
   static constexpr size_t BAUD_RATE = 1;
 };
 
-}
+}  // namespace jetleg_system
 
-#endif // JETLEG_SYSTEM_HPP
+#endif  // JETLEG_SYSTEM__JETLEG_SYSTEM_HPP_
