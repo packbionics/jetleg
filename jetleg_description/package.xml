@@ -4,7 +4,7 @@
   <name>jetleg_description</name>
   <version>0.0.0</version>
   <description>TODO: Package description</description>
-  <maintainer email="59701038+JChunX@users.noreply.github.com">jasonx</maintainer>
+  <maintainer email="anthonybrown0528@protonmail.com">Anthony Brown</maintainer>
   <license>MIT</license>
 
   <test_depend>ament_copyright</test_depend>

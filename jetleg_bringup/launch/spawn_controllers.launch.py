@@ -25,7 +25,7 @@ def generate_launch_description():
     ld = LaunchDescription()
 
     controller_list = [
-        'jetleg_controller',
+        # 'jetleg_controller',
         # 'jetleg_intact_controller',
         'joint_state_broadcaster',
         # 'hip_controller',

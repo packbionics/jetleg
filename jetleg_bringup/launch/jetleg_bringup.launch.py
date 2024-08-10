@@ -34,7 +34,7 @@ def generate_launch_description():
     # Specify robot path
     model_path = PathJoinSubstitution([
         FindPackageShare("jetleg_description"),
-        "ros2_control", "jetleg_standalone.urdf.xacro"
+        "ros2_control", "jetleg.urdf.xacro"
     ])
     model_arg = DeclareLaunchArgument(
         "model",
@@ -45,7 +45,7 @@ def generate_launch_description():
     # Specify model name (used for loading into Gazebo
     model_name_arg = DeclareLaunchArgument(
         "model_name",
-        default_value="jetleg_ros2_control_standalone"
+        default_value="jetleg_ros2_control"
     )
     ld.add_action(model_name_arg)
 

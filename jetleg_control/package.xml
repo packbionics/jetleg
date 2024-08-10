@@ -4,7 +4,7 @@
   <name>jetleg_control</name>
   <version>0.1.0</version>
   <description>Contains necessary software for controlling Jetleg robotic leg system</description>
-  <maintainer email="59701038+JChunX@users.noreply.github.com">jasonx</maintainer>
+  <maintainer email="anthonybrown0528@protonmail.com">Anthony Brown</maintainer>
   <license>Apache License 2.0</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>

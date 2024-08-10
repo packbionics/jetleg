@@ -26,21 +26,65 @@
 #include <rclcpp/rclcpp.hpp>
 #include <rclcpp/logger.hpp>
 #include <tf2/LinearMath/Quaternion.h>
-#include <libserial/SerialPort.h>
-#include <libserial/SerialStream.h>
+#include <serial_interface/stream_reader.hpp>
+#include <serial_interface/stream_parser.hpp>
+
 
 namespace jetleg_system
 {
 
-static void trapSum(
-  std::vector<double> & original, const std::vector<double> & vel,
-  double timePeriod);
+enum class ERROR_TYPE {
+  MULTIPLE_CMD_IF,
+  INVALID_SENSOR_COUNT,
+  INVALID_STATE_IF,
+  INVALID_CMD_IF
+};
+
+class TmpPort : public StreamReader
+{
+public:
+  explicit TmpPort(const std::string& name) : StreamReader(name)
+  {}
+
+  std::string getBytes(std::size_t /*numBytes*/) override
+  {
+    return "";
+  }
+  std::string getLine(const std::string& /*delimiter*/) override
+  {
+    return "";
+  }
+};
+
+class TmpParser : public StreamParser
+{
+public:
+  std::shared_ptr<SensorState> next(std::shared_ptr<StreamReader> /*port*/) override
+  {
+    auto result = toggle ? std::make_shared<SensorState>(sensor_msgs::msg::Imu(), 0.0) : nullptr;
+    toggle = false;
+
+    return result;
+  }
+private:
+  bool toggle = true;
+};
+
+const static std::shared_ptr<TmpParser> parser = std::make_shared<TmpParser>();
+
+static std::map<ERROR_TYPE, const std::string> ERROR_MSG_TEMPLATES = {
+  {ERROR_TYPE::MULTIPLE_CMD_IF, "<%s> has multiple detected command interfaces. This is currently not supported."},
+  {ERROR_TYPE::INVALID_SENSOR_COUNT, "Invalid number of sensors: expected: <1>, actual: <%s>"},
+  {ERROR_TYPE::INVALID_STATE_IF, "State interface <%s> for Joint <%s> not found. Please ensure the hardware is correctly described in URDF."},
+  {ERROR_TYPE::INVALID_CMD_IF, "Command interface <%s> not found. Please ensure the hardware is correctly described in URDF."}
+};
 
 CallbackReturn JetlegSystem::on_init(const hardware_interface::HardwareInfo & info)
 {
 
   // Used to share status of hardware interface
   rclcpp::Logger logger = rclcpp::get_logger("JetlegSystem");
+  RCLCPP_INFO(logger, "Initializing JetlegSystem hardware interface...");
 
   // Delegate to base class to perform initial hardware setup
   if (hardware_interface::SystemInterface::on_init(info) != CallbackReturn::SUCCESS) {
@@ -53,35 +97,22 @@ CallbackReturn JetlegSystem::on_init(const hardware_interface::HardwareInfo & in
 
       // Record the error and return with non-successful status
       RCLCPP_ERROR(
-        logger,
-        "<%s> has multiple detected command interfaces. "
-        "This is currently not supported.", joint.name.c_str()
+        logger, ERROR_MSG_TEMPLATES[ERROR_TYPE::MULTIPLE_CMD_IF].c_str(),joint.name.c_str()
       );
       return CallbackReturn::ERROR;
     }
   }
 
-  // Initialize values for integration
-  mLinearStates.resize(LINEAR_COORDS, 0.0);
-  mLinearSubStates.resize(LINEAR_COORDS, 1.0);
+  // Make sure there is only 1 IMU sensor
+  if(info_.sensors.size() != 1) {
+    RCLCPP_ERROR(
+      logger, ERROR_MSG_TEMPLATES[ERROR_TYPE::INVALID_SENSOR_COUNT].c_str(),info_.sensors.size()
+    );
 
-  mAngularStates.resize(ANGULAR_COORDS, 0.0);
-
-  // A list of state interfaces created for each joint
-  mJointStates.resize(info_.joints.size());
-
-  // Each list contains the state information for the corresponding joint
-  const int numStateInterfaces = 2;
-  for (auto & joint : mJointStates) {
-    joint.resize(numStateInterfaces, 0.0);
+    return CallbackReturn::ERROR;
   }
 
-  // A list of in command interfaces created for each joint
-  mJointCommands.resize(info_.joints.size(), 0.0);
-
-  mSensorData.resize(info_.sensors.size());
-
-  serialBridgePointer = std::make_shared<serial::LibSerialBridge>();
+  mMCUInterface = std::make_shared<MCUInterface>(std::make_shared<TmpPort>(""));
 
   RCLCPP_INFO(logger, "JetlegSystem hardware interface has been initialized.");
   return CallbackReturn::SUCCESS;
@@ -99,63 +130,52 @@ std::vector<hardware_interface::StateInterface> JetlegSystem::export_state_inter
 
   // Possible supported state interface types
   // Note: Not all may be supported at this time
-  const std::vector<std::string> standard_interfaces = {
+  const std::set<std::string> standard_interfaces = {
     hardware_interface::HW_IF_POSITION, hardware_interface::HW_IF_VELOCITY,
     hardware_interface::HW_IF_ACCELERATION, hardware_interface::HW_IF_EFFORT
   };
 
   // Look over each joint in the robot
-  int jointOffset = 0;
   for (const auto & joint : info_.joints) {
 
     // For each joint, add accessible joint state interfaces
     for (const auto & state_interface : joint.state_interfaces) {
 
       // Find state interface if it exists
-      auto stateInterfacePtr = std::find(
-        standard_interfaces.begin(),
-        standard_interfaces.end(),
-        state_interface.name
-      );
+      bool isValidInterface = standard_interfaces.count(state_interface.name) == 1;
 
       // Make an entry in list of StateInterfaces if found
-      if (stateInterfacePtr != standard_interfaces.end()) {
-        int interfaceOffset = std::distance(standard_interfaces.begin(), stateInterfacePtr);
-        state_interfaces.emplace_back(
-          joint.name, *stateInterfacePtr,
-          &mJointStates[jointOffset][interfaceOffset]
-        );
+      if (isValidInterface) {
+
+        mJointStates[joint.name][state_interface.name] = 0.0;
+        double* const jointReference = &mJointStates[joint.name][state_interface.name];
+        state_interfaces.emplace_back(joint.name, state_interface.name, jointReference);
+
       } else {
         RCLCPP_ERROR(
-          logger,
-          "State interface <%s> not found. "
-          "Please ensure the hardware is correctly described in URDF.",
-          state_interface.name.c_str()
+          logger, ERROR_MSG_TEMPLATES[ERROR_TYPE::INVALID_STATE_IF].c_str(),
+          state_interface.name.c_str(), joint.name.c_str()
         );
       }
     }
-
-    jointOffset++;
   }
 
-  // Add the state interfaces for IMU sensor data
-  for (size_t sensorIdx = 0; sensorIdx < info_.sensors.size(); sensorIdx++) {
-
-    // For each sensor, add the declared state interfaces
-    for (size_t interfaceIdx = 0; interfaceIdx < info_.sensors[sensorIdx].state_interfaces.size();
-      interfaceIdx++)
+  // Add the state interfaces for each IMU sensor data
+  for(const auto& imu : info_.sensors)
+  {
+    for (const auto& interface : imu.state_interfaces)
     {
-      auto it =
-        mSensorData[sensorIdx].insert(
-        {info_.sensors[sensorIdx].state_interfaces[interfaceIdx].name, 0.0});
-
-      state_interfaces.emplace_back(
-        info_.sensors[sensorIdx].name,
-        it.first->first,
-        &it.first->second
-      );
+      const auto it = mSensorData[imu.name].insert({interface.name, 0.0});
+      state_interfaces.emplace_back(imu.name, it.first->first, &it.first->second);
     }
   }
+
+  std::string interfaceListString = "";
+  for(size_t i = 0; i < state_interfaces.size(); i++) {
+    interfaceListString += "\n\tname: " + state_interfaces[i].get_name();
+  }
+
+  RCLCPP_INFO(logger, "Available state interfaces: [%s\n]", interfaceListString.c_str());
 
   RCLCPP_INFO(logger, "JetlegSystem hardware interface has exported state interfaces.");
   return state_interfaces;
@@ -173,40 +193,30 @@ std::vector<hardware_interface::CommandInterface> JetlegSystem::export_command_i
 
   // Possible supported state interface types
   // Note: Not all may be supported at this time
-  const std::vector<std::string> standard_interfaces = {
+  const std::set<std::string> standard_interfaces = {
     hardware_interface::HW_IF_POSITION, hardware_interface::HW_IF_VELOCITY,
     hardware_interface::HW_IF_ACCELERATION, hardware_interface::HW_IF_EFFORT
   };
 
-  int jointOffset = 0;
   for (const auto & joint : info_.joints) {
 
     // Search for valid command interfaces to add to list of CommandInterfaces
     for (const auto & command_interface : joint.command_interfaces) {
 
       // Find state interface if it exists
-      auto commandInterfacePtr = std::find(
-        standard_interfaces.begin(),
-        standard_interfaces.end(),
-        command_interface.name
-      );
+      bool isValidInterface = standard_interfaces.count(command_interface.name) == 1;
 
       // Make an entry in list of StateInterfaces if found
-      if (commandInterfacePtr != standard_interfaces.end()) {
-        command_interfaces.emplace_back(
-          joint.name, *commandInterfacePtr,
-          &mJointCommands[jointOffset]
-        );
+      if (isValidInterface) {
+
+        mJointCommands[joint.name] = 0.0;
+        command_interfaces.emplace_back(joint.name, command_interface.name, &mJointCommands[joint.name]);
       } else {
         RCLCPP_ERROR(
-          logger,
-          "Command interface <%s> not found. "
-          "Please ensure the hardware is correctly described in URDF.",
+          logger, ERROR_MSG_TEMPLATES[ERROR_TYPE::INVALID_CMD_IF].c_str(),
           command_interface.name.c_str()
         );
       }
-
-      jointOffset++;
     }
   }
 
@@ -216,11 +226,11 @@ std::vector<hardware_interface::CommandInterface> JetlegSystem::export_command_i
 
 hardware_interface::return_type JetlegSystem::read(
   const rclcpp::Time & /*time*/,
-  const rclcpp::Duration & period)
+  const rclcpp::Duration & /*period*/)
 {
-  updateSensorData();
-  updatePose(period.seconds());
+  mMCUInterface->processStream(parser);
 
+  updateSensorData();
   return hardware_interface::return_type::OK;
 }
 
@@ -228,96 +238,42 @@ hardware_interface::return_type JetlegSystem::write(
   const rclcpp::Time & /*time*/,
   const rclcpp::Duration & /*period*/)
 {
-  serialBridgePointer->updateInput(mJointCommands);
+  // TODO: Add logic for sending input to the MCU
+  // mMCUInterface->updateInput(mJointCommands);
 
   return hardware_interface::return_type::OK;
 }
 
-void JetlegSystem::imuLogger()
-{
-  serial::ImuPtr imu = serialBridgePointer->getImu(0);
-
-  rclcpp::Logger logger = rclcpp::get_logger("TestIMULogger");
-  RCLCPP_INFO(
-    logger,
-    "\nX: %lf\nY: %lf\nZ: %lf\nRoll: %lf\nPitch: %lf\nYaw: %lf\n",
-    mLinearStates[0], mLinearStates[1], mLinearStates[2], mAngularStates[0], mAngularStates[1],
-    mAngularStates[2]);
-  //x, y, z, roll, pitch, yaw);
-}
-
-void JetlegSystem::updatePose(double timePeriod)
-{
-  serial::ImuPtr imu = serialBridgePointer->getImu(0);
-
-  trapSum(mLinearSubStates, imu->getLinear(), timePeriod);
-  trapSum(mLinearStates, mLinearSubStates, timePeriod);
-
-  trapSum(mAngularStates, imu->getAngular(), timePeriod);
-}
-
-void trapSum(std::vector<double> & original, const std::vector<double> & vel, double timePeriod)
-{
-  if (original.size() != vel.size()) {
-    throw std::runtime_error("`original` and `vel` must have matching dimensions.");
-  }
-
-  for (size_t i = 0; i < original.size(); i++) {
-    original[i] = original[i] + vel[i] * timePeriod;
-  }
-}
-
 void JetlegSystem::updateSensorData()
 {
-  if (info_.sensors.size() < 1) {
-    throw std::runtime_error(
-            "There must exist at least 1 sensor. Found: " +
-            std::to_string(info_.sensors.size()));
+  sensor_msgs::msg::Imu::SharedPtr imu = mMCUInterface->getImu();
+
+  const static std::vector<std::string> interfaces = {
+    "orientation.x", "orientation.y", "orientation.z", "orientation.w",
+    "angular_velocity.x", "angular_velocity.y", "angular_velocity.z",
+    "linear_acceleration.x", "linear_acceleration.y", "linear_acceleration.z"
+  };
+  std::vector<double> values = {
+    imu->orientation.x, imu->orientation.y, imu->orientation.z, imu->orientation.w,
+    imu->angular_velocity.x, imu->angular_velocity.y, imu->angular_velocity.z,
+    imu->linear_acceleration.x, imu->linear_acceleration.y, imu->linear_acceleration.z
+  };
+  for(size_t i = 0; i < values.size(); i++) {
+    mSensorData["imu0"][interfaces[i]] = values[i];
   }
-
-  serial::ImuPtr imu = serialBridgePointer->getImu(0);
-
-  // Update orientation
-  std::vector<std::string> orientationInterface =
-  {"orientation.x", "orientation.y", "orientation.z", "orientation.w"};
-  std::vector<double> orientation = imu->getOrientation();
-
-  updateField(orientationInterface, orientation);
-
-  // Update angular velocity
-  std::vector<std::string> angularInterface =
-  {"angular_velocity.x", "angular_velocity.y", "angular_velocity.z"};
-  std::vector<double> angular = imu->getAngular();
-
-  updateField(angularInterface, angular);
-
-  // Update linear acceleration
-  std::vector<std::string> linearInterface =
-  {"linear_acceleration.x", "linear_acceleration.y", "linear_acceleration.z"};
-  std::vector<double> linear = imu->getLinear();
-
-  updateField(linearInterface, linear);
 
   // Update knee position
-  mJointStates[0][0] = serialBridgePointer->getKneeAngle();
+  mJointStates["knee_joint_"]["position"] = mMCUInterface->getKneeSignal();
 
+  // TODO: Transfer this logic into a separate program / ROS node
   // Update hip position
-  tf2::Quaternion structuredOrientation(orientation[0], orientation[1], orientation[2],
-    orientation[3]);
+  // tf2::Quaternion structuredOrientation(orientation[0], orientation[1], orientation[2],
+  //   orientation[3]);
 
-  tf2::Vector3 rotationAxis = structuredOrientation.getAxis();
-  double rotationAngle = structuredOrientation.getAngle();
+  // tf2::Vector3 rotationAxis = structuredOrientation.getAxis();
+  // double rotationAngle = structuredOrientation.getAngle();
 
-  mJointStates[2][0] = rotationAxis[1] * rotationAngle;
-}
-
-void JetlegSystem::updateField(
-  std::vector<std::string> interfaceNames,
-  std::vector<double> sensorValues)
-{
-  for (size_t i = 0; i < interfaceNames.size(); i++) {
-    mSensorData[0][interfaceNames[i]] = sensorValues[i];
-  }
+  // mJointStates[2][0] = rotationAxis[1] * rotationAngle;
 }
 
 }

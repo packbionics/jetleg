@@ -2,9 +2,9 @@
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
   <name>jetleg_bringup</name>
-  <version>0.0.1</version>
+  <version>0.1.0</version>
   <description>JetLeg launch files</description>
-  <maintainer email="59701038+JChunX@users.noreply.github.com">jasonx</maintainer>
+  <maintainer email="anthonybrown0528@protonmail.com">Anthony Brown</maintainer>
   <license>MIT</license>
 
   <test_depend>ament_copyright</test_depend>
