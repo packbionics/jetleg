@@ -4,7 +4,7 @@ controller_manager:
     update_rate: 100  # Hz
 
     jetleg_controller:
-      type: forward_command_controller/ForwardCommandController
+      type: jetleg_controller/JetlegController
 
     joint_state_broadcaster:
       type: joint_state_broadcaster/JointStateBroadcaster
@@ -12,15 +12,15 @@ controller_manager:
     imu_sensor_broadcaster:
       type: imu_sensor_broadcaster/IMUSensorBroadcaster
 
-jetleg_controller:
-  ros__parameters:
-    joints:
-      - knee_joint
-      - ankle_joint
-    interface_name: effort
-    state_interfaces:
-      - position
-      - velocity
+# jetleg_controller:
+#   ros__parameters:
+#     joints:
+#       - knee_joint
+#       - ankle_joint
+#     interface_name: effort
+#     state_interfaces:
+#       - position
+#       - velocity
 
 imu_sensor_broadcaster:
   ros__parameters:

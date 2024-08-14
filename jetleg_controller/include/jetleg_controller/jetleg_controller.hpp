@@ -14,8 +14,6 @@ using FollowJointTrajectoryAction = control_msgs::action::FollowJointTrajectory;
 class JetlegController : public controller_interface::ControllerInterface
 {
 public:
-  JetlegController();
-
   controller_interface::CallbackReturn on_init() override;
 
   controller_interface::InterfaceConfiguration command_interface_configuration() const override;
@@ -39,7 +37,6 @@ private:
 
     void goal_accepted_callback(std::shared_ptr<rclcpp_action::ServerGoalHandle<FollowJointTrajectoryAction>> goal_handle);
 
-    rclcpp_lifecycle::LifecycleNode::SharedPtr mNode;
     rclcpp_action::Server<FollowJointTrajectoryAction>::SharedPtr mActionServer;
 };
 

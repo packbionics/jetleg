@@ -8,7 +8,7 @@
                 <plugin>${plugin}</plugin>
             </hardware>
             <joint name="knee_joint_${id}">
-                <command_interface name="effort"/>
+                <command_interface name="position"/>
                 <state_interface name="position">
                   <param name="initial_value">${initial_positions['knee_joint']}</param>
                 </state_interface>

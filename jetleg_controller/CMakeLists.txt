@@ -13,7 +13,7 @@ find_package(pluginlib REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_action REQUIRED)
 
-add_library(${PROJECT_NAME} src/jetleg_controller.cpp)
+add_library(${PROJECT_NAME} SHARED src/jetleg_controller.cpp)
 target_include_directories(${PROJECT_NAME} PRIVATE include)
 ament_target_dependencies(
   ${PROJECT_NAME}
@@ -21,7 +21,18 @@ ament_target_dependencies(
   rclcpp_action
 )
 
-pluginlib_export_plugin_description_file(controller_interface jetleg_controller_plugin.xml)
+pluginlib_export_plugin_description_file(controller_interface jetleg_controller_plugin_description.xml)
+
+install(
+  DIRECTORY include/
+  DESTINATION include/
+)
+install(
+  TARGETS ${PROJECT_NAME}
+  RUNTIME DESTINATION bin
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)

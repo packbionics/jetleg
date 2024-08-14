@@ -2,21 +2,12 @@
 
 namespace jetleg_controller {
 
-  JetlegController::JetlegController()
-  {
-    mNode = get_node();
-  }
-
   controller_interface::CallbackReturn JetlegController::on_init()
   {
-    if(controller_interface::ControllerInterface::on_init() != controller_interface::CallbackReturn::SUCCESS) {
-      return controller_interface::CallbackReturn::ERROR;
-    }
-
     return controller_interface::CallbackReturn::SUCCESS;
   }
 
-  controller_interface::InterfaceConfiguration command_interface_configuration()
+  controller_interface::InterfaceConfiguration JetlegController::command_interface_configuration() const
   {
     controller_interface::InterfaceConfiguration conf;
     conf.type = controller_interface::interface_configuration_type::INDIVIDUAL;
@@ -26,7 +17,7 @@ namespace jetleg_controller {
     return conf;
   }
 
-  controller_interface::InterfaceConfiguration state_interface_configuration()
+  controller_interface::InterfaceConfiguration JetlegController::state_interface_configuration() const
   {
     controller_interface::InterfaceConfiguration conf;
     conf.type = controller_interface::interface_configuration_type::INDIVIDUAL;
@@ -53,12 +44,14 @@ namespace jetleg_controller {
     const rclcpp_lifecycle::State & previous_state)
   {
     mActionServer = rclcpp_action::create_server<FollowJointTrajectoryAction>(
-      mNode,
-      std::string(mNode->get_name()) + "follow_joint_trajectory",
+      get_node(),
+      std::string(get_node()->get_name()) + "follow_joint_trajectory",
       std::bind(&JetlegController::goal_received_callback, this, std::placeholders::_1, std::placeholders::_2),
       std::bind(&JetlegController::goal_cancelled_callback, this, std::placeholders::_1),
       std::bind(&JetlegController::goal_accepted_callback, this, std::placeholders::_1)
     );
+
+    return controller_interface::CallbackReturn::SUCCESS;
   }
 
   controller_interface::CallbackReturn JetlegController::on_activate(
@@ -79,17 +72,17 @@ namespace jetleg_controller {
     return controller_interface::return_type::OK;
   }
 
-  rclcpp_action::GoalResponse goal_received_callback(const rclcpp_action::GoalUUID &, std::shared_ptr<const FollowJointTrajectoryAction::Goal>)
+  rclcpp_action::GoalResponse JetlegController::goal_received_callback(const rclcpp_action::GoalUUID &, std::shared_ptr<const FollowJointTrajectoryAction::Goal>)
   {
     return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
   }
 
-  rclcpp_action::CancelResponse goal_cancelled_callback(std::shared_ptr<rclcpp_action::ServerGoalHandle<FollowJointTrajectoryAction>> goal_handle)
+  rclcpp_action::CancelResponse JetlegController::goal_cancelled_callback(std::shared_ptr<rclcpp_action::ServerGoalHandle<FollowJointTrajectoryAction>> goal_handle)
   {
     return rclcpp_action::CancelResponse::ACCEPT;
   }
 
-  void goal_accepted_callback(std::shared_ptr<rclcpp_action::ServerGoalHandle<FollowJointTrajectoryAction>> goal_handle)
+  void JetlegController::goal_accepted_callback(std::shared_ptr<rclcpp_action::ServerGoalHandle<FollowJointTrajectoryAction>> goal_handle)
   {
 
   }
