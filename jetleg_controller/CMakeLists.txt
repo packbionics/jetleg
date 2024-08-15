@@ -12,6 +12,11 @@ find_package(hardware_interface REQUIRED)
 find_package(pluginlib REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_action REQUIRED)
+find_package(generate_parameter_library)
+
+generate_parameter_library(jetleg_controller_parameters
+  src/jetleg_controller_parameters.yml
+)
 
 add_library(${PROJECT_NAME} SHARED src/jetleg_controller.cpp)
 target_include_directories(${PROJECT_NAME} PRIVATE include)
@@ -20,6 +25,9 @@ ament_target_dependencies(
   controller_interface
   rclcpp_action
 )
+target_link_libraries(${PROJECT_NAME}
+  jetleg_controller_parameters
+)
 
 pluginlib_export_plugin_description_file(controller_interface jetleg_controller_plugin_description.xml)
 
@@ -27,8 +35,10 @@ install(
   DIRECTORY include/
   DESTINATION include/
 )
-install(
-  TARGETS ${PROJECT_NAME}
+install(TARGETS 
+  ${PROJECT_NAME}
+  jetleg_controller_parameters
+
   RUNTIME DESTINATION bin
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib

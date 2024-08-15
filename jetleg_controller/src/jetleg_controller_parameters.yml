@@ -1,0 +1,51 @@
+jetleg_controller:
+  joints: {
+    type: string_array,
+    default_value: [],
+    description: "Joint names to control and listen to",
+    read_only: true,
+    validation: {
+      unique<>: null,
+    }
+  }
+  imus: {
+    type: string_array,
+    default_value: [],
+    description: "IMU names to listen to",
+    read_only: true,
+    validation: {
+      unique<>: null,
+    }
+  }
+  command_interfaces: {
+    type: string_array,
+    default_value: [],
+    description: "Command interfaces provided by the hardware interface for all joints",
+    read_only: true,
+    validation: {
+      unique<>: null,
+      subset_of<>: [["position", "velocity", "acceleration", "effort",]],
+    }
+  }
+  state_interfaces: {
+    type: string_array,
+    default_value: [],
+    description: "State interfaces provided by the hardware for all joints.",
+    read_only: true,
+    validation: {
+      unique<>: null,
+      subset_of<>: [["position", "velocity", "acceleration",]],
+    }
+  }
+  gains:
+    __map_joints:
+      k: {
+        type: double,
+        default_value: 0.0,
+        description: "Spring coefficient :math:`K` for impedance control"
+      }
+      d: {
+        type: double,
+        default_value: 0.0,
+        description: "Damping coefficient :math:`D` for impedance control"
+      }

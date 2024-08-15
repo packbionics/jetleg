@@ -4,6 +4,18 @@ namespace jetleg_controller {
 
   controller_interface::CallbackReturn JetlegController::on_init()
   {
+    try
+    {
+      // Create the parameter listener and get the parameters
+      mParamListener = std::make_shared<jetleg_controller::ParamListener>(get_node());
+      mParams = mParamListener->get_params();
+    }
+    catch (const std::exception & e)
+    {
+      RCLCPP_ERROR(get_node()->get_logger(), "Exception thrown during init stage with message: %s \n", e.what());
+      return CallbackReturn::ERROR;
+    }
+
     return controller_interface::CallbackReturn::SUCCESS;
   }
 
@@ -12,7 +24,11 @@ namespace jetleg_controller {
     controller_interface::InterfaceConfiguration conf;
     conf.type = controller_interface::interface_configuration_type::INDIVIDUAL;
 
-    conf.names.push_back("knee_joint_/position");
+    for(const auto & joint : mParams.joints) {
+      for (const auto & cmd_if : mParams.command_interfaces) {
+        conf.names.push_back(joint + "/" + cmd_if);
+      }
+    }
 
     return conf;
   }
@@ -22,20 +38,19 @@ namespace jetleg_controller {
     controller_interface::InterfaceConfiguration conf;
     conf.type = controller_interface::interface_configuration_type::INDIVIDUAL;
 
-    conf.names.push_back("knee_joint_/position");
+    for(const auto & joint : mParams.joints) {
+      for (const auto & cmd_if : mParams.command_interfaces) {
+        conf.names.push_back(joint + "/" + cmd_if);
+      }
+    }
+    
+    std::map<std::string, semantic_components::IMUSensor> imuSensors;
+    for(const auto & imu : mParams.imus) {
+      const auto [entry, success] = imuSensors.insert({imu, semantic_components::IMUSensor(imu)});
+      std::vector<std::string> stateInterfaceNames = entry->second.get_state_interface_names();
 
-    conf.names.push_back("imu0/orientation.x");
-    conf.names.push_back("imu0/orientation.y");
-    conf.names.push_back("imu0/orientation.z");
-    conf.names.push_back("imu0/orientation.w");
-
-    conf.names.push_back("imu0/angular_velocity.x");
-    conf.names.push_back("imu0/angular_velocity.y");
-    conf.names.push_back("imu0/angular_velocity.z");
-
-    conf.names.push_back("imu0/linear_acceleration.x");
-    conf.names.push_back("imu0/linear_acceleration.y");
-    conf.names.push_back("imu0/linear_acceleration.z");
+      conf.names.insert(conf.names.end(), stateInterfaceNames.begin(), stateInterfaceNames.end());
+    }
 
     return conf;
   }

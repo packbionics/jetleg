@@ -6,6 +6,10 @@
 #include <controller_interface/controller_interface.hpp>
 #include <control_msgs/action/follow_joint_trajectory.hpp>
 
+#include <semantic_components/imu_sensor.hpp>
+
+#include "jetleg_controller_parameters.hpp"
+
 
 namespace jetleg_controller {
 
@@ -38,6 +42,9 @@ private:
     void goal_accepted_callback(std::shared_ptr<rclcpp_action::ServerGoalHandle<FollowJointTrajectoryAction>> goal_handle);
 
     rclcpp_action::Server<FollowJointTrajectoryAction>::SharedPtr mActionServer;
+
+    std::shared_ptr<jetleg_controller::ParamListener> mParamListener;
+    jetleg_controller::Params mParams;
 };
 
 }
