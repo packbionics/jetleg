@@ -2,12 +2,6 @@
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="jetleg">
 
     <link name="base_link">
-
-        <!-- Gazebo requires inertial information for each link -->
-        <inertial>
-            <mass value="1"/>
-            <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
-        </inertial>
     </link>
 
     <!-- Include the JetLeg -->

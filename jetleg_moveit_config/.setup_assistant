@@ -1,0 +1,25 @@
+moveit_setup_assistant_config:
+  urdf:
+    package: jetleg_description
+    relative_path: urdf/jetleg.xacro
+  srdf:
+    relative_path: config/jetleg.srdf
+  package_settings:
+    author_name: Anthony Brown
+    author_email: anthonybrown0528@protonmail.com
+    generated_timestamp: 1730325513
+  control_xacro:
+    command:
+      - position
+    state:
+      - position
+      - velocity
+  modified_urdf:
+    xacros:
+      - control_xacro
+  control_xacro:
+    command:
+      - position
+    state:
+      - position
+      - velocity

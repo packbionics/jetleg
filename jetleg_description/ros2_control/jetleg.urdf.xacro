@@ -13,7 +13,7 @@
     <!-- Import camera model -->
     <xacro:include filename="$(find jetleg_description)/urdf/components/stereo_camera.xacro" />
 
-    <xacro:jetleg_ros2_control name="JetlegSystem" initial_positions_file="$(arg initial_positions_file)" plugin="jetleg_system/JetlegSystem" id="" />
+    <xacro:jetleg_ros2_control name="JetlegSystem" initial_positions_file="$(arg initial_positions_file)" plugin="gazebo_ros2_control/GazeboSystem" id="" />
 
     <gazebo>
         <plugin filename="libgazebo_ros2_control.so" name="gazebo_ros2_control">

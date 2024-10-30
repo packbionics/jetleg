@@ -42,13 +42,6 @@ def generate_launch_description():
     )
     ld.add_action(model_arg)
 
-    # Specify model name (used for loading into Gazebo
-    model_name_arg = DeclareLaunchArgument(
-        "model_name",
-        default_value="jetleg_ros2_control"
-    )
-    ld.add_action(model_name_arg)
-
     # Begin publishing robot state
     rsp = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
@@ -61,7 +54,7 @@ def generate_launch_description():
     ld.add_action(rsp)
 
     # Launch simulation / physical system
-    jetleg_sim_name = "jetleg_gazebo.launch.py"
+    jetleg_sim_name = "jetleg_system.launch.py"
 
     jetleg_launch_path = PathJoinSubstitution([
         jetleg_bringup_share,
@@ -73,17 +66,6 @@ def generate_launch_description():
     )
     ld.add_action(jetleg_gazebo_launch)
 
-    # Launch sensor processing procedures
-    sensor_processors = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            PathJoinSubstitution([
-                FindPackageShare('jetleg_control'),
-                'launch', 'sensor_processing.launch.py'
-            ])
-        )
-    )
-    ld.add_action(sensor_processors)
-
     # Spawn ros2_controllers
     spawn_controls = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
@@ -94,42 +76,5 @@ def generate_launch_description():
         )
     )
     ld.add_action(spawn_controls)
-
-    # Start up control law
-    # control_behavior = IncludeLaunchDescription(
-    #     PythonLaunchDescriptionSource(
-    #         PathJoinSubstitution([
-    #             FindPackageShare("jetleg_control"),
-    #             "launch", "fsm_impedance_controller.launch.py"
-    #         ])
-    #     )
-    # )
-    # ld.add_action(control_behavior)
-
-    # Start up vision pipeline
-    vision_pipeline = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            PathJoinSubstitution([
-                FindPackageShare("jetleg_vision"),
-                "launch", "jetleg_vision.launch.py"
-            ])
-        )
-    )
-    ld.add_action(vision_pipeline)
-
-    # Specify RVIZ config
-    rviz_config_arg = DeclareLaunchArgument(
-        'rvizconfig',
-        default_value=PathJoinSubstitution([jetleg_bringup_share, 'config/jetleg_gazebo.rviz']),
-    )
-    ld.add_action(rviz_config_arg)
-
-    # Optionally show Rviz2 Display
-    rviz = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            PathJoinSubstitution([FindPackageShare('jetleg_bringup'), 'launch/rviz.launch.py'])
-        )
-    )
-    ld.add_action(rviz)
 
     return ld

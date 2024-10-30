@@ -74,6 +74,10 @@ private:
   bool toggle = true;
 };
 
+static std::string getStateInterfaceListString(const std::vector<hardware_interface::StateInterface>& interfaces);
+
+static std::string getCommandInterfaceListString(const std::vector<hardware_interface::CommandInterface>& interfaces);
+
 static const std::shared_ptr<TmpParser> parser = std::make_shared<TmpParser>();
 
 static std::map<ERROR_TYPE, const std::string> ERROR_MSG_TEMPLATES = {
@@ -171,11 +175,7 @@ std::vector<hardware_interface::StateInterface> JetlegSystem::export_state_inter
     }
   }
 
-  std::string interfaceListString = "";
-  for (size_t i = 0; i < state_interfaces.size(); i++) {
-    interfaceListString += "\n\tname: " + state_interfaces[i].get_name();
-  }
-
+  std::string interfaceListString = getStateInterfaceListString(state_interfaces);
   RCLCPP_INFO(logger, "Available state interfaces: [%s\n]", interfaceListString.c_str());
 
   RCLCPP_INFO(logger, "JetlegSystem hardware interface has exported state interfaces.");
@@ -218,6 +218,9 @@ std::vector<hardware_interface::CommandInterface> JetlegSystem::export_command_i
       }
     }
   }
+
+  std::string interfaceListString = getCommandInterfaceListString(command_interfaces);
+  // RCLCPP_INFO(logger, "Available command interfaces: [%s\n]", interfaceListString.c_str());
 
   RCLCPP_INFO(logger, "JetlegSystem hardware interface has exported command interfaces.");
   return command_interfaces;
@@ -273,6 +276,24 @@ void JetlegSystem::updateSensorData()
   // double rotationAngle = structuredOrientation.getAngle();
 
   // mJointStates[2][0] = rotationAxis[1] * rotationAngle;
+}
+
+std::string getStateInterfaceListString(const std::vector<hardware_interface::StateInterface>& interfaces)
+{
+  std::string interfaceListString = "";
+  for (size_t i = 0; i < interfaces.size(); i++) {
+    interfaceListString += "\n\tname: " + interfaces[i].get_name();
+  }
+  return interfaceListString;
+}
+
+std::string getCommandInterfaceListString(const std::vector<hardware_interface::CommandInterface>& interfaces)
+{
+  std::string interfaceListString = "";
+  for (size_t i = 0; i < interfaces.size(); i++) {
+    interfaceListString += "\n\tname: " + interfaces[i].get_name();
+  }
+  return interfaceListString;
 }
 
 }  // namespace jetleg_system
