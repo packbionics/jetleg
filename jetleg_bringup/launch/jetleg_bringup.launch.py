@@ -42,10 +42,10 @@ def generate_launch_description():
     )
     ld.add_action(model_arg)
 
-    # Specify model name (used for loading into Gazebo
+    # Specify model name (used for loading into Gazebo)
     model_name_arg = DeclareLaunchArgument(
         "model_name",
-        default_value="jetleg_ros2_control"
+        default_value="jetleg"
     )
     ld.add_action(model_name_arg)
 
@@ -58,7 +58,7 @@ def generate_launch_description():
             ])
         )
     )
-    ld.add_action(rsp)
+    # ld.add_action(rsp)
 
     # Launch simulation / physical system
     jetleg_sim_name = "jetleg_gazebo.launch.py"
@@ -93,7 +93,7 @@ def generate_launch_description():
             ])
         )
     )
-    ld.add_action(spawn_controls)
+    # ld.add_action(spawn_controls)
 
     # Start up control law
     # control_behavior = IncludeLaunchDescription(

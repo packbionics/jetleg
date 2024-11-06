@@ -9,6 +9,15 @@
     <xacro:include filename="jetleg.ros2_control.xacro" />
 
 
-    <xacro:jetleg_ros2_control name="FakeSystem" initial_positions_file="$(arg initial_positions_file)"/>
+    <xacro:jetleg_ros2_control name="GazeboSystem" initial_positions_file="$(arg initial_positions_file)"/>
+
+    <gazebo>
+        <plugin filename="libgazebo_ros2_control.so" name="gazebo_ros2_control">
+            <parameters>$(find jetleg_moveit_config)/config/ros2_controllers.yaml</parameters>
+
+            <robot_param>robot_description</robot_param>
+            <robot_param_node>robot_state_publisher</robot_param_node>
+        </plugin>
+    </gazebo>
 
 </robot>
