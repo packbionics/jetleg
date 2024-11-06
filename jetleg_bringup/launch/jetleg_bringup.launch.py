@@ -40,7 +40,7 @@ def generate_launch_description():
         "model",
         default_value=model_path
     )
-    ld.add_action(model_arg)
+    # ld.add_action(model_arg)
 
     # Specify model name (used for loading into Gazebo)
     model_name_arg = DeclareLaunchArgument(
@@ -53,12 +53,12 @@ def generate_launch_description():
     rsp = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             PathJoinSubstitution([
-                FindPackageShare("jetleg_bringup"),
+                FindPackageShare("jetleg_moveit_config"),
                 "launch/rsp.launch.py"
             ])
         )
     )
-    # ld.add_action(rsp)
+    ld.add_action(rsp)
 
     # Launch simulation / physical system
     jetleg_sim_name = "jetleg_gazebo.launch.py"
@@ -88,12 +88,12 @@ def generate_launch_description():
     spawn_controls = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             PathJoinSubstitution([
-                FindPackageShare('jetleg_bringup'),
+                FindPackageShare('jetleg_moveit_config'),
                 'launch/spawn_controllers.launch.py'
             ])
         )
     )
-    # ld.add_action(spawn_controls)
+    ld.add_action(spawn_controls)
 
     # Start up control law
     # control_behavior = IncludeLaunchDescription(
@@ -124,10 +124,18 @@ def generate_launch_description():
     )
     ld.add_action(rviz_config_arg)
 
+    # Start the MoveGroup node
+    move_group = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            PathJoinSubstitution([FindPackageShare('jetleg_moveit_config'), 'launch/move_group.launch.py'])
+        )
+    )
+    ld.add_action(move_group)
+
     # Optionally show Rviz2 Display
     rviz = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            PathJoinSubstitution([FindPackageShare('jetleg_bringup'), 'launch/rviz.launch.py'])
+            PathJoinSubstitution([FindPackageShare('jetleg_moveit_config'), 'launch/moveit_rviz.launch.py'])
         )
     )
     ld.add_action(rviz)
