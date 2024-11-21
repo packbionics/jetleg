@@ -34,13 +34,6 @@ public:
      * @param response describes the response returned to the client
      */
     void doStateTransitionCallback(const TransReqPtr request, TransRespPtr response);
-private:
-
-    /** Reference to the associated Finite State Controller */
-    FinStateCtrlPtr mController;
-
-    /** Reference to the associated ROS 2 Node handle */
-    NodePtr mNode;
 
     /**
      * @brief Get the Node object
@@ -48,6 +41,14 @@ private:
      * @return NodePtr Reference to the associated ROS 2 Node handle
      */
     NodePtr getNode();
+    
+private:
+
+    /** Reference to the associated Finite State Controller */
+    FinStateCtrlPtr mController;
+
+    /** Reference to the associated ROS 2 Node handle */
+    NodePtr mNode;
 };
 
 #endif // FINITE_STATE_CONTROLLER_NODE_HPP

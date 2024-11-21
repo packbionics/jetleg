@@ -6,6 +6,7 @@
 #include <moveit/planning_scene_interface/planning_scene_interface.h>
 
 #include <controller/finite_state_controller.hpp>
+#include <node/finite_state_controller_node.hpp>
 
 // All source files that use ROS logging should define a file-specific
 // static const rclcpp::Logger named LOGGER, located at the top of the file
@@ -14,11 +15,22 @@ static const rclcpp::Logger LOGGER = rclcpp::get_logger("move_group_demo");
 
 int main(int argc, char** argv)
 {
+  // Next get the current set of joint values for the group.
+  std::vector<std::vector<double>> phase_positions;
+
+  phase_positions.push_back({0.0, 0.0});
+  phase_positions.push_back({0.0, (1.0/15) * M_PI});
+  phase_positions.push_back({(1.0/2) * M_PI, (2.5/180) * M_PI});
+  phase_positions.push_back({0.0, (2.5/180) * M_PI});
+
+  std::shared_ptr<FinStateCtrl> finiteStateController = std::make_shared<FinStateCtrl>(phase_positions, 0);
+
   rclcpp::init(argc, argv);
   rclcpp::NodeOptions node_options;
   node_options.automatically_declare_parameters_from_overrides(true);
 
-  auto move_group_node = rclcpp::Node::make_shared("move_group_interface_tutorial", node_options);
+  std::shared_ptr<FinStateCtrlNode> finStateCtrlNode = std::make_shared<FinStateCtrlNode>(finiteStateController);
+  auto move_group_node = finStateCtrlNode->getNode();
 
   // We spin up a SingleThreadedExecutor for the current state monitor to get information
   // about the robot's state.
@@ -67,19 +79,10 @@ int main(int argc, char** argv)
   // RobotState is the object that contains all the current position/velocity/acceleration data.
   moveit::core::RobotStatePtr current_state = move_group.getCurrentState(10);
   //
-  // Next get the current set of joint values for the group.
-  std::vector<std::vector<double>> phase_positions;
-
-  phase_positions.push_back({0.0, 0.0});
-  phase_positions.push_back({0.0, (1.0/15) * M_PI});
-  phase_positions.push_back({(1.0/2) * M_PI, (2.5/180) * M_PI});
-  phase_positions.push_back({0.0, (2.5/180) * M_PI});
-
-  FinStateCtrl finiteStateController = FinStateCtrl(phase_positions, 0);
 
   for(size_t i = 0; i < phase_positions.size(); i++) {
     std::vector<double> joint_group_positions;
-    finiteStateController.next(joint_group_positions);
+    finiteStateController->next(joint_group_positions);
 
     // Now, let's modify one of the joints, plan to the new joint space goal, and visualize the plan.
     bool within_bounds = move_group.setJointValueTarget(joint_group_positions);
