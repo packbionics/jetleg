@@ -5,6 +5,15 @@ FinStateCtrlNode::FinStateCtrlNode(const FinStateCtrlPtr& controller)
     mController = controller;
 
     mNode = std::make_shared<rclcpp::Node>("jetleg_planner");
+
+    // Get a reference to the service callback
+    // 
+    // Since the callback is a member function, the function needs to be 
+    // provided with 'this' as its first argument.
+    // 
+    // Placeholders are used in-place of the arbitrary service arguments
+    auto serviceRef = std::bind(&FinStateCtrlNode::doStateTransitionCallback, this, std::placeholders::_1, std::placeholders::_2);
+    mService = mNode->create_service<TransitionSrv>(SERVICE_NAME, serviceRef);
 }
 
 void FinStateCtrlNode::doStateTransitionCallback(const TransReqPtr request, TransRespPtr response)

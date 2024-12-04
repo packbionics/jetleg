@@ -48,6 +48,11 @@ private:
 
     /** Reference to the associated ROS 2 Node handle */
     NodePtr mNode;
+
+    /** Reference to the Service for handling requests to transition state */
+    rclcpp::Service<TransitionSrv>::SharedPtr mService;
+
+    const std::string SERVICE_NAME = "transition_leg_state";
 };
 
 #endif // FINITE_STATE_CONTROLLER_NODE_HPP

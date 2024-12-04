@@ -72,16 +72,10 @@ int main(int argc, char** argv)
   // Planning to a joint-space goal
   // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   //
-  // Let's set a joint space goal and move towards it.  This will replace the
-  // pose target we set above.
-  //
-  // To start, we'll create an pointer that references the current robot's state.
-  // RobotState is the object that contains all the current position/velocity/acceleration data.
-  const int WAIT_TIME = 10;
-  moveit::core::RobotStatePtr current_state = move_group.getCurrentState(WAIT_TIME);
+  // Let's set a joint space goal and move towards it.
   //
 
-  for(size_t i = 0; i < phase_positions.size(); i++) {
+  while(true) {
     std::vector<double> joint_group_positions;
     finiteStateController->next(joint_group_positions);
 
