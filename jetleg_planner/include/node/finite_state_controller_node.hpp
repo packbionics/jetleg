@@ -7,6 +7,7 @@
 #include <std_srvs/srv/empty.hpp>
 
 #include <controller/finite_state_controller.hpp>
+#include <typedef.hpp>
 
 class FinStateCtrlNode
 {
@@ -16,8 +17,6 @@ class FinStateCtrlNode
     typedef std::shared_ptr<TransitionSrv::Response> TransRespPtr;
 
 public:
-
-    typedef std::shared_ptr<rclcpp::Node> NodePtr;
 
     /**
      * @brief Construct a new Finite State Controller Node object
