@@ -21,25 +21,28 @@ FinStateCtrlNode::FinStateCtrlNode(const FinStateCtrlPtr& controller)
 void FinStateCtrlNode::doStateTransitionCallback(const TransReqPtr request, TransRespPtr response)
 {
     NodePtr node = getNode();
+    rclcpp::Logger LOGGER = node->get_logger();
+    auto& move_group = getMoveGrpIface();
 
-    RCLCPP_INFO(node->get_logger(), "Transitionining to next state...");
+    RCLCPP_INFO(LOGGER, "Transitionining to next state...");
 
-    // std::vector<double> joint_group_positions;
-    // mController->next(joint_group_positions);
+    // Stores the subsequent joint positions into the given vector
+    std::vector<double> joint_group_positions;
+    mController->next(joint_group_positions);
 
-    // // Now, let's modify one of the joints, plan to the new joint space goal, and visualize the plan.
-    // bool within_bounds = move_group.setJointValueTarget(joint_group_positions);
-    // if (!within_bounds)
-    // {
-    //   RCLCPP_WARN(LOGGER, "Target joint position(s) were outside of limits, but we will plan and clamp to the limits ");
-    // }
+    // Assigns the vector of joint positions as the goal/target
+    bool within_bounds = move_group.setJointValueTarget(joint_group_positions);
+    if (!within_bounds)
+    {
+      RCLCPP_WARN(LOGGER, "Target joint position(s) were outside of limits, but we will plan and clamp to the limits ");
+    }
 
-    // moveit::planning_interface::MoveGroupInterface::Plan my_plan;
+    moveit::planning_interface::MoveGroupInterface::Plan my_plan;
 
-    // bool success = (move_group.plan(my_plan) == moveit::core::MoveItErrorCode::SUCCESS);
-    // RCLCPP_INFO(LOGGER, "Visualizing plan 2 (joint space goal) %s", success ? "" : "FAILED");
+    bool success = (move_group.plan(my_plan) == moveit::core::MoveItErrorCode::SUCCESS);
+    RCLCPP_INFO(LOGGER, "Visualizing plan 2 (joint space goal) %s", success ? "" : "FAILED");
 
-    // move_group.execute(my_plan);
+    move_group.execute(my_plan);
 }
 
 NodePtr FinStateCtrlNode::getNode()
