@@ -6,6 +6,8 @@ FinStateCtrlNode::FinStateCtrlNode(const FinStateCtrlPtr& controller)
 
     mNode = std::make_shared<rclcpp::Node>("jetleg_planner");
 
+    mMoveGroupPtr = std::make_shared<moveit::planning_interface::MoveGroupInterface>(mNode, PLANNING_GROUP);
+
     // Get a reference to the service callback
     // 
     // Since the callback is a member function, the function needs to be 
@@ -43,4 +45,9 @@ void FinStateCtrlNode::doStateTransitionCallback(const TransReqPtr request, Tran
 NodePtr FinStateCtrlNode::getNode()
 {
     return mNode;
+}
+
+moveit::planning_interface::MoveGroupInterface& FinStateCtrlNode::getMoveGrpIface()
+{
+    return *mMoveGroupPtr;
 }

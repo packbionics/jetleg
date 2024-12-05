@@ -17,6 +17,7 @@ set(THIS_PACKAGE_INCLUDE_DEPENDS
 set(DEPENDENCY_DEPS
   rclcpp
   std_srvs
+  moveit_ros_planning
 )
 
 set(CONTROL_LIB

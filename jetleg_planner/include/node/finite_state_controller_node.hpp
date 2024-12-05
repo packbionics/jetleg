@@ -9,6 +9,9 @@
 #include <controller/finite_state_controller.hpp>
 #include <typedef.hpp>
 
+#include <moveit/move_group_interface/move_group_interface.h>
+
+
 class FinStateCtrlNode
 {
     typedef std_srvs::srv::Empty TransitionSrv;
@@ -40,7 +43,16 @@ public:
      * @return NodePtr Reference to the associated ROS 2 Node handle
      */
     NodePtr getNode();
-    
+
+    /**
+     * @brief Get the Move Grp Iface object
+     * 
+     * MoveGroupInterface has a deleted move constructor, so the return value 
+     * does involve creating a copy of the referenced MoveGroupInterface object
+     * 
+     * @return moveit::planning_interface::MoveGroupInterface& 
+     */
+    moveit::planning_interface::MoveGroupInterface& getMoveGrpIface();
 private:
 
     /** Reference to the associated Finite State Controller */
@@ -52,7 +64,11 @@ private:
     /** Reference to the Service for handling requests to transition state */
     rclcpp::Service<TransitionSrv>::SharedPtr mService;
 
+    /** Reference to move_group interface */
+    std::shared_ptr<moveit::planning_interface::MoveGroupInterface> mMoveGroupPtr;
+
     const std::string SERVICE_NAME = "transition_leg_state";
+    const std::string PLANNING_GROUP = "jetleg_leg";
 };
 
 #endif // FINITE_STATE_CONTROLLER_NODE_HPP

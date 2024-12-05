@@ -1,9 +1,6 @@
-/* Author: Sachin Chitta, Dave Coleman, Mike Lautman */
-
 #include <math.h>
 
 #include <moveit/move_group_interface/move_group_interface.h>
-#include <moveit/planning_scene_interface/planning_scene_interface.h>
 
 #include <controller/finite_state_controller.hpp>
 #include <node/finite_state_controller_node.hpp>
@@ -51,12 +48,7 @@ int main(int argc, char** argv)
   // The
   // :moveit_codedir:`MoveGroupInterface<moveit_ros/planning_interface/move_group_interface/include/moveit/move_group_interface/move_group_interface.h>`
   // class can be easily set up using just the name of the planning group you would like to control and plan for.
-  moveit::planning_interface::MoveGroupInterface move_group(move_group_node, PLANNING_GROUP);
-
-  // We will use the
-  // :moveit_codedir:`PlanningSceneInterface<moveit_ros/planning_interface/planning_scene_interface/include/moveit/planning_scene_interface/planning_scene_interface.h>`
-  // class to add and remove collision objects in our "virtual world" scene
-  moveit::planning_interface::PlanningSceneInterface planning_scene_interface;
+  moveit::planning_interface::MoveGroupInterface& move_group = finStateCtrlNode->getMoveGrpIface();
 
   // Getting Basic Information
   // ^^^^^^^^^^^^^^^^^^^^^^^^^
