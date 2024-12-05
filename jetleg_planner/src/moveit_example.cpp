@@ -1,5 +1,3 @@
-#include <math.h>
-
 #include <moveit/move_group_interface/move_group_interface.h>
 
 #include <controller/finite_state_controller.hpp>
@@ -29,12 +27,6 @@ int main(int argc, char** argv)
   std::shared_ptr<FinStateCtrlNode> finStateCtrlNode = std::make_shared<FinStateCtrlNode>(finiteStateController);
   auto move_group_node = finStateCtrlNode->getNode();
 
-  // We spin up a SingleThreadedExecutor for the current state monitor to get information
-  // about the robot's state.
-  rclcpp::executors::SingleThreadedExecutor executor;
-  executor.add_node(move_group_node);
-  std::thread([&executor]() { executor.spin(); }).detach();
-
   // BEGIN_TUTORIAL
   //
   // Setup
@@ -61,30 +53,17 @@ int main(int argc, char** argv)
   std::copy(move_group.getJointModelGroupNames().begin(), move_group.getJointModelGroupNames().end(),
             std::ostream_iterator<std::string>(std::cout, ", "));
 
+  // We spin up a SingleThreadedExecutor for the current state monitor to get information
+  // about the robot's state.
+  rclcpp::executors::SingleThreadedExecutor executor;
+  executor.add_node(move_group_node);
+  executor.spin();
+
   // Planning to a joint-space goal
   // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   //
   // Let's set a joint space goal and move towards it.
   //
-
-  while(true) {
-    // std::vector<double> joint_group_positions;
-    // finiteStateController->next(joint_group_positions);
-
-    // // Now, let's modify one of the joints, plan to the new joint space goal, and visualize the plan.
-    // bool within_bounds = move_group.setJointValueTarget(joint_group_positions);
-    // if (!within_bounds)
-    // {
-    //   RCLCPP_WARN(LOGGER, "Target joint position(s) were outside of limits, but we will plan and clamp to the limits ");
-    // }
-
-    // moveit::planning_interface::MoveGroupInterface::Plan my_plan;
-
-    // bool success = (move_group.plan(my_plan) == moveit::core::MoveItErrorCode::SUCCESS);
-    // RCLCPP_INFO(LOGGER, "Visualizing plan 2 (joint space goal) %s", success ? "" : "FAILED");
-
-    // move_group.execute(my_plan);
-  }
 
   rclcpp::shutdown();
   return 0;

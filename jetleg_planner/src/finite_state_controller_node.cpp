@@ -40,7 +40,7 @@ void FinStateCtrlNode::doStateTransitionCallback(const TransReqPtr request, Tran
     moveit::planning_interface::MoveGroupInterface::Plan my_plan;
 
     bool success = (move_group.plan(my_plan) == moveit::core::MoveItErrorCode::SUCCESS);
-    RCLCPP_INFO(LOGGER, "Visualizing plan 2 (joint space goal) %s", success ? "" : "FAILED");
+    RCLCPP_INFO(LOGGER, "Visualizing plan (joint space goal) %s", success ? "" : "FAILED");
 
     move_group.execute(my_plan);
 }
