@@ -1,0 +1,24 @@
+jetleg_planner:
+
+  # To identify controllable joints
+  joints:
+    type: string_array
+    description: "Names of fixed joint poses"
+    validation:
+      size_gt<>: [0]
+      unique<>: null
+
+  # To identify distinct joint configurations
+  joint_positions:
+    type: string_array
+    description: "Names of fixed joint poses"
+    validation:
+      size_gt<>: [0]
+      unique<>: null
+  
+  # To describe a given joint configuration
+  config:
+    __map_joint_positions:
+      __map_joints:
+        value:
+          type: double

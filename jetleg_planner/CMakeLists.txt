@@ -30,6 +30,13 @@ endforeach()
 
 find_package(std_srvs REQUIRED)
 
+find_package(generate_parameter_library REQUIRED)
+
+generate_parameter_library(
+  jetleg_planner_parameters
+  src/jetleg_planner_parameters.yml
+)
+
 add_library(${CONTROL_LIB}
   src/finite_state_controller.cpp)
 target_include_directories(${CONTROL_LIB}
