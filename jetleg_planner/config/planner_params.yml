@@ -1,0 +1,38 @@
+/jetleg_planner:
+  ros__parameters:
+    joints:
+      - knee_joint
+      - ankle_joint
+    joint_positions:
+      - stand
+      - forward_swing
+      - backward_sing
+      - return_to_stand
+
+    # Angle values are assumed to be in radians
+    config:
+      # First pose
+      stand:
+        knee_joint:
+          value: 0.0
+        ankle_joint:
+          value: 0.0
+      # Second pose
+      forward_swing:
+        knee_joint:
+          value: 0.0
+        ankle_joint:
+          value: 0.209
+      # Third pose
+      backward_sing:
+        knee_joint:
+          value: 1.57
+        ankle_joint:
+          value: 0.0436
+      # Fourth pose
+      return_to_stand:
+        knee_joint:
+          value: 0.0
+        ankle_joint:
+          value: 0.0436
+      

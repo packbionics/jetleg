@@ -37,12 +37,15 @@ generate_parameter_library(
   src/jetleg_planner_parameters.yml
 )
 
+# Add library for generic finite state control
 add_library(${CONTROL_LIB}
   src/finite_state_controller.cpp)
 target_include_directories(${CONTROL_LIB}
   PUBLIC include
 )
 
+# Add library providing a ROS 2 interface to the
+# generic finite state contorl library
 add_library(
   control_node_lib
   src/finite_state_controller_node.cpp
@@ -55,25 +58,33 @@ ament_target_dependencies(control_node_lib
 target_link_libraries(control_node_lib
   ${CONTROL_LIB})
 
+# Add executable for running an instance of the jetleg_planner
 add_executable(move_group_interface_tutorial
     src/moveit_example.cpp)
 target_include_directories(move_group_interface_tutorial
     PUBLIC include)
 target_link_libraries(move_group_interface_tutorial
-  control_node_lib)
+  control_node_lib
+  jetleg_planner_parameters
+  )
 ament_target_dependencies(move_group_interface_tutorial
     ${THIS_PACKAGE_INCLUDE_DEPENDS})
 
 if(BUILD_TESTING)
+
+  # Find and set up default linters provided by ROS 2
   find_package(ament_lint_auto REQUIRED)
   ament_lint_auto_find_test_dependencies()
 endif()
 
+# Install artifacts into the appropriate directories
 install(TARGETS move_group_interface_tutorial
   DESTINATION lib/${PROJECT_NAME}
 )
-
 install(DIRECTORY launch
+  DESTINATION share/${PROJECT_NAME}
+)
+install(DIRECTORY config
   DESTINATION share/${PROJECT_NAME}
 )
 

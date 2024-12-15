@@ -20,7 +20,11 @@
 
 
 from launch import LaunchDescription
+from launch.substitutions import PathJoinSubstitution
+
 from launch_ros.actions import Node
+from launch_ros.substitutions import FindPackageShare
+
 from moveit_configs_utils import MoveItConfigsBuilder
 
 
@@ -29,13 +33,19 @@ def generate_launch_description():
         "jetleg",
         package_name="jetleg_moveit_config").to_moveit_configs()
 
-    # MoveGroupInterface demo executable
+    # MoveGroup parameters
     moveit_config.robot_description['use_sim_time'] = True
     moveit_config.robot_description_semantic['use_sim_time'] = True
     moveit_config.robot_description_kinematics['use_sim_time'] = True
 
+    jetleg_planner_pkg = FindPackageShare("jetleg_planner")
+    jetleg_planner_config = PathJoinSubstitution([
+        jetleg_planner_pkg,
+        "config", "planner_params.yml"
+    ])
+
     move_group_demo = Node(
-        name="move_group_interface_tutorial",
+        name="jetleg_planner",
         package="jetleg_planner",
         executable="move_group_interface_tutorial",
         output="screen",
@@ -43,7 +53,7 @@ def generate_launch_description():
             moveit_config.robot_description,
             moveit_config.robot_description_semantic,
             moveit_config.robot_description_kinematics,
-        ],
+        ] + [jetleg_planner_config],
     )
 
     return LaunchDescription([move_group_demo])

@@ -24,10 +24,12 @@
 #include <controller/finite_state_controller.hpp>
 #include <node/finite_state_controller_node.hpp>
 
+#include "jetleg_planner_parameters.hpp"
+
 // All source files that use ROS logging should define a file-specific
 // static const rclcpp::Logger named LOGGER, located at the top of the file
 // and inside the namespace with the narrowest scope (if there is one)
-static const rclcpp::Logger LOGGER = rclcpp::get_logger("move_group_demo");
+static const rclcpp::Logger LOGGER = rclcpp::get_logger("jetleg_planner");
 
 int main(int argc, char ** argv)
 {
@@ -50,45 +52,25 @@ int main(int argc, char ** argv)
     finiteStateController);
   auto move_group_node = finStateCtrlNode->getNode();
 
-  // BEGIN_TUTORIAL
-  //
-  // Setup
-  // ^^^^^
-  //
-  // MoveIt operates on sets of joints called "planning groups" and stores them in an object called
-  // the ``JointModelGroup``. Throughout MoveIt, the terms "planning group" and "joint model group"
-  // are used interchangeably.
-  static const std::string PLANNING_GROUP = "jetleg_leg";
+  auto param_listener = std::make_shared<jetleg_planner::ParamListener>(move_group_node);
+  auto params = param_listener->get_params();
 
-  // The
-  // :moveit_codedir:`MoveGroupInterface<moveit_ros/planning_interface/move_group_interface/include/moveit/move_group_interface/move_group_interface.h>`
-  // class can be easily set up using just the name of the planning group you
-  // would like to control and plan for.
+  
+  // Setup
+  static const std::string PLANNING_GROUP = "jetleg_leg";
   moveit::planning_interface::MoveGroupInterface & move_group = finStateCtrlNode->getMoveGrpIface();
 
   // Getting Basic Information
-  // ^^^^^^^^^^^^^^^^^^^^^^^^^
-  //
-  // We can print the name of the reference frame for this robot.
   RCLCPP_INFO(LOGGER, "Planning frame: %s", move_group.getPlanningFrame().c_str());
 
-  // We can get a list of all the groups in the robot:
   RCLCPP_INFO(LOGGER, "Available Planning Groups:");
   std::copy(
     move_group.getJointModelGroupNames().begin(), move_group.getJointModelGroupNames().end(),
     std::ostream_iterator<std::string>(std::cout, ", "));
 
-  // We spin up a SingleThreadedExecutor for the current state monitor to get information
-  // about the robot's state.
   rclcpp::executors::SingleThreadedExecutor executor;
   executor.add_node(move_group_node);
   executor.spin();
-
-  // Planning to a joint-space goal
-  // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  //
-  // Let's set a joint space goal and move towards it.
-  //
 
   rclcpp::shutdown();
   return 0;
