@@ -45,6 +45,13 @@ class FinStateCtrlNode
 public:
   /**
    * @brief Construct a new Finite State Controller Node object
+   * 
+   * This constructor initializes the underlying controller as null
+   */
+  FinStateCtrlNode();
+
+  /**
+   * @brief Construct a new Finite State Controller Node object
    *
    * @param controller reference to the associated Finite State Controller
    */
@@ -58,6 +65,8 @@ public:
    * @param response describes the response returned to the client
    */
   void doStateTransitionCallback(const TransReqPtr request, TransRespPtr response);
+
+  void setController(FinStateCtrlPtr controller);
 
   /**
    * @brief Get the Node object

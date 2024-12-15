@@ -48,13 +48,13 @@ int main(int argc, char ** argv)
   rclcpp::NodeOptions node_options;
   node_options.automatically_declare_parameters_from_overrides(true);
 
-  std::shared_ptr<FinStateCtrlNode> finStateCtrlNode = std::make_shared<FinStateCtrlNode>(
-    finiteStateController);
+  std::shared_ptr<FinStateCtrlNode> finStateCtrlNode = std::make_shared<FinStateCtrlNode>();
   auto move_group_node = finStateCtrlNode->getNode();
 
   auto param_listener = std::make_shared<jetleg_planner::ParamListener>(move_group_node);
   auto params = param_listener->get_params();
 
+  finStateCtrlNode->setController(finiteStateController);
   
   // Setup
   static const std::string PLANNING_GROUP = "jetleg_leg";

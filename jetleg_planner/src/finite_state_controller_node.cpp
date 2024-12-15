@@ -21,10 +21,8 @@
 
 #include "node/finite_state_controller_node.hpp"
 
-FinStateCtrlNode::FinStateCtrlNode(const FinStateCtrlPtr & controller)
+FinStateCtrlNode::FinStateCtrlNode()
 {
-  mController = controller;
-
   mNode = std::make_shared<rclcpp::Node>("jetleg_planner");
 
   mMoveGroupPtr = std::make_shared<moveit::planning_interface::MoveGroupInterface>(
@@ -41,12 +39,28 @@ FinStateCtrlNode::FinStateCtrlNode(const FinStateCtrlPtr & controller)
     &FinStateCtrlNode::doStateTransitionCallback, this,
     std::placeholders::_1, std::placeholders::_2);
   mService = mNode->create_service<TransitionSrv>(SERVICE_NAME, serviceRef);
+
+  mController = nullptr;
+}
+
+FinStateCtrlNode::FinStateCtrlNode(const FinStateCtrlPtr & controller)
+{
+  FinStateCtrlNode();
+  mController = controller;
 }
 
 void FinStateCtrlNode::doStateTransitionCallback(const TransReqPtr request, TransRespPtr response)
 {
   NodePtr node = getNode();
   rclcpp::Logger LOGGER = node->get_logger();
+
+  // Check if a controller has been assigned to the node
+  if(mController == nullptr)
+  {
+    RCLCPP_ERROR(LOGGER, "Controller has not been set. This client request shall be ignored.");
+    return;
+  }
+
   auto & move_group = getMoveGrpIface();
 
   RCLCPP_INFO(LOGGER, "Transitionining to next state...");
@@ -69,6 +83,11 @@ void FinStateCtrlNode::doStateTransitionCallback(const TransReqPtr request, Tran
   RCLCPP_INFO(LOGGER, "Visualizing plan (joint space goal) %s", success ? "" : "FAILED");
 
   move_group.execute(my_plan);
+}
+
+void FinStateCtrlNode::setController(FinStateCtrlPtr controller)
+{
+  mController = controller;
 }
 
 NodePtr FinStateCtrlNode::getNode()
