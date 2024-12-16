@@ -48,19 +48,20 @@ int main(int argc, char ** argv)
   RCLCPP_INFO(LOGGER, "Processing joint poses...");
 
   // Loop over each described joint pose
-  for(size_t i = 0; i < params.joint_positions.size(); i++)
+  for(const auto & pose_entry : params.config.joint_positions_map)
   {
-    std::string joint_pose_name = params.joint_positions[i];
-    RCLCPP_INFO(LOGGER, "Extracting joint pose: %s ...", joint_pose_name.c_str());
+    std::string joint_pose_name = pose_entry.first;
+    auto joint_pose_config_mapping = pose_entry.second.joints_map;
 
+
+    RCLCPP_INFO(LOGGER, "Extracting joint pose: %s ...", joint_pose_name.c_str());
     std::vector<double> joint_position;
-    auto joint_pose_config_mapping = params.config.joint_positions_map.at(joint_pose_name).joints_map;
 
     // Retrieve joint angles for each joint to describe a given pose
-    for(size_t j = 0; j < params.joints.size(); j++)
+    for(const auto & joint_value_entry : joint_pose_config_mapping)
     {
-      std::string joint_name = params.joints[j];
-      double joint_angle = joint_pose_config_mapping.at(joint_name).value;
+      std::string joint_name = joint_value_entry.first;
+      double joint_angle = joint_value_entry.second.value;
 
       joint_position.push_back(joint_angle);
     }
