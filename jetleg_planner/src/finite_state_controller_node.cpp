@@ -46,7 +46,7 @@ FinStateCtrlNode::FinStateCtrlNode()
 FinStateCtrlNode::FinStateCtrlNode(const FinStateCtrlPtr & controller)
 {
   FinStateCtrlNode();
-  mController = controller;
+  setController(controller);
 }
 
 void FinStateCtrlNode::doStateTransitionCallback(const TransReqPtr request, TransRespPtr response)

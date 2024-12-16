@@ -26,24 +26,12 @@
 
 #include "jetleg_planner_parameters.hpp"
 
-// All source files that use ROS logging should define a file-specific
-// static const rclcpp::Logger named LOGGER, located at the top of the file
-// and inside the namespace with the narrowest scope (if there is one)
 static const rclcpp::Logger LOGGER = rclcpp::get_logger("jetleg_planner");
 
 int main(int argc, char ** argv)
 {
-  // Next get the current set of joint values for the group.
-  std::vector<std::vector<double>> phase_positions;
 
-  phase_positions.push_back({0.0, 0.0});
-  phase_positions.push_back({0.0, (1.0 / 15) * M_PI});
-  phase_positions.push_back({(1.0 / 2) * M_PI, (2.5 / 180) * M_PI});
-  phase_positions.push_back({0.0, (2.5 / 180) * M_PI});
-
-  std::shared_ptr<FinStateCtrl> finiteStateController = std::make_shared<FinStateCtrl>(
-    phase_positions, 0);
-
+  // Create a ROS 2 node
   rclcpp::init(argc, argv);
   rclcpp::NodeOptions node_options;
   node_options.automatically_declare_parameters_from_overrides(true);
@@ -51,12 +39,41 @@ int main(int argc, char ** argv)
   std::shared_ptr<FinStateCtrlNode> finStateCtrlNode = std::make_shared<FinStateCtrlNode>();
   auto move_group_node = finStateCtrlNode->getNode();
 
+  // Load any structured parameters
   auto param_listener = std::make_shared<jetleg_planner::ParamListener>(move_group_node);
   auto params = param_listener->get_params();
 
+  // Next get the current set of joint values for the group.
+  std::vector<std::vector<double>> phase_positions;
+  RCLCPP_INFO(LOGGER, "Processing joint poses...");
+
+  // Loop over each described joint pose
+  for(size_t i = 0; i < params.joint_positions.size(); i++)
+  {
+    std::string joint_pose_name = params.joint_positions[i];
+    RCLCPP_INFO(LOGGER, "Extracting joint pose: %s ...", joint_pose_name.c_str());
+
+    std::vector<double> joint_position;
+    auto joint_pose_config_mapping = params.config.joint_positions_map.at(joint_pose_name).joints_map;
+
+    // Retrieve joint angles for each joint to describe a given pose
+    for(size_t j = 0; j < params.joints.size(); j++)
+    {
+      std::string joint_name = params.joints[j];
+      double joint_angle = joint_pose_config_mapping.at(joint_name).value;
+
+      joint_position.push_back(joint_angle);
+    }
+
+    phase_positions.push_back(joint_position);
+  }
+
+  // Set a controller to handle gait phase transitions
+  std::shared_ptr<FinStateCtrl> finiteStateController = std::make_shared<FinStateCtrl>(
+    phase_positions, 0);
   finStateCtrlNode->setController(finiteStateController);
   
-  // Setup
+  // MoveGroupInterface Setup
   static const std::string PLANNING_GROUP = "jetleg_leg";
   moveit::planning_interface::MoveGroupInterface & move_group = finStateCtrlNode->getMoveGrpIface();
 
@@ -68,6 +85,7 @@ int main(int argc, char ** argv)
     move_group.getJointModelGroupNames().begin(), move_group.getJointModelGroupNames().end(),
     std::ostream_iterator<std::string>(std::cout, ", "));
 
+  // Spin the ROS 2 node
   rclcpp::executors::SingleThreadedExecutor executor;
   executor.add_node(move_group_node);
   executor.spin();
