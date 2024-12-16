@@ -45,7 +45,7 @@ class FinStateCtrlNode
 public:
   /**
    * @brief Construct a new Finite State Controller Node object
-   * 
+   *
    * This constructor initializes the underlying controller as null
    */
   FinStateCtrlNode();

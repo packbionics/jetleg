@@ -59,15 +59,14 @@ target_link_libraries(control_node_lib
   ${CONTROL_LIB})
 
 # Add executable for running an instance of the jetleg_planner
-add_executable(move_group_interface_tutorial
-    src/moveit_example.cpp)
-target_include_directories(move_group_interface_tutorial
+add_executable(${PROJECT_NAME}
+    src/jetleg_planner.cpp)
+target_include_directories(${PROJECT_NAME}
     PUBLIC include)
-target_link_libraries(move_group_interface_tutorial
-  control_node_lib
-  jetleg_planner_parameters
-  )
-ament_target_dependencies(move_group_interface_tutorial
+target_link_libraries(${PROJECT_NAME}
+    control_node_lib
+    jetleg_planner_parameters)
+ament_target_dependencies(${PROJECT_NAME}
     ${THIS_PACKAGE_INCLUDE_DEPENDS})
 
 if(BUILD_TESTING)
@@ -78,7 +77,7 @@ if(BUILD_TESTING)
 endif()
 
 # Install artifacts into the appropriate directories
-install(TARGETS move_group_interface_tutorial
+install(TARGETS ${PROJECT_NAME}
   DESTINATION lib/${PROJECT_NAME}
 )
 install(DIRECTORY launch

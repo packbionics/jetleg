@@ -47,7 +47,7 @@ def generate_launch_description():
     move_group_demo = Node(
         name="jetleg_planner",
         package="jetleg_planner",
-        executable="move_group_interface_tutorial",
+        executable="jetleg_planner",
         output="screen",
         parameters=[
             moveit_config.robot_description,

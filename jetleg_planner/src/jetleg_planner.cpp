@@ -30,7 +30,6 @@ static const rclcpp::Logger LOGGER = rclcpp::get_logger("jetleg_planner");
 
 int main(int argc, char ** argv)
 {
-
   // Create a ROS 2 node
   rclcpp::init(argc, argv);
   rclcpp::NodeOptions node_options;
@@ -48,8 +47,7 @@ int main(int argc, char ** argv)
   RCLCPP_INFO(LOGGER, "Processing joint poses...");
 
   // Loop over each described joint pose
-  for(const auto & pose_entry : params.config.joint_positions_map)
-  {
+  for (const auto & pose_entry : params.config.joint_positions_map) {
     std::string joint_pose_name = pose_entry.first;
     auto joint_pose_config_mapping = pose_entry.second.joints_map;
 
@@ -58,8 +56,7 @@ int main(int argc, char ** argv)
     std::vector<double> joint_position;
 
     // Retrieve joint angles for each joint to describe a given pose
-    for(const auto & joint_value_entry : joint_pose_config_mapping)
-    {
+    for (const auto & joint_value_entry : joint_pose_config_mapping) {
       std::string joint_name = joint_value_entry.first;
       double joint_angle = joint_value_entry.second.value;
 
@@ -73,7 +70,7 @@ int main(int argc, char ** argv)
   std::shared_ptr<FinStateCtrl> finiteStateController = std::make_shared<FinStateCtrl>(
     phase_positions, 0);
   finStateCtrlNode->setController(finiteStateController);
-  
+
   // MoveGroupInterface Setup
   static const std::string PLANNING_GROUP = "jetleg_leg";
   moveit::planning_interface::MoveGroupInterface & move_group = finStateCtrlNode->getMoveGrpIface();

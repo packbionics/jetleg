@@ -55,8 +55,7 @@ void FinStateCtrlNode::doStateTransitionCallback(const TransReqPtr request, Tran
   rclcpp::Logger LOGGER = node->get_logger();
 
   // Check if a controller has been assigned to the node
-  if(mController == nullptr)
-  {
+  if (mController == nullptr) {
     RCLCPP_ERROR(LOGGER, "Controller has not been set. This client request shall be ignored.");
     return;
   }
