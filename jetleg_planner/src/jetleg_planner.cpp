@@ -22,7 +22,7 @@
 #include <moveit/move_group_interface/move_group_interface.h>
 
 #include <controller/finite_state_controller.hpp>
-#include <node/finite_state_controller_node.hpp>
+#include <service/finite_state_controller_service.hpp>
 
 #include "jetleg_planner_parameters.hpp"
 
@@ -35,7 +35,7 @@ int main(int argc, char ** argv)
   rclcpp::NodeOptions node_options;
   node_options.automatically_declare_parameters_from_overrides(true);
 
-  std::shared_ptr<FinStateCtrlNode> finStateCtrlNode = std::make_shared<FinStateCtrlNode>();
+  std::shared_ptr<FinStateCtrlService> finStateCtrlNode = std::make_shared<FinStateCtrlService>();
   auto move_group_node = finStateCtrlNode->getNode();
 
   // Load any structured parameters

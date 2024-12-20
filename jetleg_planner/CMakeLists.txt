@@ -48,7 +48,7 @@ target_include_directories(${CONTROL_LIB}
 # generic finite state contorl library
 add_library(
   control_node_lib
-  src/finite_state_controller_node.cpp
+  src/finite_state_controller_service.cpp
 )
 target_include_directories(control_node_lib
   PUBLIC include

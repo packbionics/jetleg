@@ -27,6 +27,10 @@
 
 typedef std::vector<double> JointPose;
 
+/**
+ * @brief Handles controlled transitions between discrete, finite joint poses
+ *
+ */
 class FinStateCtrl
 {
 public:

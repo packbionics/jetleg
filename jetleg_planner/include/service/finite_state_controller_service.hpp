@@ -19,8 +19,8 @@
 // THE SOFTWARE.
 
 
-#ifndef NODE__FINITE_STATE_CONTROLLER_NODE_HPP_
-#define NODE__FINITE_STATE_CONTROLLER_NODE_HPP_
+#ifndef SERVICE__FINITE_STATE_CONTROLLER_SERVICE_HPP_
+#define SERVICE__FINITE_STATE_CONTROLLER_SERVICE_HPP_
 
 #include <moveit/move_group_interface/move_group_interface.h>
 
@@ -35,7 +35,12 @@
 #include <typedef.hpp>
 
 
-class FinStateCtrlNode
+/**
+ * @brief Manages ROS 2 services or other channels related to finite state control
+ *
+ * An instance of this class generates reference to ROS 2 node during construction.
+ */
+class FinStateCtrlService
 {
   typedef std_srvs::srv::Empty TransitionSrv;
 
@@ -48,14 +53,14 @@ public:
    *
    * This constructor initializes the underlying controller as null
    */
-  FinStateCtrlNode();
+  FinStateCtrlService();
 
   /**
    * @brief Construct a new Finite State Controller Node object
    *
    * @param controller reference to the associated Finite State Controller
    */
-  explicit FinStateCtrlNode(const FinStateCtrlPtr & controller);
+  explicit FinStateCtrlService(const FinStateCtrlPtr & controller);
 
   /**
    * @brief Handles requests to transition to the next state in the FSM
@@ -66,6 +71,11 @@ public:
    */
   void doStateTransitionCallback(const TransReqPtr request, TransRespPtr response);
 
+  /**
+   * @brief Set the object used to determine the next desired pose
+   *
+   * @param controller object used to determine the next desired pose
+   */
   void setController(FinStateCtrlPtr controller);
 
   /**
@@ -102,4 +112,4 @@ private:
   const std::string PLANNING_GROUP = "jetleg_leg";
 };
 
-#endif  // NODE__FINITE_STATE_CONTROLLER_NODE_HPP_
+#endif  // SERVICE__FINITE_STATE_CONTROLLER_SERVICE_HPP_

@@ -19,9 +19,9 @@
 // THE SOFTWARE.
 
 
-#include "node/finite_state_controller_node.hpp"
+#include "service/finite_state_controller_service.hpp"
 
-FinStateCtrlNode::FinStateCtrlNode()
+FinStateCtrlService::FinStateCtrlService()
 {
   mNode = std::make_shared<rclcpp::Node>("jetleg_planner");
 
@@ -36,20 +36,22 @@ FinStateCtrlNode::FinStateCtrlNode()
   //
   // Placeholders are used in-place of the arbitrary service arguments
   auto serviceRef = std::bind(
-    &FinStateCtrlNode::doStateTransitionCallback, this,
+    &FinStateCtrlService::doStateTransitionCallback, this,
     std::placeholders::_1, std::placeholders::_2);
   mService = mNode->create_service<TransitionSrv>(SERVICE_NAME, serviceRef);
 
   mController = nullptr;
 }
 
-FinStateCtrlNode::FinStateCtrlNode(const FinStateCtrlPtr & controller)
+FinStateCtrlService::FinStateCtrlService(const FinStateCtrlPtr & controller)
 {
-  FinStateCtrlNode();
+  FinStateCtrlService();
   setController(controller);
 }
 
-void FinStateCtrlNode::doStateTransitionCallback(const TransReqPtr request, TransRespPtr response)
+void FinStateCtrlService::doStateTransitionCallback(
+  const TransReqPtr request,
+  TransRespPtr response)
 {
   NodePtr node = getNode();
   rclcpp::Logger LOGGER = node->get_logger();
@@ -84,17 +86,17 @@ void FinStateCtrlNode::doStateTransitionCallback(const TransReqPtr request, Tran
   move_group.execute(my_plan);
 }
 
-void FinStateCtrlNode::setController(FinStateCtrlPtr controller)
+void FinStateCtrlService::setController(FinStateCtrlPtr controller)
 {
   mController = controller;
 }
 
-NodePtr FinStateCtrlNode::getNode()
+NodePtr FinStateCtrlService::getNode()
 {
   return mNode;
 }
 
-moveit::planning_interface::MoveGroupInterface & FinStateCtrlNode::getMoveGrpIface()
+moveit::planning_interface::MoveGroupInterface & FinStateCtrlService::getMoveGrpIface()
 {
   return *mMoveGroupPtr;
 }
