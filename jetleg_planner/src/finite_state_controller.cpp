@@ -22,9 +22,29 @@
 #include "controller/finite_state_controller.hpp"
 
 #include <cstddef>
+#include <stdexcept>
 
 FinStateCtrl::FinStateCtrl(std::vector<JointPose> phase_positions, int initialIdx)
 {
+  if (phase_positions.size() == 0) {
+    throw std::invalid_argument("Cannot construct a Finite State Controller with no poses/states");
+  }
+
+  int joint_count = -1;
+  for (const auto & pose : phase_positions) {
+    int next_joint_count = pose.size();
+    if (joint_count == -1) {
+      joint_count = next_joint_count;
+      continue;
+    }
+
+    if (joint_count != next_joint_count) {
+      throw std::invalid_argument("Inconsistent number of joints specified among poses/states");
+    }
+
+    joint_count = next_joint_count;
+  }
+
   // Initializes the controller's state
   mPhasePositions = phase_positions;
   mInitialIdx = initialIdx;

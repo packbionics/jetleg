@@ -36,8 +36,14 @@ public:
    * The initial index refers to the pose immediately before the next pose
    * returned by first call to the next() member function.
    *
+   * If the provided initial index is negative or greater than or equal to the
+   * number of poses, the index will be reduced modulo the number of poses
+   * on the next call to FinStateCtrl::next()
+   *
    * @param phase_positions ordered list of poses in joint-space
    * @param initialIdx index of the assumed starting joint pose from the given list of poses
+   * @throws std::invalid_argument This exception is thrown
+   *        if the constructor is provided an empty collection of joint poses
    */
   FinStateCtrl(std::vector<JointPose> phase_positions, int initialIdx);
 

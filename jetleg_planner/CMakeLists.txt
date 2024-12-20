@@ -74,6 +74,15 @@ if(BUILD_TESTING)
   # Find and set up default linters provided by ROS 2
   find_package(ament_lint_auto REQUIRED)
   ament_lint_auto_find_test_dependencies()
+
+  find_package(ament_cmake_gtest REQUIRED)
+
+  # Add unit tests for Finite State Controller
+  ament_add_gtest(finite_state_controller_test test/test_finite_state_controller.cpp)
+  target_include_directories(finite_state_controller_test
+    PUBLIC include
+  )
+  target_link_libraries(finite_state_controller_test ${CONTROL_LIB})
 endif()
 
 # Install artifacts into the appropriate directories
