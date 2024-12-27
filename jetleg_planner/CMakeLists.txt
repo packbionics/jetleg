@@ -43,6 +43,8 @@ add_library(${CONTROL_LIB}
 target_include_directories(${CONTROL_LIB}
   PUBLIC include
 )
+target_compile_options(${CONTROL_LIB} PRIVATE --coverage)
+target_link_libraries(${CONTROL_LIB} -lgcov)
 
 # Add library providing a ROS 2 interface to the
 # generic finite state contorl library
@@ -83,6 +85,16 @@ if(BUILD_TESTING)
     PUBLIC include
   )
   target_link_libraries(finite_state_controller_test ${CONTROL_LIB})
+
+  # Add unit tests for Finite State Controller Service
+  ament_add_gtest(finite_state_controller_service_test test/test_finite_state_controller_service.cpp)
+  target_include_directories(finite_state_controller_service_test
+    PUBLIC include
+  )
+  ament_target_dependencies(finite_state_controller_service_test
+    ${THIS_PACKAGE_INCLUDE_DEPENDS})
+  target_link_libraries(finite_state_controller_service_test ${CONTROL_LIB})
+
 endif()
 
 # Install artifacts into the appropriate directories
