@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 3.8)
 project(jetleg_planner)
 
+# GoogleTest requires at least C++14
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
@@ -47,7 +51,7 @@ target_compile_options(${CONTROL_LIB} PRIVATE --coverage)
 target_link_libraries(${CONTROL_LIB} -lgcov)
 
 # Add library providing a ROS 2 interface to the
-# generic finite state contorl library
+# generic finite state control library
 add_library(
   control_node_lib
   src/finite_state_controller_service.cpp
@@ -78,6 +82,7 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 
   find_package(ament_cmake_gtest REQUIRED)
+  find_package(ament_cmake_gmock REQUIRED)
 
   # Add unit tests for Finite State Controller
   ament_add_gtest(finite_state_controller_test test/test_finite_state_controller.cpp)
@@ -87,13 +92,13 @@ if(BUILD_TESTING)
   target_link_libraries(finite_state_controller_test ${CONTROL_LIB})
 
   # Add unit tests for Finite State Controller Service
-  ament_add_gtest(finite_state_controller_service_test test/test_finite_state_controller_service.cpp)
+  ament_add_gmock(finite_state_controller_service_test test/test_finite_state_controller_service.cpp)
   target_include_directories(finite_state_controller_service_test
-    PUBLIC include
-  )
+    PUBLIC include)
+  target_link_libraries(finite_state_controller_service_test
+      control_node_lib)
   ament_target_dependencies(finite_state_controller_service_test
-    ${THIS_PACKAGE_INCLUDE_DEPENDS})
-  target_link_libraries(finite_state_controller_service_test ${CONTROL_LIB})
+      ${THIS_PACKAGE_INCLUDE_DEPENDS})
 
 endif()
 

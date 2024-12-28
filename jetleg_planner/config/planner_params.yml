@@ -1,5 +1,6 @@
 /jetleg_planner:
   ros__parameters:
+    planning_group: jetleg_leg
     joints:
       - knee_joint
       - ankle_joint

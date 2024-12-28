@@ -86,14 +86,19 @@ public:
   NodePtr getNode();
 
   /**
-   * @brief Get the Move Grp Iface object
+   * @brief Assign a reference to a MoveGroupInterface
    *
-   * MoveGroupInterface has a deleted move constructor, so the return value
-   * does involve creating a copy of the referenced MoveGroupInterface object
-   *
-   * @return moveit::planning_interface::MoveGroupInterface&
+   * @param interfacePtr reference to a MoveGroupInterface
    */
-  moveit::planning_interface::MoveGroupInterface & getMoveGrpIface();
+  void setMoveGroupIfacePtr(
+    std::shared_ptr<moveit::planning_interface::MoveGroupInterface> interfacePtr);
+
+  /**
+   * @brief Get the reference to an MoveGroupInterface object
+   *
+   * @return std::shared_ptr<moveit::planning_interface::MoveGroupInterface>
+   */
+  std::shared_ptr<moveit::planning_interface::MoveGroupInterface> getMoveGroupIfacePtr();
 
 private:
   /** Reference to the associated Finite State Controller */

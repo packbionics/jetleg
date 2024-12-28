@@ -25,10 +25,6 @@ FinStateCtrlService::FinStateCtrlService()
 {
   mNode = std::make_shared<rclcpp::Node>("jetleg_planner");
 
-  mMoveGroupPtr = std::make_shared<moveit::planning_interface::MoveGroupInterface>(
-    mNode,
-    PLANNING_GROUP);
-
   // Get a reference to the service callback
   //
   // Since the callback is a member function, the function needs to be
@@ -40,6 +36,7 @@ FinStateCtrlService::FinStateCtrlService()
     std::placeholders::_1, std::placeholders::_2);
   mService = mNode->create_service<TransitionSrv>(SERVICE_NAME, serviceRef);
 
+  mMoveGroupPtr = nullptr;
   mController = nullptr;
 }
 
@@ -62,7 +59,8 @@ void FinStateCtrlService::doStateTransitionCallback(
     return;
   }
 
-  auto & move_group = getMoveGrpIface();
+  auto move_group_ptr = getMoveGroupIfacePtr();
+  auto & move_group = *move_group_ptr;
 
   RCLCPP_INFO(LOGGER, "Transitionining to next state...");
 
@@ -96,7 +94,14 @@ NodePtr FinStateCtrlService::getNode()
   return mNode;
 }
 
-moveit::planning_interface::MoveGroupInterface & FinStateCtrlService::getMoveGrpIface()
+void FinStateCtrlService::setMoveGroupIfacePtr(
+  std::shared_ptr<moveit::planning_interface::MoveGroupInterface> interfacePtr)
 {
-  return *mMoveGroupPtr;
+  mMoveGroupPtr = interfacePtr;
+}
+
+std::shared_ptr<moveit::planning_interface::MoveGroupInterface> FinStateCtrlService::
+getMoveGroupIfacePtr()
+{
+  return mMoveGroupPtr;
 }

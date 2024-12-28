@@ -19,32 +19,87 @@
 // THE SOFTWARE.
 
 
-#include <gtest/gtest.h>
+// #include <gtest/gtest.h>
+#include <gmock/gmock.h>
 
 #include <service/finite_state_controller_service.hpp>
+
+
+class MockMoveGroupIFace : public moveit::planning_interface::MoveGroupInterface
+{
+public:
+  MockMoveGroupIFace(rclcpp::Node::SharedPtr a, std::string b)
+  : moveit::planning_interface::MoveGroupInterface(a, b)
+  {}
+
+  MOCK_METHOD(bool, setJointValueTarget, (std::vector<double>));
+  MOCK_METHOD(
+    moveit::core::MoveItErrorCode, plan,
+    (moveit::planning_interface::MoveGroupInterface::Plan));
+  MOCK_METHOD(
+    moveit::core::MoveItErrorCode, execute,
+    (moveit::planning_interface::MoveGroupInterface::Plan));
+};
 
 static int ARGC;
 static char ** ARGV;
 
 static void setup()
 {
+  int argc = ARGC;
+  char ** argv = ARGV;
+
   // Create a ROS 2 node
-  // rclcpp::init(argc, argv);
-  // rclcpp::NodeOptions node_options;
-  // node_options.automatically_declare_parameters_from_overrides(true);
+  rclcpp::init(argc, argv);
+  rclcpp::NodeOptions node_options;
+  node_options.automatically_declare_parameters_from_overrides(true);
 }
 
 static void tearDown()
 {
-  // rclcpp::shutdown();
+  rclcpp::shutdown();
 }
 
 TEST(finite_state_controller_service, test_constructor)
 {
   setup();
 
-  // Scenario:
-  EXPECT_EQ(1, 1);
+  // Scenario: Construct a ROS 2 node with a valid reference to a MoveGroupInterface
+  std::shared_ptr<FinStateCtrlService> finStateCtrlNode =
+    std::make_shared<FinStateCtrlService>();
+  auto move_group_node = finStateCtrlNode->getNode();
+
+  EXPECT_NE(move_group_node, nullptr);
+
+  tearDown();
+}
+
+TEST(finite_state_controller_service, test_set_controller)
+{
+  setup();
+
+  // Scenario: Construct a ROS 2 node with a valid reference to a MoveGroupInterface
+  static const std::vector<double> expected_pose_1 = {0.0, 0.0};
+  static const std::vector<double> expected_pose_2 = {0.5, 1.0};
+
+  static const std::vector<std::vector<double>> joint_pose_seq_1 =
+  {expected_pose_1, expected_pose_2};
+  FinStateCtrlPtr ptr = std::make_shared<FinStateCtrl>(joint_pose_seq_1, 0);
+
+  std::shared_ptr<FinStateCtrlService> finStateCtrlService =
+    std::make_shared<FinStateCtrlService>();
+  auto node_ptr = finStateCtrlService->getNode();
+  finStateCtrlService->setController(ptr);
+
+  // MoveGroupInterface Setup
+  static const std::string PLANNING_GROUP = "jetleg_leg";
+
+  auto move_group_ptr = std::make_shared<MockMoveGroupIFace>(
+    node_ptr,
+    PLANNING_GROUP);
+
+  // Give the service access to plan the motion of the move group
+  finStateCtrlService->setMoveGroupIfacePtr(move_group_ptr);
 
   tearDown();
 }
@@ -52,6 +107,7 @@ TEST(finite_state_controller_service, test_constructor)
 int main(int argc, char ** argv)
 {
   testing::InitGoogleTest(&argc, argv);
+  testing::InitGoogleMock(&argc, argv);
 
   ARGC = argc;
   ARGV = argv;

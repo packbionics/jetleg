@@ -28,6 +28,11 @@
 
 static const rclcpp::Logger LOGGER = rclcpp::get_logger("jetleg_planner");
 
+// static std::vector<std::vector<double>> extractPoses()
+// {
+
+// }
+
 int main(int argc, char ** argv)
 {
   // Create a ROS 2 node
@@ -35,12 +40,25 @@ int main(int argc, char ** argv)
   rclcpp::NodeOptions node_options;
   node_options.automatically_declare_parameters_from_overrides(true);
 
-  std::shared_ptr<FinStateCtrlService> finStateCtrlNode = std::make_shared<FinStateCtrlService>();
-  auto move_group_node = finStateCtrlNode->getNode();
+  // Construct an instance of the planning service
+  std::shared_ptr<FinStateCtrlService> finStateCtrlService =
+    std::make_shared<FinStateCtrlService>();
+
+  // Retrieve an interface to the move group
+  auto move_group_node = finStateCtrlService->getNode();
 
   // Load any structured parameters
   auto param_listener = std::make_shared<jetleg_planner::ParamListener>(move_group_node);
   auto params = param_listener->get_params();
+
+  static const std::string PLANNING_GROUP = params.planning_group;
+
+  auto move_group_ptr = std::make_shared<moveit::planning_interface::MoveGroupInterface>(
+    move_group_node,
+    PLANNING_GROUP);
+
+  // Give the service access to plan the motion of the move group
+  finStateCtrlService->setMoveGroupIfacePtr(move_group_ptr);
 
   // Next get the current set of joint values for the group.
   std::vector<std::vector<double>> phase_positions;
@@ -69,19 +87,7 @@ int main(int argc, char ** argv)
   // Set a controller to handle gait phase transitions
   std::shared_ptr<FinStateCtrl> finiteStateController = std::make_shared<FinStateCtrl>(
     phase_positions, 0);
-  finStateCtrlNode->setController(finiteStateController);
-
-  // MoveGroupInterface Setup
-  static const std::string PLANNING_GROUP = "jetleg_leg";
-  moveit::planning_interface::MoveGroupInterface & move_group = finStateCtrlNode->getMoveGrpIface();
-
-  // Getting Basic Information
-  RCLCPP_INFO(LOGGER, "Planning frame: %s", move_group.getPlanningFrame().c_str());
-
-  RCLCPP_INFO(LOGGER, "Available Planning Groups:");
-  std::copy(
-    move_group.getJointModelGroupNames().begin(), move_group.getJointModelGroupNames().end(),
-    std::ostream_iterator<std::string>(std::cout, ", "));
+  finStateCtrlService->setController(finiteStateController);
 
   // Spin the ROS 2 node
   rclcpp::executors::SingleThreadedExecutor executor;

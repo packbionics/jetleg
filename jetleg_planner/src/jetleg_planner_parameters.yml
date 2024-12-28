@@ -1,5 +1,11 @@
 jetleg_planner:
 
+  # To identify which MoveGroup to control
+  planning_group:
+    type: string
+    validation:
+      not_empty<>: null
+
   # To identify controllable joints
   joints:
     type: string_array
