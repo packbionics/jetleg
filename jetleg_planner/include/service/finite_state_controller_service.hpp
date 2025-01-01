@@ -34,6 +34,8 @@
 #include <controller/finite_state_controller.hpp>
 #include <typedef.hpp>
 
+#include <planning/planner_interface.hpp>
+
 
 /**
  * @brief Manages ROS 2 services or other channels related to finite state control
