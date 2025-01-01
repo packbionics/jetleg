@@ -25,20 +25,12 @@
 #include <service/finite_state_controller_service.hpp>
 
 
-class MockMoveGroupIFace : public moveit::planning_interface::MoveGroupInterface
+class MockMoveGroupIFace : public MoveGroupPlanner
 {
 public:
-  MockMoveGroupIFace(rclcpp::Node::SharedPtr a, std::string b)
-  : moveit::planning_interface::MoveGroupInterface(a, b)
-  {}
-
-  MOCK_METHOD(bool, setJointValueTarget, (std::vector<double>));
-  MOCK_METHOD(
-    moveit::core::MoveItErrorCode, plan,
-    (moveit::planning_interface::MoveGroupInterface::Plan));
-  MOCK_METHOD(
-    moveit::core::MoveItErrorCode, execute,
-    (moveit::planning_interface::MoveGroupInterface::Plan));
+  MOCK_METHOD(bool, setGoal, (std::vector<double>));
+  MOCK_METHOD(void, plan, ());
+  MOCK_METHOD(void, execute, ());
 };
 
 static int ARGC;
@@ -94,9 +86,7 @@ TEST(finite_state_controller_service, test_set_controller)
   // MoveGroupInterface Setup
   static const std::string PLANNING_GROUP = "jetleg_leg";
 
-  auto move_group_ptr = std::make_shared<MockMoveGroupIFace>(
-    node_ptr,
-    PLANNING_GROUP);
+  auto move_group_ptr = std::make_shared<MockMoveGroupIFace>();
 
   // Give the service access to plan the motion of the move group
   finStateCtrlService->setMoveGroupIfacePtr(move_group_ptr);

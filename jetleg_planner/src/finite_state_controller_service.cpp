@@ -60,7 +60,6 @@ void FinStateCtrlService::doStateTransitionCallback(
   }
 
   auto move_group_ptr = getMoveGroupIfacePtr();
-  auto & move_group = *move_group_ptr;
 
   RCLCPP_INFO(LOGGER, "Transitionining to next state...");
 
@@ -69,19 +68,18 @@ void FinStateCtrlService::doStateTransitionCallback(
   mController->next(joint_group_positions);
 
   // Assigns the vector of joint positions as the goal/target
-  bool within_bounds = move_group.setJointValueTarget(joint_group_positions);
+  bool within_bounds = move_group_ptr->setGoal(joint_group_positions);
   if (!within_bounds) {
     RCLCPP_WARN(
       LOGGER,
       "Target joint position(s) were outside of limits, but we will plan and clamp to the limits ");
   }
 
-  moveit::planning_interface::MoveGroupInterface::Plan my_plan;
-
-  bool success = (move_group.plan(my_plan) == moveit::core::MoveItErrorCode::SUCCESS);
+  move_group_ptr->plan();
+  bool success = (move_group_ptr->getStatusCode() == moveit::core::MoveItErrorCode::SUCCESS);
   RCLCPP_INFO(LOGGER, "Visualizing plan (joint space goal) %s", success ? "" : "FAILED");
 
-  move_group.execute(my_plan);
+  move_group_ptr->execute();
 }
 
 void FinStateCtrlService::setController(FinStateCtrlPtr controller)
@@ -94,14 +92,12 @@ NodePtr FinStateCtrlService::getNode()
   return mNode;
 }
 
-void FinStateCtrlService::setMoveGroupIfacePtr(
-  std::shared_ptr<moveit::planning_interface::MoveGroupInterface> interfacePtr)
+void FinStateCtrlService::setMoveGroupIfacePtr(std::shared_ptr<MoveGroupPlanner> interfacePtr)
 {
   mMoveGroupPtr = interfacePtr;
 }
 
-std::shared_ptr<moveit::planning_interface::MoveGroupInterface> FinStateCtrlService::
-getMoveGroupIfacePtr()
+std::shared_ptr<MoveGroupPlanner> FinStateCtrlService::getMoveGroupIfacePtr()
 {
   return mMoveGroupPtr;
 }

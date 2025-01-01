@@ -22,7 +22,6 @@
 #ifndef SERVICE__FINITE_STATE_CONTROLLER_SERVICE_HPP_
 #define SERVICE__FINITE_STATE_CONTROLLER_SERVICE_HPP_
 
-#include <moveit/move_group_interface/move_group_interface.h>
 
 #include <memory>
 #include <string>
@@ -35,6 +34,7 @@
 #include <typedef.hpp>
 
 #include <planning/planner_interface.hpp>
+#include "planning/move_group_planner.hpp"
 
 
 /**
@@ -92,15 +92,14 @@ public:
    *
    * @param interfacePtr reference to a MoveGroupInterface
    */
-  void setMoveGroupIfacePtr(
-    std::shared_ptr<moveit::planning_interface::MoveGroupInterface> interfacePtr);
+  void setMoveGroupIfacePtr(std::shared_ptr<MoveGroupPlanner> interfacePtr);
 
   /**
    * @brief Get the reference to an MoveGroupInterface object
    *
    * @return std::shared_ptr<moveit::planning_interface::MoveGroupInterface>
    */
-  std::shared_ptr<moveit::planning_interface::MoveGroupInterface> getMoveGroupIfacePtr();
+  std::shared_ptr<MoveGroupPlanner> getMoveGroupIfacePtr();
 
 private:
   /** Reference to the associated Finite State Controller */
@@ -113,7 +112,7 @@ private:
   rclcpp::Service<TransitionSrv>::SharedPtr mService;
 
   /** Reference to move_group interface */
-  std::shared_ptr<moveit::planning_interface::MoveGroupInterface> mMoveGroupPtr;
+  std::shared_ptr<MoveGroupPlanner> mMoveGroupPtr;
 
   const std::string SERVICE_NAME = "transition_leg_state";
   const std::string PLANNING_GROUP = "jetleg_leg";

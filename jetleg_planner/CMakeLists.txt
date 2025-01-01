@@ -54,7 +54,7 @@ target_link_libraries(${CONTROL_LIB} -lgcov)
 # generic finite state control library
 add_library(
   control_node_lib
-  src/finite_state_controller_service.cpp
+  src/finite_state_controller_service.cpp src/move_group_planner.cpp
 )
 target_include_directories(control_node_lib
   PUBLIC include

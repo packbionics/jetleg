@@ -53,12 +53,11 @@ int main(int argc, char ** argv)
 
   static const std::string PLANNING_GROUP = params.planning_group;
 
-  auto move_group_ptr = std::make_shared<moveit::planning_interface::MoveGroupInterface>(
-    move_group_node,
-    PLANNING_GROUP);
+  auto planner_ptr = std::make_shared<MoveGroupPlanner>();
+  planner_ptr->init(move_group_node, PLANNING_GROUP);
 
   // Give the service access to plan the motion of the move group
-  finStateCtrlService->setMoveGroupIfacePtr(move_group_ptr);
+  finStateCtrlService->setMoveGroupIfacePtr(planner_ptr);
 
   // Next get the current set of joint values for the group.
   std::vector<std::vector<double>> phase_positions;
