@@ -47,8 +47,8 @@ FinStateCtrlService::FinStateCtrlService(const FinStateCtrlPtr & controller)
 }
 
 void FinStateCtrlService::doStateTransitionCallback(
-  const TransReqPtr request,
-  TransRespPtr response)
+  const TransReqPtr /* request */,
+  TransRespPtr /* response */)
 {
   NodePtr node = getNode();
   rclcpp::Logger LOGGER = node->get_logger();
@@ -72,7 +72,8 @@ void FinStateCtrlService::doStateTransitionCallback(
   if (!within_bounds) {
     RCLCPP_WARN(
       LOGGER,
-      "Target joint position(s) were outside of limits, but we will plan and clamp to the limits ");
+      "Target joint position(s) were outside of limits,"
+      " but we will plan and clamp to the limits ");
   }
 
   move_group_ptr->plan();

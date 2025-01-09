@@ -44,12 +44,12 @@
  */
 class FinStateCtrlService
 {
+public:
   typedef std_srvs::srv::Empty TransitionSrv;
 
   typedef std::shared_ptr<TransitionSrv::Request> TransReqPtr;
   typedef std::shared_ptr<TransitionSrv::Response> TransRespPtr;
 
-public:
   /**
    * @brief Construct a new Finite State Controller Node object
    *

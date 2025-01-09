@@ -25,13 +25,40 @@
 #include <service/finite_state_controller_service.hpp>
 
 
-class MockMoveGroupIFace : public MoveGroupPlanner
+// Note: Includes boiler-plate code to mimic what Google Testing framework
+// should do automatically
+class FakeMoveGroupIFace : public MoveGroupPlanner
 {
 public:
-  MOCK_METHOD(bool, setGoal, (std::vector<double>));
-  MOCK_METHOD(void, plan, ());
-  MOCK_METHOD(void, execute, ());
+  FakeMoveGroupIFace()
+  {
+    set_goal_called_n_times = 0;
+    plan_called_n_times = 0;
+    execute_called_n_times = 0;
+  }
+
+  bool setGoal(const std::vector<double> &) override {set_goal_called_n_times++; return true;}
+  void plan() override {plan_called_n_times++;}
+  void execute() override {execute_called_n_times++;}
+
+  unsigned int getNumberTimesSetGoalCalled() {return set_goal_called_n_times;}
+  unsigned int getNumberTimesPlanCalled() {return plan_called_n_times;}
+  unsigned int getNumberTimesExecuteCalled() {return execute_called_n_times;}
+
+private:
+  unsigned int set_goal_called_n_times;
+  unsigned int plan_called_n_times;
+  unsigned int execute_called_n_times;
 };
+
+// TODO(agbrown6): Make this work
+// class MockMoveGroupIFace : public FakeMoveGroupIFace
+// {
+// public:
+//   MOCK_METHOD(bool, setGoal, (const std::vector<double> &), (override));
+//   MOCK_METHOD(void, plan, (), (override));
+//   MOCK_METHOD(void, execute, (), (override));
+// };
 
 static int ARGC;
 static char ** ARGV;
@@ -86,10 +113,27 @@ TEST(finite_state_controller_service, test_set_controller)
   // MoveGroupInterface Setup
   static const std::string PLANNING_GROUP = "jetleg_leg";
 
-  auto move_group_ptr = std::make_shared<MockMoveGroupIFace>();
+  auto move_group_ptr = std::make_shared<FakeMoveGroupIFace>();
 
   // Give the service access to plan the motion of the move group
   finStateCtrlService->setMoveGroupIfacePtr(move_group_ptr);
+
+  FinStateCtrlService::TransReqPtr req_msg;
+  FinStateCtrlService::TransRespPtr resp_msg;
+
+  finStateCtrlService->doStateTransitionCallback(req_msg, resp_msg);
+
+  // Should check that move_group_ptr->setGoal(testing::_) runs exactly once
+  // EXPECT_CALL(*move_group_ptr, setGoal(testing::_))
+  // .Times(1);
+  EXPECT_EQ(1, move_group_ptr->getNumberTimesSetGoalCalled());
+  EXPECT_EQ(1, move_group_ptr->getNumberTimesPlanCalled());
+  EXPECT_EQ(1, move_group_ptr->getNumberTimesExecuteCalled());
+
+  // EXPECT_CALL(*move_group_ptr, plan())
+  // .Times(1);
+  // EXPECT_CALL(*move_group_ptr, execute())
+  // .Times(1);
 
   tearDown();
 }

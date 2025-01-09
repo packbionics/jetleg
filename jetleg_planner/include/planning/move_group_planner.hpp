@@ -34,8 +34,10 @@
 class MoveGroupPlanner : public PlannerInterface
 {
 public:
+  virtual ~MoveGroupPlanner();
+
   void init(rclcpp::Node::SharedPtr node, std::string planning_group);
-  bool setGoal(const std::vector<double> & positions);
+  virtual bool setGoal(const std::vector<double> & positions);
 
   moveit::core::MoveItErrorCode getStatusCode();
 
