@@ -32,6 +32,9 @@ install(DIRECTORY config
   DESTINATION share/${PROJECT_NAME}/
 )
 
+install(DIRECTORY assets
+  DESTINATION share/${PROJECT_NAME}/)
+
 # Install Python executables
 install(PROGRAMS
   scripts/jetleg_pointcloud_proc.py

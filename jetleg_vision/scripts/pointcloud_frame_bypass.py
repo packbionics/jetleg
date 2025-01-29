@@ -29,6 +29,11 @@ from sensor_msgs.msg import PointCloud2
 
 
 class PointCloudProcessing(Node):
+    """
+    This node is only responsible for updating the frame_id of a PointCloud2 msg.
+    This is typically used to represent the point cloud in a different 
+    transformation in case the original frame_id is an error in some way.
+    """
 
     def __init__(self):
         super().__init__('frame_id_bypass_node')

@@ -22,12 +22,31 @@
 from launch_ros.actions import ComposableNodeContainer
 from launch_ros.descriptions import ComposableNode
 from launch_ros.actions import Node
+from launch_ros.substitutions import FindPackageShare
+
 from launch import LaunchDescription
+from launch.launch_description_sources import PythonLaunchDescriptionSource
+from launch.actions import IncludeLaunchDescription
+from launch.substitutions import PathJoinSubstitution
+from launch.conditions import IfCondition
 
 
 def generate_launch_description():
 
     ld = LaunchDescription()
+
+    should_process_depth_image = IfCondition(['False'])
+
+    # Start the testing environment
+    env = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            PathJoinSubstitution([
+                FindPackageShare('jetleg_vision'), 
+                'launch', 'env', 'spawn_test_env.launch.py'
+            ])
+        )
+    )
+    ld.add_action(env)
 
     # launch plugin through rclcpp_components container
     pointcloud_xyz_node = ComposableNodeContainer(
@@ -47,8 +66,9 @@ def generate_launch_description():
                 ),
             ],
             output='screen',
+            condition=should_process_depth_image
     )
-    # ld.add_action(pointcloud_xyz_node)
+    ld.add_action(pointcloud_xyz_node)
 
     # pointcloud processing node
     jetleg_pointcloud_restrictor = Node(
