@@ -56,20 +56,7 @@ class PointCloudProcessing(Node):
 
     def cloud_callback(self, msg: PointCloud2):
 
-        # Parse the bytes as float types
-        # Reshape the data to form multiple points
-        # This may assume all attributes of the points are the same type
-        cloud_array = np.frombuffer(msg.data, dtype=np.float32).reshape((msg.height, msg.width, 8))
-
-        # Number of attributes of the points to be processed
-        num_fields = 4
-
-        # Reshape the cloud data to represent a list of points with some
-        # number of fields
-        cloud_array = cloud_array[:, :, :num_fields]
-        cloud_array = cloud_array.reshape((
-            cloud_array.shape[0] * cloud_array.shape[1], num_fields
-        ))
+        cloud_array = points_transform.load_pointcloud(msg)
 
         # Do not perform further processing if the there is no point data
         if cloud_array.shape[0] == 0:
@@ -112,19 +99,6 @@ class PointCloudProcessing(Node):
         y_minimum = self.params.y_min
         y_maximum = self.params.y_max
 
-        # # Remove invalid points
-        # cloud_array = cloud_array[np.isfinite(cloud_array).any(axis=1)]
-        # cloud_array = cloud_array[~np.isnan(cloud_array).any(axis=1)]
-
-        # # y view restriction
-        # cloud_restricted = cloud_array[np.where(cloud_array[:, 1] <= y_maximum)]
-        # cloud_restricted = cloud_restricted[np.where(cloud_restricted[:, 1] >= y_minimum)]
-
-        # # x view restriction
-        # cloud_restricted = cloud_restricted[np.where(cloud_restricted[:, 0] <= x_maximum)]
-        # cloud_restricted = cloud_restricted[np.where(cloud_restricted[:, 0] >= x_minimum)]
-
-        # return cloud_restricted
         return points_transform.restrict_pointcloud(cloud_array, (x_minimum, x_maximum), (y_minimum, y_maximum))
 
 

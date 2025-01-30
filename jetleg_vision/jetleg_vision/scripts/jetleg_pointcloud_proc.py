@@ -36,6 +36,7 @@ import time
 from cv_bridge import CvBridge
 
 from jetleg_vision_params.pointcloud_proc_parameters import pointcloud_proc
+from jetleg_vision_params import points_transform
 
 
 class PointCloudProcessing(Node):
@@ -70,23 +71,13 @@ class PointCloudProcessing(Node):
 
 
     def cloud_callback(self, msg):
-        cloud_array = np.frombuffer(msg.data, dtype=np.float32).reshape((msg.height, msg.width, 8))
-
-        num_fields = 4
-
-        cloud_array = cloud_array[:, :, :num_fields]
-        cloud_array = cloud_array.reshape((
-            cloud_array.shape[0] * cloud_array.shape[1], num_fields
-        ))
+        cloud_array = points_transform.load_pointcloud(msg)
 
         # Do not process further if there are no points
         if cloud_array.shape[0] == 0:
             return
 
         cloud_array = cloud_array[:, :3]
-
-        cloud_array = cloud_array[np.isfinite(cloud_array).any(axis=1)]
-        cloud_array = cloud_array[~np.isnan(cloud_array).any(axis=1)]
 
         heightmap = self.convert_heightmap(cloud_array)
         if heightmap is not None:
@@ -108,13 +99,8 @@ class PointCloudProcessing(Node):
         y_minimum = self.params.y_min
         y_maximum = self.params.y_max
 
-        # y view restriction
-        cloud_restricted = cloud_array[np.where(cloud_array[:, 1] <= y_maximum)]
-        cloud_restricted = cloud_restricted[np.where(cloud_restricted[:, 1] >= y_minimum)]
-
-        # x view restriction
-        cloud_restricted = cloud_restricted[np.where(cloud_restricted[:, 0] <= x_maximum)]
-        cloud_restricted = cloud_restricted[np.where(cloud_restricted[:, 0] >= x_minimum)]
+        # Restrict the points to within a region
+        cloud_restricted = points_transform.restrict_pointcloud(cloud_array, (x_minimum, x_maximum), (y_minimum, y_maximum))
 
         assert cloud_restricted.shape[0] > 0
 
