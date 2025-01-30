@@ -29,11 +29,17 @@ from sensor_msgs.msg import PointCloud2
 
 import numpy as np
 
+from jetleg_vision_params.pointcloud_proc_parameters import pointcloud_proc
+
 
 class PointCloudProcessing(Node):
 
     def __init__(self):
         super().__init__('jetleg_pointcloud_restrictor')
+
+        self.param_listener = pointcloud_proc.ParamListener(self)
+        self.params = self.param_listener.get_params()
+
         self.pointcloud_sub = self.create_subscription(
             PointCloud2,
             '/pointcloud/input',
@@ -98,12 +104,12 @@ class PointCloudProcessing(Node):
         # clip point cloud according to current position
 
         ## Lateral (left/right) direction
-        x_minimum = -1.0
-        x_maximum = 1.0
+        x_minimum = self.params.x_min
+        x_maximum = self.params.x_max
 
         ## Forward direction
-        y_minimum = 0
-        y_maximum = 1.0
+        y_minimum = self.params.y_min
+        y_maximum = self.params.y_max
 
         # Remove invalid points
         cloud_array = cloud_array[np.isfinite(cloud_array).any(axis=1)]

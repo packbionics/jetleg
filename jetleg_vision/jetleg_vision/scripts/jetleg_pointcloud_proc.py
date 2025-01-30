@@ -52,12 +52,6 @@ class PointCloudProcessing(Node):
             self.cloud_callback,
             qos_profile_sensor_data
         )
-        self.pose_sub = self.create_subscription(
-            PoseStamped,
-            'camera/state',
-            self.pose_callback,
-            qos_profile_sensor_data
-        )
 
         self.heightmap_publisher = self.create_publisher(
             Image,
@@ -73,37 +67,7 @@ class PointCloudProcessing(Node):
         self.bridge = CvBridge()
 
         self.time_start = time.time()
-        self.pose = None
 
-    # transforms point cloud from map frame to base_link frame
-    def transform_cloud(self, cloud_array, pose):
-        # get rotation from quaternion
-        r = R.from_quat([self.pose.pose.orientation.x,
-                        self.pose.pose.orientation.y,
-                        self.pose.pose.orientation.z,
-                        self.pose.pose.orientation.w])
-
-        # remove x,y component rotation
-        eulers = r.as_euler('xyz')
-        eulers[0] = 0.0
-        eulers[1] = 0.0
-        eulers[2] = -eulers[2]
-        r_xz = R.from_euler('xyz', eulers)
-        # get translation vector
-        translation = np.array([
-            self.pose.pose.position.x,
-            self.pose.pose.position.y,
-            self.pose.pose.position.z
-        ])
-
-        # transform point cloud
-        transformed_cloud = r_xz.apply(cloud_array) - r_xz.apply(translation)
-        return transformed_cloud
-
-    def pose_callback(self, msg):
-        # print pose positions
-        # self.get_logger().info('pose: %s' % str(msg.pose.position))
-        self.pose = msg
 
     def cloud_callback(self, msg):
         cloud_array = np.frombuffer(msg.data, dtype=np.float32).reshape((msg.height, msg.width, 8))
@@ -115,19 +79,14 @@ class PointCloudProcessing(Node):
             cloud_array.shape[0] * cloud_array.shape[1], num_fields
         ))
 
-        # if self.pose is None:
-        #     return
-
         # Do not process further if there are no points
         if cloud_array.shape[0] == 0:
             return
 
         cloud_array = cloud_array[:, :3]
-        # cloud_array[:, [0, 1]] = cloud_array[:, [1, 0]]
 
         cloud_array = cloud_array[np.isfinite(cloud_array).any(axis=1)]
         cloud_array = cloud_array[~np.isnan(cloud_array).any(axis=1)]
-        # cloud_array = self.transform_cloud(cloud_array, self.pose)
 
         heightmap = self.convert_heightmap(cloud_array)
         if heightmap is not None:
@@ -141,11 +100,11 @@ class PointCloudProcessing(Node):
         # clip point cloud according to current position
         resolution = self.params.resolution
 
-        ## Forward direction
+        ## Lateral (left/right) direction
         x_minimum = self.params.x_min
         x_maximum = self.params.x_max
 
-        ## Lateral (left/right) direction
+        ## Forward direction
         y_minimum = self.params.y_min
         y_maximum = self.params.y_max
 
