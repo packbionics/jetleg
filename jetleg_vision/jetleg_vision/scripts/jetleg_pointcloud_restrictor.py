@@ -30,6 +30,7 @@ from sensor_msgs.msg import PointCloud2
 import numpy as np
 
 from jetleg_vision_params.pointcloud_proc_parameters import pointcloud_proc
+from jetleg_vision_params import points_transform
 
 
 class PointCloudProcessing(Node):
@@ -98,10 +99,10 @@ class PointCloudProcessing(Node):
 
     def restrict_pointcloud(self, cloud_array):
 
-        # cloud array is (N x 3) array, with each row being [x, y, z]
-        # sort by x,y coordinates into heightmap image pixels
+        # # cloud array is (N x 3) array, with each row being [x, y, z]
+        # # sort by x,y coordinates into heightmap image pixels
 
-        # clip point cloud according to current position
+        # # clip point cloud according to current position
 
         ## Lateral (left/right) direction
         x_minimum = self.params.x_min
@@ -111,19 +112,20 @@ class PointCloudProcessing(Node):
         y_minimum = self.params.y_min
         y_maximum = self.params.y_max
 
-        # Remove invalid points
-        cloud_array = cloud_array[np.isfinite(cloud_array).any(axis=1)]
-        cloud_array = cloud_array[~np.isnan(cloud_array).any(axis=1)]
+        # # Remove invalid points
+        # cloud_array = cloud_array[np.isfinite(cloud_array).any(axis=1)]
+        # cloud_array = cloud_array[~np.isnan(cloud_array).any(axis=1)]
 
-        # y view restriction
-        cloud_restricted = cloud_array[np.where(cloud_array[:, 1] <= y_maximum)]
-        cloud_restricted = cloud_restricted[np.where(cloud_restricted[:, 1] >= y_minimum)]
+        # # y view restriction
+        # cloud_restricted = cloud_array[np.where(cloud_array[:, 1] <= y_maximum)]
+        # cloud_restricted = cloud_restricted[np.where(cloud_restricted[:, 1] >= y_minimum)]
 
-        # x view restriction
-        cloud_restricted = cloud_restricted[np.where(cloud_restricted[:, 0] <= x_maximum)]
-        cloud_restricted = cloud_restricted[np.where(cloud_restricted[:, 0] >= x_minimum)]
+        # # x view restriction
+        # cloud_restricted = cloud_restricted[np.where(cloud_restricted[:, 0] <= x_maximum)]
+        # cloud_restricted = cloud_restricted[np.where(cloud_restricted[:, 0] >= x_minimum)]
 
-        return cloud_restricted
+        # return cloud_restricted
+        return points_transform.restrict_pointcloud(cloud_array, (x_minimum, x_maximum), (y_minimum, y_maximum))
 
 
 def main(args=None):
