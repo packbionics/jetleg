@@ -13,13 +13,7 @@ pointcloud_proc:
     type: double
     default_value: 1.0
 
-  z_min:
-    type: double
-    default_value: 0.5
-  z_max:
-    type: double
-    default_value: 2.0
-
+  # Controls how fine-grained the resolution of the output images are
   resolution:
     type: double
     default_value: 80

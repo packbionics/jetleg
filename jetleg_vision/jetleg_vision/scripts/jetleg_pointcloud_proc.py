@@ -139,14 +139,15 @@ class PointCloudProcessing(Node):
         # sort by x,y coordinates into heightmap image pixels
 
         # clip point cloud according to current position
+        resolution = self.params.resolution
 
         ## Forward direction
-        x_minimum = -1.0
-        x_maximum = 1.0
+        x_minimum = self.params.x_min
+        x_maximum = self.params.x_max
 
         ## Lateral (left/right) direction
-        y_minimum = 0.0
-        y_maximum = 1.0
+        y_minimum = self.params.y_min
+        y_maximum = self.params.y_max
 
         # y view restriction
         cloud_restricted = cloud_array[np.where(cloud_array[:, 1] <= y_maximum)]
@@ -158,8 +159,8 @@ class PointCloudProcessing(Node):
 
         assert cloud_restricted.shape[0] > 0
 
-        map_rows = int((x_maximum - x_minimum) * 42)
-        map_cols = int((y_maximum - y_minimum) * 42)
+        map_rows = int((x_maximum - x_minimum) * resolution)
+        map_cols = int((y_maximum - y_minimum) * resolution)
         heightmap = np.zeros((map_rows, map_cols))
 
         idx_x = 0
@@ -177,13 +178,17 @@ class PointCloudProcessing(Node):
         cloud_restricted -= coord_minimums
         cloud_restricted /= coord_range
 
+        # Populate the heightmap
         for point in cloud_restricted:
             # index is (coordinate-minimum) / pixel spacing
             idx_x = int(point[0])
             idx_y = int(point[1])
+
             if heightmap[idx_x, idx_y] == 0:
+                # Initialize the heightmap with the first point of the bucket
                 heightmap[idx_x, idx_y] = point[2]
             else:
+                # If two points occupy the same bucket, retain the heighest point
                 heightmap[idx_x, idx_y] = max(point[2], heightmap[idx_x, idx_y])
         
         # Switch the row and column pixels after creating the raw map
