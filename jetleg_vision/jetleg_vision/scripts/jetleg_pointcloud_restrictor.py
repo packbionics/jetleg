@@ -48,21 +48,28 @@ class PointCloudProcessing(Node):
         )
 
     def cloud_callback(self, msg: PointCloud2):
+
+        # Parse the bytes as float types
+        # Reshape the data to form multiple points
+        # This may assume all attributes of the points are the same type
         cloud_array = np.frombuffer(msg.data, dtype=np.float32).reshape((msg.height, msg.width, 8))
 
+        # Number of attributes of the points to be processed
         num_fields = 4
 
+        # Reshape the cloud data to represent a list of points with some
+        # number of fields
         cloud_array = cloud_array[:, :, :num_fields]
         cloud_array = cloud_array.reshape((
             cloud_array.shape[0] * cloud_array.shape[1], num_fields
         ))
 
+        # Do not perform further processing if the there is no point data
         if cloud_array.shape[0] == 0:
             return
 
+        # Exclude points that lie outside a specified region
         cloud_array = cloud_array[:, :3]
-        # cloud_array[:, [0, 1]] = cloud_array[:, [1, 0]]
-
         restricted_pointcloud = self.restrict_pointcloud(cloud_array)
 
         # Compute the size of a single point in bytes
@@ -90,13 +97,13 @@ class PointCloudProcessing(Node):
 
         # clip point cloud according to current position
 
-        ## Forward direction
-        x_minimum = -1.5
-        x_maximum = 1.5
-
         ## Lateral (left/right) direction
-        y_minimum = -0.4
-        y_maximum = 0.4
+        x_minimum = -1.0
+        x_maximum = 1.0
+
+        ## Forward direction
+        y_minimum = 0
+        y_maximum = 1.0
 
         # Remove invalid points
         cloud_array = cloud_array[np.isfinite(cloud_array).any(axis=1)]

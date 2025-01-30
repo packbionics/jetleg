@@ -35,11 +35,17 @@ import time
 
 from cv_bridge import CvBridge
 
+from jetleg_vision_params.pointcloud_proc_parameters import pointcloud_proc
+
 
 class PointCloudProcessing(Node):
 
     def __init__(self):
         super().__init__('jetleg_pointcloud_proc')
+
+        self.param_listener = pointcloud_proc.ParamListener(self)
+        self.params = self.param_listener.get_params()
+
         self.pointcloud_sub = self.create_subscription(
             PointCloud2,
             '/zed2i/zed_node/point_cloud/cloud_registered',
@@ -112,6 +118,7 @@ class PointCloudProcessing(Node):
         # if self.pose is None:
         #     return
 
+        # Do not process further if there are no points
         if cloud_array.shape[0] == 0:
             return
 
@@ -134,12 +141,12 @@ class PointCloudProcessing(Node):
         # clip point cloud according to current position
 
         ## Forward direction
-        x_minimum = -1.5
-        x_maximum = 1.5
+        x_minimum = -1.0
+        x_maximum = 1.0
 
         ## Lateral (left/right) direction
-        y_minimum = -0.4
-        y_maximum = 0.4
+        y_minimum = 0.0
+        y_maximum = 1.0
 
         # y view restriction
         cloud_restricted = cloud_array[np.where(cloud_array[:, 1] <= y_maximum)]

@@ -1,0 +1,25 @@
+pointcloud_proc:
+
+  x_min:
+    type: double
+    default_value: -1.0
+  x_max:
+    type: double
+    default_value: 1.0
+  y_min:
+    type: double
+    default_value: 0.0
+  y_max:
+    type: double
+    default_value: 1.0
+
+  z_min:
+    type: double
+    default_value: 0.5
+  z_max:
+    type: double
+    default_value: 2.0
+
+  resolution:
+    type: double
+    default_value: 80
