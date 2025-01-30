@@ -72,15 +72,12 @@ class PointCloudProcessing(Node):
             point_step += 4
 
         # Populate output msg
-        output_msg = PointCloud2()
-
-        output_msg.header = msg.header
-        output_msg.height = 1
-        output_msg.width = restricted_pointcloud.shape[0]
-        output_msg.fields = msg.fields[0:3]
-        output_msg.point_step = point_step
-        output_msg.row_step = point_step * restricted_pointcloud.shape[0]
-        output_msg.data = restricted_pointcloud.tobytes()
+        output_msg = PointCloudProcessing.construct_pointcloud(
+            msg.header,
+            msg.fields[:3],
+            point_step,
+            restricted_pointcloud
+        )
 
         self.pointcloud_pub.publish(output_msg)
 
@@ -100,6 +97,19 @@ class PointCloudProcessing(Node):
         y_maximum = self.params.y_max
 
         return points_transform.restrict_pointcloud(cloud_array, (x_minimum, x_maximum), (y_minimum, y_maximum))
+    
+    def construct_pointcloud(header, fields, point_step, pointcloud):
+        output_msg = PointCloud2()
+
+        output_msg.header = header
+        output_msg.height = 1
+        output_msg.width = pointcloud.shape[0]
+        output_msg.fields = fields[0:3]
+        output_msg.point_step = point_step
+        output_msg.row_step = point_step * pointcloud.shape[0]
+        output_msg.data = pointcloud.tobytes()
+
+        return output_msg
 
 
 def main(args=None):
