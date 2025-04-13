@@ -99,4 +99,13 @@ def generate_launch_description():
     )
     ld.add_action(jetleg_pointcloud_proc)
 
+    # pointcloud processing node
+    jetleg_pointcloud_cluster = Node(
+        package='jetleg_vision',
+        executable='jetleg_pointcloud_cluster.py',
+        remappings=[('points', '/reframed_points')],
+        output="screen"
+    )
+    ld.add_action(jetleg_pointcloud_cluster)
+
     return ld

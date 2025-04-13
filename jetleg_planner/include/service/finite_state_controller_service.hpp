@@ -81,6 +81,13 @@ public:
   void setController(FinStateCtrlPtr controller);
 
   /**
+   * @brief Get the controller used to retrieve the next pose
+   *
+   * @return FinStateCtrlPtr
+   */
+  FinStateCtrlPtr getController();
+
+  /**
    * @brief Get the Node object
    *
    * @return NodePtr Reference to the associated ROS 2 Node handle

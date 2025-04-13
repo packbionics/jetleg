@@ -88,6 +88,11 @@ void FinStateCtrlService::setController(FinStateCtrlPtr controller)
   mController = controller;
 }
 
+FinStateCtrlPtr FinStateCtrlService::getController()
+{
+  return mController;
+}
+
 NodePtr FinStateCtrlService::getNode()
 {
   return mNode;

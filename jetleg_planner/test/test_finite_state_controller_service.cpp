@@ -138,6 +138,50 @@ TEST(finite_state_controller_service, test_set_controller)
   tearDown();
 }
 
+TEST(finite_state_controller_service, test_null_controller)
+{
+  setup();
+
+  // Scenario: Construct a ROS 2 node with a valid reference to a MoveGroupInterface
+  static const std::vector<double> expected_pose_1 = {0.0, 0.0};
+  static const std::vector<double> expected_pose_2 = {0.5, 1.0};
+
+  static const std::vector<std::vector<double>> joint_pose_seq_1 =
+  {expected_pose_1, expected_pose_2};
+  FinStateCtrlPtr ptr = std::make_shared<FinStateCtrl>(joint_pose_seq_1, 0);
+
+  std::shared_ptr<FinStateCtrlService> finStateCtrlService =
+    std::make_shared<FinStateCtrlService>();
+  // auto node_ptr = finStateCtrlService->getNode();
+  finStateCtrlService->setController(nullptr);
+  EXPECT_EQ(finStateCtrlService->getController(), nullptr);
+
+  // MoveGroupInterface Setup
+  static const std::string PLANNING_GROUP = "jetleg_leg";
+
+  auto move_group_ptr = std::make_shared<FakeMoveGroupIFace>();
+
+  // Give the service access to plan the motion of the move group
+  finStateCtrlService->setMoveGroupIfacePtr(move_group_ptr);
+
+  FinStateCtrlService::TransReqPtr req_msg;
+  FinStateCtrlService::TransRespPtr resp_msg;
+
+  finStateCtrlService->doStateTransitionCallback(req_msg, resp_msg);
+
+  // Should check that move_group_ptr->setGoal(testing::_) is not called
+  EXPECT_EQ(0, move_group_ptr->getNumberTimesSetGoalCalled());
+  EXPECT_EQ(0, move_group_ptr->getNumberTimesPlanCalled());
+  EXPECT_EQ(0, move_group_ptr->getNumberTimesExecuteCalled());
+
+  // EXPECT_CALL(*move_group_ptr, plan())
+  // .Times(1);
+  // EXPECT_CALL(*move_group_ptr, execute())
+  // .Times(1);
+
+  tearDown();
+}
+
 int main(int argc, char ** argv)
 {
   testing::InitGoogleTest(&argc, argv);
